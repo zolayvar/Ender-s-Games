@@ -1,0 +1,481 @@
+<head>
+	<title>Tunnels</title>
+ 	<style type="text/css">
+		@import "http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/resources/dojo.css";
+		@import "http://ajax.googleapis.com/ajax/libs/dojo/1.5/dijit/themes/claro/claro.css";
+		body {
+			background: #777;
+			color: #fff;
+			font: 24px Helvetica Nueue;
+			padding: 0.5em 1em;
+		};
+	</style>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dijit/dijit.xd.js"></script>
+    <script type="text/javascript" src="raphael.js"></script>
+	<script type="text/javascript" src="random.js"></script>
+    <script type="text/javascript">
+		function constants(){
+			border = 10;
+			penwidth = 900;
+			penheight = 600;
+			interval = 15;
+			accelRate = 1;  
+			tunnelTurn = 10;
+			drillTurn = 5;
+			xscale = .0275;
+			yscale = .0225;
+			shipPath = "m 18.571386,148.07647 110.000004,16.42857 149.2858,165 454.2857,84.28572 -247.1429,0 36.4286,17.85714 112.1428,0 0,8.57143 49.2858,0.71428 0,31.42858 -49.2858,0.71428 0.7143,8.57143 -114.2857,-1.42857 -35,17.85714 247.8572,0 -455,84.28572 -152.1429,165.71428 -110.000004,14.28572 56.4286,-41.42858 48.571404,-187.14285 -30.714304,-17.14286 0,-34.28571 31.428604,-16.42858 47.1428,0.71429 -1.4285,-20.71429 -46.4286,0 -30.714304,-16.42857 1.4286,-34.28571 30.000004,-17.14286 -47.857204,-187.14286 -55,-42.85714 z";
+			tunnelFric = .15;
+			drillFric = .35;
+			bulletSize = 3;
+			bulletLength = 150;
+			tunMultiplier = 1.4;
+			killDist = 15;
+			trapSize = 10;
+			trapLimit = 10;
+			boltPath = ",296.98486 80.8122,74.75128 -151.52288,299.00516 319.2082,-317.1879 -84.85281,-78.7919 137.38074,-274.7615 z";
+			boltscale = .03;
+			bombPath = ",352.8979 20.35714,2.67857 22.32143,10.71428 112.5,-197.5 -63.21429,-29.28571 -67.14285,-14.28572 -63.92858,0 -66.07142,13.92858 -73.21429,31.78571 112.85714,197.85714 20.35715,-11.07143 23.21428,-4.28571 11.07143,-0.71429 0.71429,35.71429 22.5,0.35714 24.28571,19.28572 17.5,31.07143 0.35714,33.57142 -5.71428,13.21429 31.78571,19.64286 7.14286,-8.92857 5.35714,-17.14286 2.14286,-28.21429 224.64286,2.14286 -5.35715,67.14286 -15.71428,53.21428 -33.92857,63.57143 -41.78572,50 L 540,739.50504 426.42857,545.93361 447.5,531.6479 l 13.21429,-15.35715 6.07142,-10.71428 -32.5,-19.64286 -18.21428,22.14286 -27.14286,11.42857 -26.42857,0 -22.5,-7.5 -15.35714,-15 -6.07143,-9.64286 -32.14286,20.35714 7.85714,14.64286 15.35715,13.92857 16.42857,10 -115,194.64286 -48.92857,-35 -50,-54.28571 -36.428574,-64.64286 -19.642857,-61.42857 -7.5,-72.14286 225.357141,-0.71429 0.71429,27.85715 6.42857,20.35714 5,7.5 32.14286,-21.78571 -5.35715,-11.42858 -2.5,-21.78571 3.92857,-27.5 14.64286,-20.35714 24.28572,-14.28572 21.07142,-3.57143 0.71429,-35.35714 10.89286,0.53572 z";
+			bombscale = .03;
+			bombLimit = 3;
+			setAI = true;
+		}
+		function setup(){
+			constants();
+			pen = new Raphael(border, border, penwidth, penheight);
+			outline = pen.rect(2, 2, penwidth+4, penheight+4, 10);
+			outline.attr({fill: '#000', stroke: "#fff", 'stroke-fill': '#fff', opacity: '.6', 'stroke-width': '4px', 'stroke-opactiy': '.3'});
+			pen = new Raphael(border, border, border+penwidth, border+penheight);
+			back = pen.image("starField.jpg",0,0,penwidth,penheight).toBack();
+			var left = new dude(50,penheight/2, 0, setAI);
+			var right = new dude(penwidth-50,penheight/2, 180, false);
+			right.other = left;
+			left.other = right;
+			dojo.connect(null, 'onkeydown', function(e){
+				if (e.keyCode == dojo.keys.UP_ARROW){
+					right.startAccel();
+				}
+				if (e.keyCode == dojo.keys.LEFT_ARROW){
+					right.startTurn(-1);
+				}
+				if (e.keyCode == dojo.keys.RIGHT_ARROW){
+					right.startTurn(1);
+				}
+				if (e.keyCode == 88){
+					left.startAccel();
+				}
+				if (e.keyCode == 90){
+					left.startTurn(-1);
+				}
+				if (e.keyCode == 67){
+					left.startTurn(1);
+				}
+			});	
+			dojo.connect(null, 'onkeyup', function(e) {
+				if (e.keyCode == dojo.keys.UP_ARROW){
+					right.stopAccel();
+				}
+				if (e.keyCode == dojo.keys.LEFT_ARROW){
+					right.stopTurn();
+				}
+				if (e.keyCode == dojo.keys.RIGHT_ARROW){
+					right.stopTurn();
+				}
+				if (e.keyCode == 88){
+					left.stopAccel();
+				}
+				if (e.keyCode == 90){
+					left.stopTurn();
+				}
+				if (e.keyCode == 67){
+					left.stopTurn();
+				}
+			});
+			dojo.connect(null, 'onkeypress', function(e) {
+				if (e.keyCode == 108) {
+					right.fire();
+				}
+				if (e.keyCode == 113) {
+					left.fire();
+				}
+				if (e.keyCode == 119) {
+					left.trap();
+				}
+				if (e.keyCode == 107) {
+					right.trap();
+				}
+				if (e.keyCode == 44) {
+					right.bomb();
+				}
+				if (e.keyCode == 97) {
+					left.bomb();
+				}
+			});
+			setInterval(function(){
+				left.go();
+				right.go();
+			}, 75);
+		}		
+		dojo.declare("bolt", null, {
+			constructor: function(x, y){
+				this.x = x;
+				this.y = y;
+				this.me = pen.path("m " +x + ","+y + ' '+boltPath).attr({fill:'#00ffff'}).scale(boltscale, boltscale*.8, x, y).rotate(90);
+				this.removed = false;
+			},
+			remove: function() {
+				this.removed = true;
+				this.me.remove()
+			}
+		});
+		dojo.declare("bomb", null, {
+			constructor: function(x, y, splodeRad, left, right){
+				this.x = x;
+				this.y = y;
+				this.splode = splodeRad;
+				I = this
+				//this.me = pen.path("M " +x + " "+y +bombPath).attr({fill:'#00ff00'}).scale(bombscale, bombscale, x, y);
+				this.me = pen.circle(x, y, 10).attr({fill:'0f0'});
+				this.me.animate({fill: 'FFF'}, 3000, function(){
+					chunk = pen.circle(I.x, I.y, splodeRad).attr({fill: '#ff5', 'stroke':'#ff5', opacity: .6}).toBack();
+					leftd = calcDist(left.x, left.y, I.x, I.y);
+					if (leftd - killDist < splodeRad){
+						left.die();
+					}
+					rightd = calcDist(right.x, right.y, I.x, I.y);
+					if (rightd - killDist < splodeRad){
+						right.die();
+					}
+					faio = pen.rect(0, 0, penwidth, penheight).attr({fill: 'FFF'});
+					faio.animate({opacity: 0}, 300, function() {
+						faio.remove();
+					});
+					this.remove();
+				});
+				this.removed = false;
+			}
+		});
+		dojo.declare("dude", null, {
+			constructor: function(x, y, r, ai){
+				this.freezed = 0;
+				this.hasMoved = false;
+				this.a = 0;
+				this.ai = ai;
+				this.p = pen.path(shipPath).scale(xscale,yscale,x,y).attr({fill:'F00',rotation:r});
+				this.width = this.p.getBBox().width;
+				this.height = this.p.getBBox().height;
+				this.pathWidth = this.height*tunMultiplier;
+				this.r = r;
+				this.dx = 0;
+				this.dy = 0;
+				this.width = this.p.getBBox().width;
+				this.height = this.p.getBBox().height;
+				this.x = this.p.getBBox().x+this.p.getBBox().width/2;
+				this.y = this.p.getBBox().y+this.p.getBBox().height/2;
+				this.p.toFront();
+				this.dr = 0;
+				this.path = pen.path("M "+this.x + ' ' + this.y).attr({stroke: "#000", opacity: 0, "stroke-width": 0});
+				this.inTunnel = true;
+				this.tpoints = [];
+				this.bullets = [];
+				this.pathBuffer = [];
+				this.traps = [];
+				thisdead = false;
+				if (ai){
+					this.startAccel();
+				}
+				this.trapsLeft = trapLimit;
+				this.bombs = [];
+				this.bombsLeft = bombLimit;
+				this.bombPoints = [];
+			},
+			trap: function() {
+				if (!this.dead && this.trapsLeft > 0){
+					a = bolt(this.x, this.y);
+					this.traps.push(a);
+					this.trapsLeft -= 1;
+				}
+			},
+			bomb: function() {
+				if (!this.dead && this.bombsLeft > 0){
+					a = bomb(this.x, this.y, 2.5*this.pathWidth, this, this.other);
+					this.bombs.push(a);
+					this.bombsLeft = this.bombsLeft - 1;
+					console.log(this.bombsLeft);
+					this.bombPoints.push([this.x, this.y]);
+				}
+			},
+			fire: function() {
+				if (!this.dead && this.freezed == 0){
+					nosex = this.x + Math.cos(rad(this.r))*this.height/2;
+					nosey = this.y + Math.sin(rad(this.r))*this.height/2;
+					endx = nosex + bulletLength*Math.cos(rad(this.r));
+					endy = nosey + bulletLength*Math.sin(rad(this.r));
+					var a = pen.circle(nosex, nosey, bulletSize).attr({fill: '00f'});
+					this.bullets.push(a);
+					a.animate({cx: endx, cy: endy}, 700, function(){a.remove();});
+				}
+			},
+			updatePath: function() {
+				if (this.hasMoved){
+					curr = this.path.attrs.path.toString();
+					oldPath = this.path;
+					this.path = pen.path(curr + ' '+"L " + this.x+ ' ' + this.y).attr({stroke: "#ff5", opacity: .4, "stroke-width": this.pathWidth});
+					oldPath.remove();
+					this.path.toBack();
+					back.toBack();
+					this.pathBuffer.push([this.x, this.y]);
+					newBuffer = [];
+					for (i in this.pathBuffer){
+						point = this.pathBuffer[i];
+						d = calcDist(this.x, this.y, point[0], point[1]);
+						if (d > this.pathWidth/2){
+							this.tpoints.push(point);
+						}
+						else{
+							newBuffer.push(point);
+						}
+					}
+					this.pathBuffer = newBuffer;
+				}
+			},
+			accel: function() {  
+					a = this.a;
+					this.dx += a*Math.cos(rad(this.r));
+					this.dy += a*Math.sin(rad(this.r));
+				},
+			turn: function() {
+					if (this.inTunnel){
+						mag = tunnelTurn;
+					}
+					else {
+						mag = drillTurn;
+					}
+					change = this.dr * mag;
+					this.r += change;
+					this.p.rotate(change);
+					if (change > 0){
+						return true;
+					}
+					return false;
+				},
+			startAccel: function() {
+				this.a = accelRate;
+				this.hasMoved = true;
+			},
+			stopAccel: function() {
+				this.a = 0;
+			},
+			startTurn: function(t) {
+				this.dr = t;
+			},
+			stopTurn: function() {
+				this.dr = 0;
+			},
+			translate: function() {
+				this.p.translate(this.dx,this.dy);
+				this.x = this.p.getBBox().x+this.p.getBBox().width/2;
+				this.y = this.p.getBBox().y+this.p.getBBox().height/2;
+				if (this.dx == 0 && this.dy == 0){
+					return false;
+				}
+				return true;
+			},
+			friction: function() {
+				if (this.inTunnel){
+					slowDown = tunnelFric;
+				}
+				else {
+					slowDown = drillFric;
+				}
+				if (Math.abs(this.dx) > slowDown){
+					ddx = -slowDown*this.dx;
+					this.dx += ddx;
+				}
+				else {
+					this.dx = 0;
+				}
+				if (Math.abs(this.dy) > slowDown){
+					ddy = -slowDown*this.dy;
+					this.dy += ddy;
+				}
+				else {
+					this.dy = 0;
+				}
+			},
+			wallColl: function() {
+				w = this.p.getBBox().width;
+				h = this.p.getBBox().height;
+				if (this.dx < 0 && this.x-this.pathWidth/2 <= -this.dx){
+					this.dx = -penWidth;
+				}
+				if (this.dx > 0 && this.x + this.pathWidth/2 >= penwidth - this.dx){
+					this.dx = 0;
+				}
+				if (this.dy > 0 && this.y + this.pathWidth/2 >= penheight - this.dy){
+					this.dy = 0;
+				}
+				if (this.dy < 0 && this.y - this.pathWidth/2 <= -this.dy){
+					this.dy = 0;
+				}
+			},
+			tunnelTest: function() {  
+				nosex = this.x + Math.cos(rad(this.r))*this.height/2;
+				nosey = this.y + Math.sin(rad(this.r))*this.height/2;
+				this.inTunnel = this.tunnelPointTest(nosex, nosey);
+				if (this.inTunnel){
+					this.p.attr({'fill': '0f0'});
+				}
+				else{
+					this.p.attr({'fill': 'f00'});
+				}
+			},
+			tunnelPointTest: function(x, y){
+				for (p in this.tpoints){
+					point = this.tpoints[p];
+					dist = calcDist(x, y, point[0], point[1]);
+					if (dist < this.pathWidth/2){
+						return true;
+					}
+				}
+				for (p in this.other.tpoints){
+					point = this.other.tpoints[p];
+					dist = calcDist(x, y, point[0], point[1]);
+					if (dist < this.pathWidth/2){
+						return true;
+					}
+				}
+				for (b in this.bombPoints){
+					bpoint = this.bombPoints[b];
+					d = calcDist(x, y, bpoint[0], bpoint[1]);
+					if (d < this.pathWidth*2.5){
+						return true;
+					}
+				}
+				for (b in this.other.bombPoints){
+					bpoint = this.other.bombPoints[b];
+					d = calcDist(x, y, bpoint[0], bpoint[1]);
+					if (d < this.pathWidth*2.5){
+						return true;
+					}
+				}
+				return false;
+			},
+			checkForKill: function() {
+				for (b in this.bullets){
+					bull = this.bullets[b];
+					if (!bull.removed){ 
+						bullx = bull.attrs.cx;
+						bully = bull.attrs.cy;
+						if (!this.tunnelPointTest(bullx, bully)){
+							bull.remove();
+						}
+						else{
+							ox = this.other.x;
+							oy = this.other.y;
+							d = calcDist(bullx, bully, ox, oy);
+							if ( d < killDist) {
+								this.other.die();
+							}
+						}
+					}
+				}
+			},
+			die: function() {
+				this.p.remove();
+				this.p = pen.text(this.x, this.y, 'Dead!');
+				this.p.attr({font: '18px "helvetica Neue", Arial', fill:'f00'});
+				this.dead = true;
+			},
+			aiCalc: function() {
+				ox = this.other.x;
+				oy = this.other.y;
+				d = calcDist (ox, oy, this.x, this.y);
+				currx = this.x + d*Math.cos(rad(this.r));
+				curry = this.y + d*Math.sin(rad(this.r));
+				leftx = this.x + d*Math.cos(rad(this.r+drillTurn));
+				lefty = this.y + d*Math.sin(rad(this.r+drillTurn));
+				rightx = this.x + d*Math.cos(rad(this.r-drillTurn));
+				righty = this.y + d*Math.sin(rad(this.r-drillTurn));
+				currd = calcDist(ox, oy, currx, curry);
+				leftd = calcDist(ox, oy, leftx, lefty);
+				rightd = calcDist(ox, oy, rightx, righty);
+				if (currd < 10){
+					this.stopTurn();
+				}
+				else{
+					if (leftd >= rightd){
+						if (this.dr != 0){
+							this.stopTurn();
+						}
+						this.startTurn(-1);
+					}
+					else{
+						if (rightd > leftd){
+							if (this.dr != 0){
+								this.stopTurn();
+							}
+							this.startTurn(1);
+						}
+					}
+				}
+			},
+			freeze: function() {
+				this.freezed = 25;
+			},
+			checkTraps: function() {
+				ox = this.other.x;
+				oy = this.other.y;
+				for (t in this.traps){
+					trap = this.traps[t];
+					if (!trap.removed){
+						trapx = trap.x;
+						trapy = trap.y;
+						d = calcDist(ox, oy, trapx, trapy);
+						if (d < killDist+trapSize){
+							this.other.freeze();
+							trap.remove();
+							this.trapsLeft += 1;
+						}
+					}
+				}
+			},
+			go: function() {
+				if (this.ai){
+					this.aiCalc();
+					this.fire();
+				}
+				this.checkForKill();
+				this.checkTraps();
+				this.tunnelTest();
+				this.wallColl();
+				translated = this.translate();
+				if (this.freezed == 0){
+					this.accel();
+					this.friction();
+					turned = this.turn();
+				}
+				else {
+					this.dx = this.dx/1.3;
+					this.dy = this.dy/1.3;
+					this.freezed = this.freezed - 1;
+				}
+				if (turned || translated){
+					this.updatePath();
+				}
+			}
+		});	
+		function calcDist(x1, y1, x2, y2){
+			return Math.pow( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) , .5)
+		}	
+		function rad(angle) {
+			return Math.PI*angle/180;
+		}	
+		dojo.ready(setup);	
+	</script>
+</head>
+<body>
+		
+</body>
+
