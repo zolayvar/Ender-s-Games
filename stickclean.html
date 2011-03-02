@@ -1,81 +1,75 @@
 <head>
 	<title>Popsicle Sticks</title>
-    <script type="text/javascript">
-        var djConfig = {
-            isDebug: false,
-            parseOnLoad: true,
-            baseUrl: './',
-            modulePaths: { 'unc': 'unc'  }
-        };
-    </script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+    <script type="text/javascript" src='dojo.js'></script>
     <script type="text/javascript" src="raphael.js"></script>
-    <script type="text/javascript" src="/libs/uow.js"></script>
 	<script type="text/javascript">
+		//<script type="text/javascript" src="http://ajax.goog
+		//leapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></sc
+		//ript>
+	
 		dojo.require('dojo.window');
+		
+		schema = {
+			title: 'Bridge',
+			description: 'A bridge design',
+			type: 'object',
+			properties: {
+				stix: {
+					type: 'array',
+					title: 'stix',
+					description: 'The sticks in the bridge',
+					items: {
+						type: 'object',
+						properties: {
+							x: {
+								type: 'number'
+							},
+							y: {
+								type: 'number'
+							},
+							z: {
+								type: 'number'
+							},
+							thet: {
+								type: 'number'
+							},
+							fi: {
+								type: 'number'
+							},
+							placed: {
+								type: 'boolean'
+							},
+							side: {
+								type: 'string'
+							},
+							size: {
+								type: 'string'
+							},
+							alpha: {
+								type: 'number'
+							},
+							removed: {
+								type: 'boolean'
+							}
+						}
+					}
+				}
+			}
+		}
 		
 		function setup(){
 			constants();
-			my = new bridgeClass();
-			console.log('this is what my holds right after being created', my);
+			bridge = new bridge({});
 			drawEnv();
-			uow.data.getDatabase({
-				database: 'zolayvar', 
-				collection: 'sticks',
-				mode: 'crud'
-			}).then(function(db) {
-				  db.fetch({
-					count: 2,
-					onBegin: function() {
-					  console.log('fetching');
-					},
-					onItem: function(item) {
-					  console.log('this is an item in the collection', item);
-					},
-					onComplete: function(items) {
-					  console.log('finished');
-					},
-					onError: function(e) {
-					  console.log('error', e);
-					}
-				});
-			});
 		}
 		
 		function loadBridge(){
-			var name = prompt("Hey.  What's your bridge's name?", "");
-			uow.data.getDatabase({
-			  database: 'zolayvar', 
-			  collection : 'sticks', 
-			  mode : 'crud'
-			}).then(function(store){
-				store.fetchOne({query:{'name': name}}).then(function(newb){
-					console.log('this is what the fetch returns', newb);
-					newbridge = new bridgeClass();
-					newbridge.fromJSON(newb.bridge);
-					console.log('got past making a new bridge, now this my', my);
-					r.clear();
-					drawEnv();
-					console.log('got past removing old bridge');
-					newbridge.draw();
-					my = newbridge;
-				});
-			});
-
+			var name = prompt("Heya kid.  What's your bridge's name?", "");
+			console.log(name);
 		}
 		
 		function saveBridge(){
 			var name = prompt("Heya kid.  What's your bridge's name?", "");
-			uow.data.getDatabase({
-			  database: 'zolayvar', 
-			  collection : 'sticks', 
-			  mode : 'crud'
-			}).then(function(store){
-				console.log('this is what bridge holds at the moment', my.toJSON());
-				store.putOne({query:{'name': name}, data:{'name':name, 'bridge':my.toJSON()}, save:true}).then(function(e){
-					console.log('saved it, got back this', e);
-				});
-			});
 		}
 		
 		function constants(){
@@ -338,16 +332,14 @@
 			r.path(view3p).attr({stroke:'#000','stroke-width':3});
 		}
 		
-		dojo.declare('bridgeClass', null, {
+		dojo.declare('bridge', null, {
 			stix: [],
 			constructor: function(args){
 				dojo.mixin(this,args)
 			},
 			draw: function(){
 				dojo.forEach(this.stix, function(s){
-					s.draw1();
-					s.draw2();
-					s.draw3();
+					s.redraw();
 				});
 			},
 			sortStix: function(){
@@ -370,22 +362,6 @@
 			remove: function(){
 				dojo.forEach(this.stix, function(s){
 					s.remove();
-				});
-			},
-			toJSON: function(){
-				var jsonstix = [];
-				dojo.forEach(this.stix, function(s){
-					jsonstix.push(s.toJSON());
-				});
-				return {stix: jsonstix};
-			},
-			fromJSON: function(data){
-				console.log('i\'m supposed to make a bridg eout of this?', data);
-				console.log('okay well this is supposed to be the sticks', data.stix);
-				var self = this;
-				dojo.forEach(data.stix, function(stickjson){
-					var newstick = new stick(stickjson);
-					self.stix.push(newstick);
 				});
 			}
 		});
@@ -492,9 +468,9 @@
 									fourthcounter.attr({text: fourthcount});
 								}
 								var newact = pre.stick;
-								my.stix.push(pre.stick);
+								bridge.stix.push(pre.stick);
 								pre.stick.redraw();
-								my.sortStix();
+								bridge.sortStix();
 								prestick = new stick();
 								prestick.drawpre();
 								newact.active();
@@ -752,17 +728,14 @@
 				this.stick.drawn1.attr({opacity:1});
 				this.stick.drawn2.attr({opacity:1});
 				this.stick.drawn3.attr({opacity:1});
-				my.sortStix();
-			},
-			toJSON: function() {
-				return {'x': this.x, 'y': this.y, 'z': this.y, placed: this.placed, thet: this.thet, fi: this.fi, side: this.side, size: this.size, alpha: this.alpha, removed: this.removed};
+				bridge.sortStix();
 			}
 		});
 		
 		function checkForIntersections(astick){
 			astick.drawn1.attr({fill:'#22f'});
 			astick.drawn2.attr({fill:'#22f'});
-			dojo.forEach(my.stix, function(other){
+			dojo.forEach(bridge.stix, function(other){
 				if (astick != other){
 					other.drawn1.attr({fill:'#22f'});
 					other.drawn2.attr({fill:'#22f'});
