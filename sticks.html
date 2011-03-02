@@ -44,21 +44,20 @@
 		
 		function loadBridge(){
 			var name = prompt("Hey.  What's your bridge's name?", "");
+			var feed = r.text(w/2, h/2, 'Loading').attr({font: '80px Arial', fill:'#fff'});
+			feed.animate({rotation: 10000}, 50000);
 			uow.data.getDatabase({
 			  database: 'zolayvar', 
 			  collection : 'sticks', 
 			  mode : 'crud'
 			}).then(function(store){
 				store.fetchOne({query:{'name': name}}).then(function(newb){
-					console.log('this is what the fetch returns', newb);
 					newbridge = new bridgeClass();
-					newbridge.fromJSON(newb.bridge);
-					console.log('got past making a new bridge, now this my', my);
+					my = newbridge;
 					r.clear();
 					drawEnv();
-					console.log('got past removing old bridge');
-					newbridge.draw();
-					my = newbridge;
+					newbridge.fromJSON(newb.bridge);
+					my.draw();
 				});
 			});
 
@@ -66,11 +65,14 @@
 		
 		function saveBridge(){
 			var name = prompt("Heya kid.  What's your bridge's name?", "");
+			var feed = r.text(w/2, h/2, 'Saving').attr({font: '80px Arial', fill:'#fff'});
+			feed.animate({rotation: 10000}, 50000);
 			uow.data.getDatabase({
 			  database: 'zolayvar', 
 			  collection : 'sticks', 
 			  mode : 'crud'
 			}).then(function(store){
+				feed.remove();
 				console.log('this is what bridge holds at the moment', my.toJSON());
 				store.putOne({query:{'name': name}, data:{'name':name, 'bridge':my.toJSON()}, save:true}).then(function(e){
 					console.log('saved it, got back this', e);
@@ -100,6 +102,9 @@
 			view3y = 2*h/5;
 			view3w = w/2;
 			view3h = 3*h/5;
+			xdef = 3*gridSpace;
+			ydef = 4*gridSpace;
+			zdef = 2*gridSpace+view2h;
 			measurements();
 			view3x0 = view3x+view3w/2-cand/2-((view2h-gridSpace-cand) - (gridSpace+view2y));
 			delbuttonx = w - 9*gridSpace;
@@ -191,9 +196,37 @@
 			saveb.click(saveBridge);
 			d.click(deleteActiveStick);
 			b.click(deleteActiveStick);
+			setupDefaultCoordinateBars();
 			prestick = new stick();
 			prestick.drawpre();
 		}		
+		
+		function setupDefaultCoordinateBars(){
+			var ybar = r.rect(view2x+gridWidth*3/4, ydef-popd*2, view2w-gridWidth, popd*4).attr({fill:'#f77', opacity: .8, stroke:'#f77'});	
+			ybar.drag( 
+				function(dx, dy){  //move
+					this.attr({y: this.oy+dy});
+					ydef = oldydef + dy;
+				},
+				function(){  //start
+					this.ox = this.attr('x');
+					this.oy = this.attr('y');
+					oldydef = ydef;
+				}
+			);
+			var zbar = r.rect(view1x+gridWidth*3/4, zdef-popd*2, view1w-gridWidth, popd*4).attr({fill:'#f77', opacity: .8, stroke:'#f77'});	
+			zbar.drag( 
+				function(dx, dy){  //move
+					this.attr({y: this.oy+dy});
+					zdef = oldzdef + dy;
+				},
+				function(){  //start
+					this.ox = this.attr('x');
+					this.oy = this.attr('y');
+					oldzdef = zdef;
+				}
+			);		
+		}
 
 		function measurements(){
 			//canyon measurements in inches
@@ -215,8 +248,8 @@
 			vert3 = 3*scale;
 			//stick measurements in inches
 			var stickl = 4.5;
-			var stickw = .5;
-			var stickd = .08;
+			var stickw = 3/8;
+			var stickd = 1/12;
 			popl = stickl*scale;
 			popw = stickw*scale;
 			popd = stickd*scale;
@@ -386,28 +419,54 @@
 				dojo.forEach(data.stix, function(stickjson){
 					var newstick = new stick(stickjson);
 					self.stix.push(newstick);
+					count += 1;
+					counter.attr({text: count});
+					if (newstick.size == 'whole'){
+						wholecount += 1;
+						wholecounter.attr({text: wholecount});
+					}
+					if (newstick.size == 'three'){
+						threecount += 1;
+						threecounter.attr({text: threecount});
+					}
+					if (newstick.size == 'half'){
+						halfcount += 1;
+						halfcounter.attr({text: halfcount});
+					}
+					if (newstick.size == 'fourth'){
+						fourthcount += 1;
+						fourthcounter.attr({text: fourthcount});
+					}
 				});
 			}
 		});
 			
 		dojo.declare('stick', null, {
-			x: 0,
-			y: 0, 
-			z: 0,
 			placed: false,
 			thet: 0,  //-90, -60, -45, -30, 0, 30, 45, 60, 90 - the angle of rotation from birds
 			fi: 0,     //-90, -60, -45, -30, 0, 30, 45, 60, 90 - the angle of rotation from profile
 			side: 'flat',     //flat, edge - denotes which side is seen from the top down (view 1)
 			size: 'whole',
-			alpha: 0,
+			alpha: 0,  //vert, hor - denotes which orientation is seen from the end of the canyon (view 3)
 			drawnpre: null,
 			drawn1: null, 
 			drawn2: null,
 			removed: false,
 			constructor: function(args){
 				dojo.mixin(this, args);
-				this.size = defl;
-				this.thet = defang;
+				if (args == null ){
+					this.size = defl;
+					this.thet = defang;
+					this.x = xdef;
+					this.y = ydef;
+					this.z = zdef;
+				}
+				else {
+					this.x = this.x * scale+gridSpace;
+					this.y = view2h - this.y * scale - gridSpace;
+					this.z = h - this.z * scale - gridSpace;
+					//this.indicateCenter();
+				}
 			},
 			drawpre: function(){
 				//draw how it will look before being put in any of the views
@@ -442,22 +501,22 @@
 					function() {  //end
 						pre.attr({opacity: 1});
 						if (pre.stick.placed == false){
-							if (pre.attr('x') < w/2 && pre.attr('y') > view1y){ //it was placed in view 1
+							if (pre.attr('x') < view1w && pre.attr('y') > view1y){ //it was placed in view 1
 								pre.stick.placed = true;
 								var box = pre.getBBox();
 								pre.stick.x = box.x+box.width/2;
-								pre.stick.z = box.y+box.height/2-view1y;
-								pre.stick.y = gridSpace;
+								pre.stick.y = ydef;
+								pre.stick.z = box.y+box.height/2;
 								pre.stick.fi = pre.stick.thet;
 								pre.stick.thet = 0;
 								pre.stick.side = 'edge';
 							}
-							if (pre.attr('x') < w/2 && pre.attr('y') < view1y){ //it was placed in view 2
+							if (pre.attr('x') < view1w && pre.attr('y') < view1y){ //it was placed in view 2
 								pre.stick.placed = true;
 								var box = pre.getBBox();
 								pre.stick.x = box.x+box.width/2;
-								pre.stick.z = gridSpace;
 								pre.stick.y = box.y+box.height/2;
+								pre.stick.z = zdef;
 								pre.stick.fi = 0;
 								pre.stick.thet = pre.stick.thet;
 								pre.stick.side = 'flat';
@@ -465,11 +524,11 @@
 							if (pre.attr('x') > view3x && pre.attr('y') > view1y){ //it was placed in view 3
 								pre.stick.placed = true;
 								var box = pre.getBBox();
-								pre.stick.x = gridSpace;
-								pre.stick.z = box.x+box.width/2;
-								pre.stick.y = box.y+box.height/2;
+								pre.stick.x = xdef;
+								pre.stick.y = box.x+box.width/2-view3x0;
+								pre.stick.z = box.y+box.height/2;
 								pre.stick.fi = pre.stick.thet;
-								pre.stick.thet = 0;
+								pre.stick.thet = 90;
 								pre.stick.side = 'edge';
 							}
 							if (pre.stick.placed == true){
@@ -580,7 +639,7 @@
 					console.log(width1, height1);
 					round = 0
 				}
-				var drawn1 = r.rect(this.x - width1/2, this.z - height1/2+view1y, width1, height1, round);
+				var drawn1 = r.rect(this.x - width1/2, this.z - height1/2, width1, height1, round);
 				drawn1.rotate(this.fi);
 				drawn1.attr({stroke:'#fff','stroke-width':2, fill:'#33f'});
 				drawn1.drag(
@@ -709,7 +768,7 @@
 					width3 = popd;
 					height3 = cos(this.fi)*rawlength+2;
 				}
-				var drawn3 = r.rect( view3x0+this.y , this.z+view3y-height3/2, width3, height3, round);
+				var drawn3 = r.rect( view3x0+this.y , this.z-height3/2, width3, height3, round);
 				drawn3.drag(
 					function(dx, dy){ //move all of the sticks in the proper way
 						checkForIntersections(drawn3.stick);
@@ -752,13 +811,17 @@
 				this.stick.drawn1.attr({opacity:1});
 				this.stick.drawn2.attr({opacity:1});
 				this.stick.drawn3.attr({opacity:1});
-				this.stick.x = drawn1.attr('x');
-				this.stick.y = drawn3.attr('x')-view3x0;
-				this.stick.z = drawn1.attr('y')-view2y;
+				this.stick.x = this.stick.drawn1.getBBox().x+this.stick.drawn1.getBBox().width/2;
+				this.stick.y = this.stick.drawn2.getBBox().y + this.stick.drawn2.getBBox().height/2;
+				this.stick.z = this.stick.drawn1.getBBox().y + this.stick.drawn1.getBBox().height/2;
+				//this.stick.indicateCenter();
 				my.sortStix();
 			},
 			toJSON: function() {
-				return {'x': this.x, 'y': this.y, 'z': this.y, placed: this.placed, thet: this.thet, fi: this.fi, side: this.side, size: this.size, alpha: this.alpha, removed: this.removed};
+				return {'x': (this.x-gridSpace)/scale, 'y': (view2h-gridSpace-this.y)/scale, 'z': (h-this.z-gridSpace)/scale, placed: this.placed, thet: this.thet, fi: this.fi, side: this.side, size: this.size, alpha: this.alpha, removed: this.removed};
+			},
+			indicateCenter: function(){
+				r.circle(this.x, (this.z), 10).toFront();
 			}
 		});
 		
