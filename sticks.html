@@ -17,33 +17,11 @@
 		function setup(){
 			constants();
 			my = new bridgeClass();
-			console.log('this is what my holds right after being created', my);
 			drawEnv();
-			uow.data.getDatabase({
-				database: 'zolayvar', 
-				collection: 'sticks',
-				mode: 'crud'
-			}).then(function(db) {
-				  db.fetch({
-					count: 2,
-					onBegin: function() {
-					  console.log('fetching');
-					},
-					onItem: function(item) {
-					  console.log('this is an item in the collection', item);
-					},
-					onComplete: function(items) {
-					  console.log('finished');
-					},
-					onError: function(e) {
-					  console.log('error', e);
-					}
-				});
-			});
 		}
 		
 		function loadBridge(){
-			var name = prompt("Hey.  What's your bridge's name?", "");
+			var name = prompt("Sup kid.  What's your bridge's name?", "");
 			var feed = r.text(w/2, h/2, 'Loading').attr({font: '80px Arial', fill:'#fff'});
 			feed.animate({rotation: 10000}, 50000);
 			uow.data.getDatabase({
@@ -55,6 +33,7 @@
 					newbridge = new bridgeClass();
 					my = newbridge;
 					r.clear();
+					r = new Raphael(0,0,w,h);
 					drawEnv();
 					newbridge.fromJSON(newb.bridge);
 					my.draw();
@@ -64,7 +43,7 @@
 		}
 		
 		function saveBridge(){
-			var name = prompt("Heya kid.  What's your bridge's name?", "");
+			var name = prompt("Heya kid.  What do you want this bridge's name to be?", "");
 			var feed = r.text(w/2, h/2, 'Saving').attr({font: '80px Arial', fill:'#fff'});
 			feed.animate({rotation: 10000}, 50000);
 			uow.data.getDatabase({
@@ -73,9 +52,7 @@
 			  mode : 'crud'
 			}).then(function(store){
 				feed.remove();
-				console.log('this is what bridge holds at the moment', my.toJSON());
 				store.putOne({query:{'name': name}, data:{'name':name, 'bridge':my.toJSON()}, save:true}).then(function(e){
-					console.log('saved it, got back this', e);
 				});
 			});
 		}
@@ -106,7 +83,7 @@
 			ydef = 4*gridSpace;
 			zdef = 2*gridSpace+view2h;
 			measurements();
-			view3x0 = view3x+view3w/2-cand/2-((view2h-gridSpace-cand) - (gridSpace+view2y));
+			view3x0 = view3x+view3w/2-cand/2-(view2h-gridSpace-cand);
 			delbuttonx = w - 9*gridSpace;
 			buttonsy = 2*gridSpace;
 		}
@@ -207,6 +184,12 @@
 				function(dx, dy){  //move
 					this.attr({y: this.oy+dy});
 					ydef = oldydef + dy;
+					if (this.attr('y') > view2h){
+						this.attr({y: view2h-popd*2});
+					}
+					if (this.attr('y') < 0){
+						this.attr({y: 0});	
+					}
 				},
 				function(){  //start
 					this.ox = this.attr('x');
@@ -214,11 +197,17 @@
 					oldydef = ydef;
 				}
 			);
-			var zbar = r.rect(view1x+gridWidth*3/4, zdef-popd*2, view1w-gridWidth, popd*4).attr({fill:'#f77', opacity: .8, stroke:'#f77'});	
+			var zbar = r.rect(view1x+gridWidth*3/4, zdef-popd*2, w-gridWidth, popd*4).attr({fill:'#f77', opacity: .8, stroke:'#f77'});	
 			zbar.drag( 
 				function(dx, dy){  //move
 					this.attr({y: this.oy+dy});
-					zdef = oldzdef + dy;
+					zdef = oldzdef + dy;				
+					if (this.attr('y') > h-popd*2){
+						this.attr({y: h-popd*2});
+					}
+					if (this.attr('y') < view1y){
+						this.attr({y: view1y});	
+					}
 				},
 				function(){  //start
 					this.ox = this.attr('x');
@@ -392,7 +381,6 @@
 				}
 				this.stix.sort(comparey);
 				dojo.forEach(this.stix, function(s){
-					console.log(s.y);
 					s.drawn1.toFront();
 				});
 				this.stix.sort(comparez);
@@ -413,8 +401,6 @@
 				return {stix: jsonstix};
 			},
 			fromJSON: function(data){
-				console.log('i\'m supposed to make a bridg eout of this?', data);
-				console.log('okay well this is supposed to be the sticks', data.stix);
 				var self = this;
 				dojo.forEach(data.stix, function(stickjson){
 					var newstick = new stick(stickjson);
@@ -447,7 +433,7 @@
 			fi: 0,     //-90, -60, -45, -30, 0, 30, 45, 60, 90 - the angle of rotation from profile
 			side: 'flat',     //flat, edge - denotes which side is seen from the top down (view 1)
 			size: 'whole',
-			alpha: 0,  //vert, hor - denotes which orientation is seen from the end of the canyon (view 3)
+			alpha: 0,  //scale factor, 1, .75, .5, .25
 			drawnpre: null,
 			drawn1: null, 
 			drawn2: null,
@@ -474,15 +460,19 @@
 				if (this.size=='whole'){
 					var prewidth = popl;
 					preroun = roun;
+					this.alpha = 1;
 				}
 				if (this.size=='three'){
 					var prewidth = popl*.75;
+					this.alpha = .75;
 				}
 				if (this.size=='half'){
 					var prewidth = popl*.5;
+					this.alpha = .5;
 				}
 				if (this.size=='fourth'){
 					var prewidth = popl*.25;
+					this.alpha = .25;
 				}
 				var preheight = popw;
 				var pre = r.rect(view2w+3*gridSpace, view2h - 3*gridSpace, prewidth, preheight, preroun);
@@ -522,14 +512,14 @@
 								pre.stick.side = 'flat';
 							}
 							if (pre.attr('x') > view3x && pre.attr('y') > view1y){ //it was placed in view 3
-								pre.stick.placed = true;
-								var box = pre.getBBox();
-								pre.stick.x = xdef;
-								pre.stick.y = box.x+box.width/2-view3x0;
-								pre.stick.z = box.y+box.height/2;
-								pre.stick.fi = pre.stick.thet;
-								pre.stick.thet = 90;
-								pre.stick.side = 'edge';
+//								pre.stick.placed = true;
+	//							var box = pre.getBBox();
+		//						pre.stick.x = xdef;
+			//					pre.stick.y = box.x+box.width/2-view3x0;
+				//				pre.stick.z = box.y+box.height/2;
+					//			pre.stick.fi = pre.stick.thet;
+						//		pre.stick.thet = 90;
+							//	pre.stick.side = 'edge';
 							}
 							if (pre.stick.placed == true){
 								count += 1;
@@ -564,7 +554,6 @@
 				this.drawnpre = pre;
 			},
 			active: function(){
-				console.log('active was called by', this);
 				if (active){
 					active.sleep();
 				}
@@ -636,7 +625,6 @@
 				if (this.thet != 90 && this.thet != 0){
 					width1 = rawlength*cos(this.thet)+2;
 					height1 = popd;
-					console.log(width1, height1);
 					round = 0
 				}
 				var drawn1 = r.rect(this.x - width1/2, this.z - height1/2, width1, height1, round);
@@ -735,40 +723,37 @@
 				this.drawn2 = drawn2;
 			},
 			draw3: function() {
-				round = 0;
-				var rawlength = popl;				
-				if (this.size == 'three'){
-					round = 0;
-					rawlength = rawlength*.75;
-				}
-				if (this.size == 'half'){
-					round = 0;
-					rawlength = rawlength*.5;
-				}
-				if (this.size == 'fourth'){
-					round = 0;
-					rawlength = rawlength*.25;
-				}
-				if (this.fi == 0){
-					if (this.side == 'flat'){
-						width3 = popw;
-						height3 = popd;
+				var round = 0;
+				var rot = 0;
+				if (this.side == 'flat'){
+					if (this.thet == 0){
+						var width3 = popw*this.alpha;
 					}
-					if (this.side == 'edge'){
-						width3 = popd;
-						height3 = popw;
+					else {
+						var width3 = popl*sin(this.thet)*this.alpha;
+					}
+					var height3 = popd;
+				}
+				if (this.side == 'edge'){
+					if (this.thet == 0){
+						if (this.fi == 0){
+							var height3 = popw;
+						}
+						else {
+							var height3 = popl*sin(this.fi)*this.alpha;
+						}
+						var width3 = popd;
+					}
+					else{
+						var height3 = popl*this.alpha;
+						var width3 = popw;
+						round = popw/2 - 1;
+						rot = this.fi;
 					}
 				}
-				if (this.fi == 90){ //need to come back and account for axial rotation - need to store it at time of placement
-					//assuming it was placed in view 1
-					width3 = popd;
-					height3 = rawlength;
-				}
-				if (this.fi != 90 && this.fi != 0){ //again, here I am assuming it was placed in view 1, but what if it was view 3?
-					width3 = popd;
-					height3 = cos(this.fi)*rawlength+2;
-				}
-				var drawn3 = r.rect( view3x0+this.y , this.z-height3/2, width3, height3, round);
+				console.log('i ended up with', width3, height3, rot);
+				var drawn3 = r.rect( view3x0+this.y - width3/2 , this.z-height3/2, width3, height3, round);
+				drawn3.rotate(rot);
 				drawn3.drag(
 					function(dx, dy){ //move all of the sticks in the proper way
 						checkForIntersections(drawn3.stick);
@@ -790,7 +775,6 @@
 						}
 						drawn3.stick.update();
 					},this.startAll,this.endAll);
-				drawn3.rotate(this.thet);
 				drawn3.attr({stroke:'#fff','stroke-width':2, fill:'#33f'});
 				drawn3.stick = this;
 				this.drawn3 = drawn3;
@@ -832,18 +816,15 @@
 				if (astick != other){
 					other.drawn1.attr({fill:'#22f'});
 					other.drawn2.attr({fill:'#22f'});
-					console.log(other.xl, other.yl, other.zl, astick.xl, astick.yl, astick.zl, other.x, other.y, other.z, astick.x, astick.y, astick.z);
 					var xoverlap = Math.abs(other.x - astick.x) < (astick.xl+other.xl)/2;
 					var yoverlap = Math.abs(other.y - astick.y) < (astick.yl+other.yl)/2;
 					var zoverlap = Math.abs(other.z - astick.z) < (astick.zl+other.zl)/2;
 					if (xoverlap && yoverlap && zoverlap){
-						console.log('they intersect');
 						astick.drawn1.attr({fill:'#f00'});
 						astick.drawn2.attr({fill:'#f00'});
 						other.drawn1.attr({fill:'#f00'});
 						other.drawn2.attr({fill:'#f00'});
 					}
-					console.log(xoverlap, yoverlap, zoverlap);
 				}
 			});
 			for (i = 0; i < profile.length - 1; i++){
