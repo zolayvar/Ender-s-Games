@@ -752,6 +752,9 @@
 				this.stick.drawn1.attr({opacity:1});
 				this.stick.drawn2.attr({opacity:1});
 				this.stick.drawn3.attr({opacity:1});
+				this.stick.x = drawn1.attr('x');
+				this.stick.y = drawn3.attr('x')-view3x0;
+				this.stick.z = drawn1.attr('y')-view2y;
 				my.sortStix();
 			},
 			toJSON: function() {
