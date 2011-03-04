@@ -1,0 +1,110 @@
+<head>
+	<title>Arctic Explorers Game</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+    <script type="text/javascript" src="raphael.js"></script>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+	dojo.require('dojo.window');
+	
+	dojo.declare("game", null, {
+		constructor: function(args){
+			dojo.safeMixin(this, args);
+		},
+		setTeam: function(t){
+			this.team = t;
+		}
+	});
+	dojo.declare("member", null, {
+		state: 'Cold',
+		immobilized: false,
+		health: 100,
+		text: '',
+		skills: [],
+		constructor: function(args){
+			dojo.safeMixin(this, args);
+		},
+		draw: function(x, y, w, h) {
+			console.log(x, y, w, h);
+			var a = pen.rect(x, y, w, h, 10).attr({fill: '#fff', opacity: .5, stroke: '#000', 'stroke-opacity': .5, 'stroke-width':5}).toFront();
+			a.click( function(){
+				
+			});
+			pen.text(x+w/2, y+h/2, this.name).attr({font: "24px Arial"});
+			pen.text(x+w/2 + 160, y+h/2, this.text).attr({font: '20px Arial', fill: '#fff', stroke: '#000', 'stroke-opacity': .7, 'stroke-width': 2, 'text-anchor':'start'});
+		}
+	});
+	function makePerson(type){
+		if (type == 'Doctor'){
+			return member({
+				text: "Hi!  I help the team by curing minor ailments and preventing major ones, but I'm not very strong myself.",
+				skills: ['heals'],
+				name: 'Doctor'
+			});
+		}
+		if (type == 'Climber'){
+			return member({
+				text: "Yo, I can climb mountains and stuff to help move the group along faster.",
+				skills: ['climbs'],
+				name: 'Climber'
+			});
+		}
+		if (type == 'Soldier'){
+			return member({
+				text: "Sir!  I can protect the group in case of attack!",
+				skills: ['fights'],
+				name: 'Soldier'
+			});
+		}
+		if (type == 'Native'){
+			return member({
+				text: "I know the ways of the land and stuff.",
+				skills: ['native'],
+				name: 'Native'
+			});
+		}
+	}
+	function welcome(){
+		var box = dojo.window.getBox();
+		border = 10;
+		width = box.w - border*2;
+		height = box.h - border*2
+		console.log(width, height);
+		pen = Raphael(border, border, width, height);
+		var back = pen.image("landscape1.jpg", 0,0, width, height);
+		var title = pen.text(width/2, height/4, "Welcome to Epic Journey").toFront();
+		title.attr({font: "96px Arial", fill: '#fff', stroke: '#000', 'stroke-width': 5, 'stroke-opacity': .5});
+		var sub = pen.text(width/2, 2*height/5, "The Arctic Explorers Game").toFront();
+		sub.attr({font: "48px Arial", fill: '#fff', stroke: '#000', 'stroke-width': 2, 'stroke-opacity': .5});
+		var playbutton = pen.text(width/2, 4*height/5, 'PLAY');
+		playbutton.attr({font: "96px Arial", fill: '#fff', stroke: '#000', 'stroke-width': 2, 'stroke-opacity': .5});
+		playbutton.click(function(e){
+			r = pen.rect(0,0,width,height).attr({fill:'#000', opacity: 0}).toFront();
+			r.animate({opacity: 1}, 800, callback = setup);
+		});
+	}
+	function setup() {
+		console.log('Now we\'s gonna set stuff up');
+		pen.clear();
+		pen.image("outpost.jpg", 0,0,width,height);
+		var title = pen.text(width/2, height/8, "Now choose a team for your journey.").toFront();
+		title.attr({font: "50px Arial", fill: '#fff', stroke: '#000', 'stroke-opacity': .5});
+		pen.rect(4*border, height/4 - (20+border), 1*width/5-4*border, 3*height/4, 10).attr({fill: '#fff', opacity: .5, stroke: '#000', 'stroke-opacity': .7, 'stroke-width':5}).toFront();
+		var left = pen.text(width/9, height/4, "Current Team:").toFront();
+		left.attr({font: '40px Arial', fill: '#fff', stroke: '#000', 'stroke-opacity': .7, 'stroke-width': 2});
+		members = ['Doctor', 'Climber', 'Soldier', 'Native'];
+		dojo.forEach(members, function(memb, i){
+			dude = makePerson(memb);
+			dude.draw(width/4, height/4-(20+border)+i*(border+3*height/16), width/9, (3*height/20));
+		});
+	}
+	
+	function button(){
+		
+	}
+
+	
+	dojo.ready(welcome);
+</script>

@@ -1,0 +1,384 @@
+<head>
+	<title>Epic Journey Demo</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+	<script src="raphael.js"></script>
+	<script src="random.js"></script>
+	<script type="text/javascript">
+		dojo.require("dojo.window");
+		dojo.require("unc.random");
+		
+	
+		function setup(){
+			constants();
+			currentstage = 0;
+			turnCount = 0;
+			currentMessagePool = currentstage;
+			nextlandmark = currentstage;
+			firstScreen();
+		}
+		
+		function constants(){
+			w = dojo.window.getBox().w;
+			h = dojo.window.getBox().h;
+			border = h/100;
+			bigborder = h/60;
+			bigtext = h/6;
+			regtext = h/15;
+			smalltext = h/20;
+			w = w - border*2;
+			h = h - border*2;
+			maxstage = 2;
+			days = 0;
+			turnsBetweenLandmarks = 5;
+			r = new Raphael(border,border,w,h);
+			splashpic = 'landscape1.jpg';
+			teamscreenpic = 'outpost.jpg';
+			people = ['Doctor', 'Soldier', 'Scientist', 'Dog Expert', 'Explorer'];
+			messages = [
+				 ["Today you made good time.\nIsn't the landscape beatiful?",
+				  'Your dogs looked really happy today!\nThe air is so crisp and refreshing!',
+				  "Everyone on your team is really excited!\nYou can't wait to see a penguin!"],
+				 ["It is really cold here.",
+				  "There sure is a lot of ice.",
+				  "The sun sure is bright today."],
+				 ["You miss being warm.",
+				  "Your gear is really heavy.",
+				  "Today you were really cold."]  
+			]
+			landmarks = [ ['Here is where Scott and his 2 remaining friends died.\n'+
+						  'They were pinned down by a blizzard 15 miles away from\n'+
+						  'their shelter.  There is a momument here.  It says, "To\n'+
+						  'strive, to seek, to find, and not to yield."' , 'scott.jpg' ],
+						  ['You are now more than halfway to the South Pole.  This\n'+
+						   'is where Oates, a member of Scott\'s team, walked out\n'+
+						   'into a blizzard to die, so that he wouldn\'t slow the\n'+
+						   'the team down any more.  His last words: "I am just \n'+
+						   'going outside and may be some time."', 'oates.jpg'],
+						  ['You made it to the South Pole.', 'pole.jpg']
+			]
+			pictures = [ ['iceberglagoon.jpg', 'berg.jpg', 'igloo.jpg'],
+						 ['landscape1.jpg', 'mount.jpg'],
+						 ['inner.jpg', 'landscape2.jpg']  ];
+			events = [ [{text: 'You found some penguins!', options: [{text:'take pictures', consequences: ['You get some cool pictures.']},
+																	 {text:'hunt them', consequences: ['You killed some penguins']},
+																	 {text:'run away', consequences: ['Penguins?  Danger!  You run away.']}], pic: 'peng.jpg'},
+						{text: 'A member of your team has started snuffling.', options: [{text: 'Take a break.', consequences: ['Better safe than sorry.  You use up some food to take a break.']},
+																					     {text:'Keep going!', consequences: ['It is just some snuffles.  Moving on.']}], pic: 'scape.jpg'}
+							],		
+					   [{text: 'You think a blizzard is coming.', options: [{text:'keep moving', consequences: ['You kept moving and no blizzard came.  Cool!']},
+															 {text:'stop and set up camp', consequences: ['You holed up, but no blizzard came.']}],  pic: 'blizz.jpg'}],
+					   [{text: 'A member of your team slipped and broke a leg.', options: [{text:'leave behind', consequences: ['Without him, you will have a better chance of surviving.']},
+															 {text:'carry', consequences: ['He is heavy, but you can\'t leave him behind.']}],  pic: 'stretcher.jpg'}] ]
+			randomness = [ true, false];
+		}
+		
+		function firstScreen(){
+			r.image(splashpic, border, border, w, h).toBack();
+			var title = text('Epic Journey', w/2, h/5, bigtext);
+			var sub = text('Arctic Expedition', w/2, h/3, regtext);
+			var back1 = backFrame( title.getBBox().x - bigborder, 
+								   title.getBBox().y - bigborder, 
+								   title.getBBox().width + bigborder*2, 
+								   title.getBBox().height + sub.getBBox().height + bigborder*2);
+			title.toFront();
+			sub.toFront();
+			button('PLAY', w/2, 3*h/4, bigtext, teamScreen);
+		}
+		
+		function text(words, x, y, size, framed){
+			var t = r.text(x, y, words).attr({fill:'#336', font: size+'px Arial', stroke:'#444', 'stroke-width':0, 'stroke-opacity':.8});
+			if (framed){
+				var b = backFrame(t.getBBox().x - 4*bigborder, 
+								  t.getBBox().y - bigborder, 
+								  t.getBBox().width + bigborder*8, 
+								  t.getBBox().height + bigborder*2);
+			}
+			t.toFront();
+			return t
+		}
+		
+		function backFrame(x, y, w, h){
+			return r.rect(x, y, w, h, h/10).attr({fill:'#888', stroke:'#003', 'stroke-width':bigborder, opacity: .8, 'stroke-opacity':.9});
+		}
+		
+		function buttonify(piece, f){
+			piece.click(f);
+		}
+		
+		function button(words, x, y, textsize, f){
+			var t = text(words, x, y, textsize);
+			var b = backFrame(t.getBBox().x - 4*bigborder, 
+							  t.getBBox().y - bigborder, 
+							  t.getBBox().width + bigborder*8, 
+							  t.getBBox().height + bigborder*2);
+			t.toFront();
+			buttonify(t, f);
+			buttonify(b, f);
+		}
+		
+		function teamScreen(){
+			r.clear();
+			r.image(teamscreenpic,0,0,w,h);
+			var title = text('Choose Team Members', w/2, h/10, regtext, true);
+			var tboxx1 = bigborder*2;
+			var tboxx2 = w/5+bigborder*3;
+			var tboxy1 = title.getBBox().y+title.getBBox().height+bigborder*3;
+			var tboxy2 = h - bigborder*2;
+			var tboxw = tboxx2 - tboxx1;
+			var tboxh = tboxy2 - tboxy1;
+			var teambox = backFrame(tboxx1, tboxy1, tboxx2-tboxx1, tboxy2-tboxy1); 
+			var buttx1 = tboxx2 + 2*bigborder;
+			var buttx2 = buttx1 + w/5;
+			var butty1 = tboxy1;
+			var butty2 = tboxy2;
+			var buttw = buttx2-buttx1;
+			var butth = (butty2-butty1+bigborder*2)/(people.length) - bigborder*2;
+			var mems = [];
+			var infox1 = buttx2 + 2*bigborder;
+			var infox2 = w - bigborder*2;
+			var infoy1 = butty1;
+			var infoy2 = tboxy2;
+			var infow = infox2-infox1;
+			var infoh = infoy2-infoy1;
+			backFrame(infox1, infoy1, infox2-infox1, infoy2-infoy1);
+			console.log(people.length);
+			function activate(m){
+				active.deselect();
+				m.drawInfo(infox1, infoy1, infox2-infox1, infoy2-infoy1);
+				m.select();
+				active = m;
+			}
+			team = new team({choosePage: true, infox1: tboxx1, infox2: tboxx2, infoy1: tboxy1, infoy2: tboxy2, infow: tboxw, infoh: tboxh});
+			function addToTeam(m){
+				console.log('want to add', m);
+				team.addMember(m);
+				if (team.full){
+					suppliesScreen();
+				}
+			}
+			for (i = 0; i < people.length; i += 1){
+				var m = makePerson(people[i]);
+				var f = m.drawbutton(buttx1, h - bigborder*2*(i+1) - butth*(i+1), buttw, butth, function(){
+					activate(this.mem);
+				});
+				mems.push(m);
+			}
+			active = mems[4];
+			active.select();
+			active.drawInfo(infox1, infoy1, infox2-infox1, infoy2-infoy1);
+			text('Picture', infox1+infow/2, infoy1+infoh/4, bigtext, true);
+			button('Add me', infox1+infow/2, infoy1+infoh*.87, regtext, function(){
+				addToTeam(active);
+			});
+		}	
+		
+		function suppliesScreen(){
+			console.log('need to implements supplies as a field of the team object, but screw that for now');
+			r.clear();
+			r.image('outpost.jpg', 0,0,w,h);
+			button('On this screen we will buy supplies.', w/2, h/2, smalltext, function(){
+				intro();
+			});
+		}
+		
+		function intro(){
+			var i = r.image('welcome.jpg', 0,0,w,h);
+			var introdone = false;
+			var textshown = false;
+			var ultimate = false;
+			function next(){
+				if (introdone == false){
+					text('Congratulations:\nYou made it to Antarctica!', w/2, h/7, regtext*.9, true);
+					text('It is colder than you thought it would be.', w/2, 4*h/7, smalltext*.5, true);
+					introdone = true;
+				}
+				else{
+					if (textshown){
+						if (ultimate){
+							infoScreen();
+						}
+						else {
+							ultimate = true;
+							r.image('map3.gif', 0,0, w, h);
+							text('You have left for the South Pole with your team.', w/2, h/4, regtext, true);
+							button('next', w*.9, h*.90, smalltext, next);
+						}
+					}
+					else{
+						r.image('map3.gif', 0,0, w, h);
+						text('You will be following the trail blazed by\nRobert Falcon Scott.', w/2, h/4, regtext, true);
+						textshown = true;
+						button('next', w*.9, h*.90, smalltext, next);
+					}
+				}
+			}
+			button('next', w*.9, h*.90, smalltext, next);	
+		}
+	
+		function infoScreen(){
+			if (currentstage > maxstage){
+				r.clear();
+				team.member = [];
+				setup();
+			}
+			r.clear();
+			function next(){
+				turnCount += 1;
+				if (turnCount == turnsBetweenLandmarks){
+					r.image( landmarks[currentstage][1], 0,0,w,h);
+					button('next', w*.9, h*.90, smalltext, function(){
+						text( landmarks[currentstage][0], w/2, h*2/5, smalltext, true);
+						turnCount = 0;
+						currentstage += 1;
+						button('next', w*.9, h*.90, smalltext, infoScreen);
+					});
+				}
+				else{
+					event();
+				}
+			}
+			function event(){
+				r.clear();
+				r.image( unc.random.choice(pictures[currentstage]), 0,0,w,h);
+				if (unc.random.choice([0,1])){
+					text( unc.random.choice(messages[currentstage]), w/2, h/5, regtext, true);
+				}
+				else{
+					var e = unc.random.choice( events[currentstage]);
+					r.image( e.pic, 0,0,w,h);
+					text( e.text, w/2, h/5, regtext, true);	
+					var desiredy = h/2-smalltext-bigborder;
+					dojo.forEach(e.options, function(o){
+						var op = o;
+						button( o.text, w/2, desiredy, smalltext, function(){
+							text(unc.random.choice(op.consequences), w/2, 6*h/7, regtext, true);
+						});
+						desiredy += smalltext*2 + bigborder;
+					});
+				}
+				button('next', w*.9, h*.90, smalltext, next);
+			}
+			button('next', w*.9, h*.90, smalltext, next);
+			next();
+		}
+		
+		
+		
+		dojo.declare("team", null, {
+			members: [],
+			max: 4,
+			full: false,
+			choosePage: false,
+			constructor: function(args){
+				dojo.mixin(this,args);
+				this.choosepageh = (this.infoh-bigborder*3+bigborder)/4 - bigborder;
+				this.choosepagew = this.infow-3*bigborder;
+				this.currdy = 0;
+			},
+			addMember: function(m){
+				if (this.members.length < this.max){
+					this.members.push(m);
+					if (this.choosePage){
+						this.drawOnInfoPage();
+					}
+					if (this.members.length == this.max){
+						this.full = true;
+					}
+					return true;
+				}
+				return false;
+			},
+			drawOnInfoPage: function(){
+				var self = this;
+				var x = self.infox1+self.infow/2;
+				var y = self.infoy1+bigborder+self.currdy+self.choosepageh/2;
+				console.log(x, y, self.infoy1, bigborder, self.currdy, self.choosepageh);
+				text(self.members[self.members.length-1].name, x, y, smalltext);
+				self.currdy += self.choosepageh + bigborder;
+			}
+		});
+		
+		dojo.declare("member", null, {
+			state: 'Cold',
+			immobilized: false,
+			health: 100,
+			text: '',
+			skills: [],
+			constructor: function(args){
+				dojo.safeMixin(this, args);
+			},
+			drawbutton: function(x, y, w, h, g) {
+				var self = this;
+				var f = backFrame(x, y, w, h);
+				var w = text(self.name, x+w/2, y+h/2, smalltext);
+				f.mem = self;
+				w.mem = self;
+				self.buttframe = f;
+				self.buttwords = w;
+				buttonify(f, g);
+				buttonify(w, g);
+				return f;
+			},
+			select: function(){
+				this.buttframe.attr({fill:'#0f0'});
+			},
+			deselect: function(){
+				var self = this;
+				console.log('deselect', this.name);
+				self.buttframe.attr({fill:'#888'});
+				self.infoout.remove();
+			},
+			drawInfo: function(x,y,w,h){
+				console.log('darwinfo', this.name);
+				var self = this;
+				self.infoout = text(this.text, x + w/2, y + h*.6, smalltext);
+			}
+		});
+		
+		function makePerson(type){
+			if (type == 'Doctor'){
+				return member({
+					text: "Hi!  I help the team by curing minor\nailments and preventing major ones,\nbut I'm not very strong myself.",
+					skills: ['heals'],
+					name: 'Doctor'
+				});
+			}
+			if (type == 'Explorer'){
+				return member({
+					text: "Yo, I can climb mountains and stuff \nto help move the group along faster.",
+					skills: ['climbs'],
+					name: 'Climber'
+				});
+			}
+			if (type == 'Soldier'){
+				return member({
+					text: "Sir!  I can protect the group in case\nof attack!  I am also hardy and unlikely\nto get injured!",
+					skills: ['fights'],
+					name: 'Soldier'
+				});
+			}
+			if (type == 'Scientist'){
+				return member({
+					text: "I know things about the weather and\ncome with extra funding for the\nexpedition.",
+					skills: ['weather'],
+					name: 'Scientist'
+				});
+			}
+			if (type == 'Dog Expert'){
+				return member({
+					text: "I can manage the dogs, keeping them\nhealthy and happy.",
+					skills: ['dogs'],
+					name: 'Dog Leader'
+				});
+			}
+		}
+	
+		dojo.ready(setup);
+	</script>
+<head>
+
+<body>
+	
+
+
+</body>
