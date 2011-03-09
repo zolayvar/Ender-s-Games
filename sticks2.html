@@ -213,6 +213,9 @@
 					this.ox = this.attr('x');
 					this.oy = this.attr('y');
 					oldydef = ydef;
+				},
+				function(){
+					ydef = this.getBBox().y + this.getBBox().height/2;
 				}
 			);
 			var zbar = r.rect(view1x+gridWidth*3/4, zdef-popd*2, w-gridWidth, popd*4).attr({fill:'#f77', opacity: .8, stroke:'#f77'});	
@@ -231,6 +234,9 @@
 					this.ox = this.attr('x');
 					this.oy = this.attr('y');
 					oldzdef = zdef;
+				},
+				function(){
+					zdef = this.getBBox().y + this.getBBox().height/2;
 				}
 			);		
 		}
