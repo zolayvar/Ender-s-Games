@@ -97,7 +97,7 @@
 			view3y = 2*h/5;
 			view3w = w/2;
 			view3h = 3*h/5;
-			xdef = 3*gridSpace;
+			xdef = .6*gridSpace;
 			ydef = 4*gridSpace;
 			zdef = 2*gridSpace+view2h;
 			measurements();
@@ -671,11 +671,11 @@
 							var width1 = popd;
 						}
 						if (this.thet == 90){
-							var height1 = popl;
+							var height1 = popl*this.alpha;
 							var width1 = popd;
 						}
 						if (this.thet != 90 && this.thet != 0){
-							var height1 = sin(this.thet)*popl;
+							var height1 = sin(this.thet)*popl*this.alpha;
 							var width1 = popd;
 						}
 					}
@@ -755,14 +755,14 @@
 						var rot = 0;
 						if (this.thet == 0){
 							var width2 = popd;
-							var height2 = popl;
+							var height2 = popl*this.alpha;
 						}
 						if (this.thet == 90){
 							var width2 = popd;
 							var height2 = popw;
 						}
 						if (this.thet != 90 && this.thet != 0){
-							var height2 = cos(this.thet)*popl;
+							var height2 = cos(this.thet)*popl*this.alpha;
 							var width2 = popd;
 						}
 					}
@@ -829,9 +829,12 @@
 					}
 					if (this.third == true){
 						var rot = this.thet;
-						var width3 = popl;
+						var width3 = popl*this.alpha;
 						var height3 = popw;
-						var round = popw/2-1;
+						var round = 0;
+						if (this.alpha == 1){
+							var round = popw/2-1;
+						}
 					}
 					console.log('i ended up with', width3, height3, rot);
 					var drawn3 = r.rect( view3x0+this.y - width3/2 , this.z-height3/2, width3, height3, round);
