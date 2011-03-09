@@ -399,11 +399,15 @@
 				}
 				this.stix.sort(comparey);
 				dojo.forEach(this.stix, function(s){
-					s.drawn1.toFront();
+					if (s.removed == false){
+						s.drawn1.toFront();
+					}
 				});
 				this.stix.sort(comparez);
 				dojo.forEach(this.stix, function(s){
-					s.drawn2.toFront();
+					if (s.removed == false){
+						s.drawn2.toFront();
+					}
 				});
 			},
 			remove: function(){
@@ -779,22 +783,25 @@
 					drawn3.rotate(rot);
 					drawn3.drag(
 						function(dx, dy){ //move all of the sticks in the proper way
-							checkForIntersections(drawn3.stick);
+							//checkForIntersections(drawn3.stick);
 							drawn3.attr({x: drawn3.ox + dx, y: drawn3.oy + dy});
-							//drawn3.stick.drawn1.attr({x: drawn3.stick.drawn1.ox + dx});
+							drawn3.stick.drawn1.attr({y: drawn3.stick.drawn1.oy + dy});
+							drawn3.stick.drawn2.attr({y: drawn3.stick.drawn1.oy + dx});
 							if (drawn3.ox+dx > view3x+view3w-width3 && dx > 0){
 								drawn3.attr({x: view3w+view3x-width3});
-								//drawn3.stick.drawn1.attr({x: view2w-width2});
+								drawn3.stick.drawn2.attr({y: 0});
 							}
 							if (drawn3.ox+dx < view3x && dx < 0){
 								drawn3.attr({x: view3x});
-								//drawn3.stick.drawn1.attr({x: 0});
+								drawn3.stick.drawn2.attr({y: view2h});
 							}
 							if (drawn3.oy+dy > view3h+view3y-height3 && dy > 0){
-								drawn3.attr({y: view2h+view2y-height2});
+								drawn3.attr({y: view3h+view3y-height3});
+								drawn3.stick.drawn1.attr({y: view3h+view3y-height3});
 							}
 							if (drawn3.oy+dy < view3y && dy < 0){
-								drawn3.attr({y: view2y});
+								drawn3.attr({y: view3y});
+								drawn3.stick.drawn1.attr({y: view3y});
 							}
 							drawn3.stick.update();
 						},this.startAll,this.endAll);
@@ -837,7 +844,7 @@
 			astick.drawn1.attr({fill:'#22f'});
 			astick.drawn2.attr({fill:'#22f'});
 			dojo.forEach(my.stix, function(other){
-				if (astick != other){
+				if (astick != other  && astick.removed == false){
 					other.drawn1.attr({fill:'#22f'});
 					other.drawn2.attr({fill:'#22f'});
 					var xoverlap = Math.abs(other.x - astick.x) < (astick.xl+other.xl)/2;
