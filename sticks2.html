@@ -844,7 +844,7 @@
 			astick.drawn1.attr({fill:'#22f'});
 			astick.drawn2.attr({fill:'#22f'});
 			dojo.forEach(my.stix, function(other){
-				if (astick != other  && astick.removed == false){
+				if (astick != other  && other.removed == false){
 					other.drawn1.attr({fill:'#22f'});
 					other.drawn2.attr({fill:'#22f'});
 					var xoverlap = Math.abs(other.x - astick.x) < (astick.xl+other.xl)/2;
