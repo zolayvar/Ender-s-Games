@@ -786,7 +786,7 @@
 							//checkForIntersections(drawn3.stick);
 							drawn3.attr({x: drawn3.ox + dx, y: drawn3.oy + dy});
 							drawn3.stick.drawn1.attr({y: drawn3.stick.drawn1.oy + dy});
-							drawn3.stick.drawn2.attr({y: drawn3.stick.drawn1.oy + dx});
+							drawn3.stick.drawn2.attr({y: drawn3.stick.drawn2.oy + dx});
 							if (drawn3.ox+dx > view3x+view3w-width3 && dx > 0){
 								drawn3.attr({x: view3w+view3x-width3});
 								drawn3.stick.drawn2.attr({y: 0});
