@@ -655,7 +655,7 @@
 					drawn1.attr({stroke:'#fff','stroke-width':2, fill:'#33f'});
 					drawn1.drag(
 						function(dx, dy){ //move all of the sticks in the proper way
-							checkForIntersections(drawn1.stick);
+							//checkForIntersections(drawn1.stick);
 							drawn1.attr({x: drawn1.ox + dx});
 							drawn1.stick.drawn2.attr({x: drawn1.stick.drawn2.ox + dx});
 							drawn1.attr({y: drawn1.oy+dy});
@@ -722,7 +722,7 @@
 					var drawn2 = r.rect( this.x-width2/2, this.y-height2/2+view2y, width2, height2, round);
 					drawn2.drag(
 						function(dx, dy){ //move all of the sticks in the proper way
-							checkForIntersections(drawn2.stick);
+							//checkForIntersections(drawn2.stick);
 							drawn2.attr({x: drawn2.ox + dx, y: drawn2.oy + dy});
 							drawn2.stick.drawn1.attr({x: drawn2.stick.drawn1.ox + dx});
 							drawn2.stick.drawn3.attr({x: drawn2.stick.drawn3.ox + dy});
