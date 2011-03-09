@@ -389,6 +389,7 @@
 					s.draw2();
 					s.draw3();
 				});
+				this.sortStix();
 			},
 			sortStix: function(){
 				function comparey(stika, stikb){
@@ -426,24 +427,26 @@
 				var self = this;
 				dojo.forEach(data.stix, function(stickjson){
 					var newstick = new stick(stickjson);
-					self.stix.push(newstick);
-					count += 1;
-					counter.attr({text: count});
-					if (newstick.size == 'whole'){
-						wholecount += 1;
-						wholecounter.attr({text: wholecount});
-					}
-					if (newstick.size == 'three'){
-						threecount += 1;
-						threecounter.attr({text: threecount});
-					}
-					if (newstick.size == 'half'){
-						halfcount += 1;
-						halfcounter.attr({text: halfcount});
-					}
-					if (newstick.size == 'fourth'){
-						fourthcount += 1;
-						fourthcounter.attr({text: fourthcount});
+					if (newstick.removed == false){
+						self.stix.push(newstick);
+						count += 1;
+						counter.attr({text: count});
+						if (newstick.size == 'whole'){
+							wholecount += 1;
+							wholecounter.attr({text: wholecount});
+						}
+						if (newstick.size == 'three'){
+							threecount += 1;
+							threecounter.attr({text: threecount});
+						}
+						if (newstick.size == 'half'){
+							halfcount += 1;
+							halfcounter.attr({text: halfcount});
+						}
+						if (newstick.size == 'fourth'){
+							fourthcount += 1;
+							fourthcounter.attr({text: fourthcount});
+						}
 					}
 				});
 			}
@@ -459,6 +462,7 @@
 			drawnpre: null,
 			drawn1: null, 
 			drawn2: null,
+			third: false,
 			removed: false,
 			constructor: function(args){
 				dojo.mixin(this, args);
@@ -514,6 +518,7 @@
 						pre.attr({opacity: 1});
 						if (pre.stick.placed == false){
 							if (pre.attr('x') < view1w && pre.attr('y') > view1y){ //it was placed in view 1
+								pre.stick.third = false;
 								pre.stick.placed = true;
 								var box = pre.getBBox();
 								pre.stick.x = box.x+box.width/2;
@@ -524,6 +529,7 @@
 								pre.stick.side = 'edge';
 							}
 							if (pre.attr('x') < view1w && pre.attr('y') < view1y){ //it was placed in view 2
+								pre.stick.third = false;
 								pre.stick.placed = true;
 								var box = pre.getBBox();
 								pre.stick.x = box.x+box.width/2;
@@ -534,14 +540,13 @@
 								pre.stick.side = 'flat';
 							}
 							if (pre.attr('x') > view3x && pre.attr('y') > view1y){ //it was placed in view 3
-//								pre.stick.placed = true;
-	//							var box = pre.getBBox();
-		//						pre.stick.x = xdef;
-			//					pre.stick.y = box.x+box.width/2-view3x0;
-				//				pre.stick.z = box.y+box.height/2;
-					//			pre.stick.fi = pre.stick.thet;
-						//		pre.stick.thet = 90;
-							//	pre.stick.side = 'edge';
+								pre.stick.third = true
+								pre.stick.placed = true;
+								var box = pre.getBBox();
+								pre.stick.x = xdef;
+								pre.stick.y = box.x+box.width/2-view3x0;
+								pre.stick.z = box.y+box.height/2;
+								pre.stick.thet = pre.stick.thet;
 							}
 							if (pre.stick.placed == true){
 								count += 1;
@@ -615,43 +620,61 @@
 			},
 			draw1: function(){
 				if (this.removed==false){
-					var round = popw/2 - 1;
-					var rawlength = popl;				
-					if (this.size == 'three'){
-						round = 0;
-						rawlength = rawlength*.75;
-					}
-					if (this.size == 'half'){
-						round = 0;
-						rawlength = rawlength*.5;
-					}
-					if (this.size == 'fourth'){
-						round = 0;
-						rawlength = rawlength*.25;
-					}
-					if (this.thet == 0){
-						if (this.side == 'flat'){
-							var width1 = rawlength;
-							var height1 = popd;
+					if (this.third == false){
+						var rot = this.fi;
+						var round = popw/2 - 1;
+						var rawlength = popl;				
+						if (this.size == 'three'){
 							round = 0;
+							rawlength = rawlength*.75;
 						}
-						if (this.side == 'edge'){
-							var width1 = rawlength;
+						if (this.size == 'half'){
+							round = 0;
+							rawlength = rawlength*.5;
+						}
+						if (this.size == 'fourth'){
+							round = 0;
+							rawlength = rawlength*.25;
+						}
+						if (this.thet == 0){
+							if (this.side == 'flat'){
+								var width1 = rawlength;
+								var height1 = popd;
+								round = 0;
+							}
+							if (this.side == 'edge'){
+								var width1 = rawlength;
+								var height1 = popw;
+							}
+						}
+						if (this.thet == 90){
+							width1 = popw;
+							height1 = popd;
+							round = 0
+						}
+						if (this.thet != 90 && this.thet != 0){
+							width1 = rawlength*cos(this.thet)+2;
+							height1 = popd;
+							round = 0
+						}
+					}
+					if (this.third == true){
+						var rot = 0;
+						if (this.thet == 0){
 							var height1 = popw;
+							var width1 = popd;
 						}
-					}
-					if (this.thet == 90){
-						width1 = popw;
-						height1 = popd;
-						round = 0
-					}
-					if (this.thet != 90 && this.thet != 0){
-						width1 = rawlength*cos(this.thet)+2;
-						height1 = popd;
-						round = 0
+						if (this.thet == 90){
+							var height1 = popl;
+							var width1 = popd;
+						}
+						if (this.thet != 90 && this.thet != 0){
+							var height1 = sin(this.thet)*popl;
+							var width1 = popd;
+						}
 					}
 					var drawn1 = r.rect(this.x - width1/2, this.z - height1/2, width1, height1, round);
-					drawn1.rotate(this.fi);
+					drawn1.rotate(rot);
 					drawn1.attr({stroke:'#fff','stroke-width':2, fill:'#33f'});
 					drawn1.drag(
 						function(dx, dy){ //move all of the sticks in the proper way
@@ -684,40 +707,58 @@
 			},
 			draw2: function(){
 				if (this.removed == false){
-					var round = 0;
-					var rawlength = popl;				
-					if (this.size == 'three'){
-						round = 0;
-						rawlength = rawlength*.75;
-					}
-					if (this.size == 'half'){
-						round = 0;
-						rawlength = rawlength*.5;
-					}
-					if (this.size == 'fourth'){
-						round = 0;
-						rawlength = rawlength*.25;
-					}
-					if (this.fi == 0){
-						if (this.side == 'flat'){
-							width2 = rawlength;
-							height2 = popw;
-							if (this.size == 'whole'){
-								round = popw/2-1;
+					if (this.third == false){
+						var rot = this.thet;
+						var round = 0;
+						var rawlength = popl;				
+						if (this.size == 'three'){
+							round = 0;
+							rawlength = rawlength*.75;
+						}
+						if (this.size == 'half'){
+							round = 0;
+							rawlength = rawlength*.5;
+						}
+						if (this.size == 'fourth'){
+							round = 0;
+							rawlength = rawlength*.25;
+						}
+						if (this.fi == 0){
+							if (this.side == 'flat'){
+								width2 = rawlength;
+								height2 = popw;
+								if (this.size == 'whole'){
+									round = popw/2-1;
+								}
+							}
+							if (this.side == 'edge'){
+								width2 = rawlength;
+								height2 = popd;
 							}
 						}
-						if (this.side == 'edge'){
-							width2 = rawlength;
+						if (this.fi == 90){
+							width2 = popw;
+							height2 = popd;
+						}
+						if (this.fi != 90 && this.fi != 0){
+							width2 = cos(this.fi)*rawlength+2;
 							height2 = popd;
 						}
 					}
-					if (this.fi == 90){
-						width2 = popw;
-						height2 = popd;
-					}
-					if (this.fi != 90 && this.fi != 0){
-						width2 = cos(this.fi)*rawlength+2;
-						height2 = popd;
+					if (this.third == true){
+						var rot = 0;
+						if (this.thet == 0){
+							var width2 = popd;
+							var height2 = popl;
+						}
+						if (this.thet == 90){
+							var width2 = popd;
+							var height2 = popw;
+						}
+						if (this.thet != 90 && this.thet != 0){
+							var height2 = cos(this.thet)*popl;
+							var width2 = popd;
+						}
 					}
 					var drawn2 = r.rect( this.x-width2/2, this.y-height2/2+view2y, width2, height2, round);
 					drawn2.drag(
@@ -742,7 +783,7 @@
 							}
 							drawn2.stick.update();
 						},this.startAll,this.endAll);
-					drawn2.rotate(this.thet);
+					drawn2.rotate(rot);
 					drawn2.attr({stroke:'#fff','stroke-width':2, fill:'#33f'});
 					drawn2.stick = this;
 					this.drawn2 = drawn2;
@@ -750,33 +791,41 @@
 			},
 			draw3: function() {
 				if (this.removed == false){
-					var round = 0;
-					var rot = 0;
-					if (this.side == 'flat'){
-						if (this.thet == 0){
-							var width3 = popw*this.alpha;
-						}
-						else {
-							var width3 = popl*sin(this.thet)*this.alpha;
-						}
-						var height3 = popd;
-					}
-					if (this.side == 'edge'){
-						if (this.thet == 0){
-							if (this.fi == 0){
-								var height3 = popw;
+					if (this.third == false){
+						var round = 0;
+						var rot = 0;
+						if (this.side == 'flat'){
+							if (this.thet == 0){
+								var width3 = popw*this.alpha;
 							}
 							else {
-								var height3 = popl*sin(this.fi)*this.alpha;
+								var width3 = popl*sin(this.thet)*this.alpha;
 							}
-							var width3 = popd;
+							var height3 = popd;
 						}
-						else{
-							var height3 = popl*this.alpha;
-							var width3 = popw;
-							round = popw/2 - 1;
-							rot = this.fi;
+						if (this.side == 'edge'){
+							if (this.thet == 0){
+								if (this.fi == 0){
+									var height3 = popw;
+								}
+								else {
+									var height3 = popl*sin(this.fi)*this.alpha;
+								}
+								var width3 = popd;
+							}
+							else{
+								var height3 = popl*this.alpha;
+								var width3 = popw;
+								round = popw/2 - 1;
+								rot = this.fi;
+							}
 						}
+					}
+					if (this.third == true){
+						var rot = this.thet;
+						var width3 = popl;
+						var height3 = popw;
+						var round = popw/2-1;
 					}
 					console.log('i ended up with', width3, height3, rot);
 					var drawn3 = r.rect( view3x0+this.y - width3/2 , this.z-height3/2, width3, height3, round);
