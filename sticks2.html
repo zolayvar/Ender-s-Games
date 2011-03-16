@@ -80,7 +80,7 @@
 			w = dojo.window.getBox().w;
 			h = dojo.window.getBox().h;
 			r = new Raphael(0, 0, w, h);
-			gridWidth = 2;
+			gridWidth = 1;
 			numVert = 61;
 			gridSpace = w/numVert;
 			numHor = h/gridSpace;
@@ -197,7 +197,7 @@
 		}		
 		
 		function setupDefaultCoordinateBars(){
-			var ybar = r.rect(view2x+gridWidth*3/4, ydef-popd*2, view2w-gridWidth, popd*4).attr({fill:'#f77', opacity: .8, stroke:'#f77'});	
+			var ybar = r.rect(view2x+gridWidth*3/4, ydef-popd/2-1, view2w-gridWidth, popd+2).attr({fill:'#f77', opacity: .8, stroke:'#f77'});	
 			ybar.drag( 
 				function(dx, dy){  //move
 					this.attr({y: this.oy+dy});
@@ -218,7 +218,7 @@
 					ydef = this.getBBox().y + this.getBBox().height/2;
 				}
 			);
-			var zbar = r.rect(view1x+gridWidth*3/4, zdef-popd*2, w-gridWidth, popd*4).attr({fill:'#f77', opacity: .8, stroke:'#f77'});	
+			var zbar = r.rect(view1x+gridWidth*3/4, zdef-popd/2-1, w-gridWidth, popd+2).attr({fill:'#f77', opacity: .8, stroke:'#f77'});	
 			zbar.drag( 
 				function(dx, dy){  //move
 					this.attr({y: this.oy+dy});
@@ -509,7 +509,7 @@
 				var preheight = popw;
 				var pre = r.rect(view2w+3*gridSpace, view2h - 3*gridSpace, prewidth, preheight, preroun);
 				pre.stick = this;
-				pre.attr({stroke:'#fff','stroke-width':2, fill:'#33f'});
+				pre.attr({stroke:'#fff','stroke-width':1, fill:'#33f'});
 				pre.rotate(this.thet);
 				pre.drag( 
 					function(dx,dy){ //move
@@ -546,7 +546,7 @@
 								pre.stick.side = 'flat';
 							}
 							if (pre.attr('x') > view3x && pre.attr('y') > view1y){ //it was placed in view 3
-								pre.stick.third = true
+								pre.stick.third = true;
 								pre.stick.placed = true;
 								var box = pre.getBBox();
 								pre.stick.x = xdef;
@@ -591,14 +591,14 @@
 					active.sleep();
 				}
 				active = this;
-				this.drawn1.attr({stroke:'#0f0', 'stroke-width': 3});
-				this.drawn2.attr({stroke:'#0f0', 'stroke-width': 3});
-				this.drawn3.attr({stroke:'#0f0', 'stroke-width': 3});
+				this.drawn1.attr({fill:'#0f0', 'stroke-width': 1});
+				this.drawn2.attr({fill:'#0f0', 'stroke-width': 1});
+				this.drawn3.attr({fill:'#0f0', 'stroke-width': 1});
 			},
 			sleep: function(){
-				this.drawn1.attr({stroke:'#fff', 'stroke-width': 2});
-				this.drawn2.attr({stroke:'#fff', 'stroke-width': 2});
-				this.drawn3.attr({stroke:'#fff', 'stroke-width': 2});
+				this.drawn1.attr({fill:'#11f', 'stroke-width': 1});
+				this.drawn2.attr({fill:'#11f', 'stroke-width': 1});
+				this.drawn3.attr({fill:'#11f', 'stroke-width': 1});
 			},
 			redraw: function(){
 				if (this.placed==false){
@@ -681,7 +681,7 @@
 					}
 					var drawn1 = r.rect(this.x - width1/2, this.z - height1/2, width1, height1, round);
 					drawn1.rotate(rot);
-					drawn1.attr({stroke:'#fff','stroke-width':2, fill:'#33f'});
+					drawn1.attr({stroke:'#fff','stroke-width':1, fill:'#33f'});
 					drawn1.drag(
 						function(dx, dy){ //move all of the sticks in the proper way
 							//checkForIntersections(drawn1.stick);
@@ -790,7 +790,7 @@
 							drawn2.stick.update();
 						},this.startAll,this.endAll);
 					drawn2.rotate(rot);
-					drawn2.attr({stroke:'#fff','stroke-width':2, fill:'#33f'});
+					drawn2.attr({stroke:'#fff','stroke-width':1, fill:'#33f'});
 					drawn2.stick = this;
 					this.drawn2 = drawn2;
 				}
@@ -863,7 +863,7 @@
 							}
 							drawn3.stick.update();
 						},this.startAll,this.endAll);
-					drawn3.attr({stroke:'#fff','stroke-width':2, fill:'#33f'});
+					drawn3.attr({stroke:'#fff','stroke-width':1, fill:'#33f'});
 					drawn3.stick = this;
 					this.drawn3 = drawn3;
 				}
@@ -891,7 +891,17 @@
 				my.sortStix();
 			},
 			toJSON: function() {
-				return {'x': (this.x-gridSpace)/scale, 'y': (view2h-gridSpace-this.y)/scale, 'z': (h-this.z-gridSpace)/scale, placed: this.placed, thet: this.thet, fi: this.fi, side: this.side, size: this.size, alpha: this.alpha, removed: this.removed};
+				return {'x': (this.x-gridSpace)/scale, 
+				        'y': (view2h-gridSpace-this.y)/scale, 
+						'z': (h-this.z-gridSpace)/scale, 
+						placed: this.placed, 
+						thet: this.thet, 
+						fi: this.fi, 
+						side: this.side, 
+						size: this.size, 
+						alpha: this.alpha, 
+						removed: this.removed,
+						third: this.third};
 			},
 			indicateCenter: function(){
 				r.circle(this.x, (this.z), 10).toFront();
