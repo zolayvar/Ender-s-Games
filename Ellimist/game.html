@@ -1,0 +1,345 @@
+<head>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+	<script type="text/javascript" src="raphael.js"></script>
+	<script type="text/javascript" src="random.js"></script>
+	<script type="text/javascript">
+		dojo.require("dojo.window");
+	
+		function setup(){
+			initializeData();
+			constants();
+			title();
+		}
+		
+		function initializeData(){
+			levels = [];
+			levels.push({
+				name: '1',
+				pops: [
+					{
+						name: 'grass',
+						num: 10,
+						attrs: {
+							maxspeed: 0, 
+							flesh: 'veggie'
+						}
+					}
+				]
+			});
+			
+			levels.push({
+				name: '2',
+				data: {
+				
+				}
+			});
+			levels.push({
+				name: '3',
+				data: {
+				
+				}
+			});
+			levels.push({
+				name: '4',
+				data: {
+				
+				}
+			});
+			levels.push({
+				name: '5',
+				data: {
+				
+				}
+			});
+			levels.push({
+				name: '6',
+				data: {
+				
+				}
+			});
+			levels.push({
+				name: '7',
+				data: {
+				
+				}
+			});
+			levels.push({
+				name: '8',
+				data: {
+				
+				}
+			});
+			
+			
+			
+			attrs = {
+				legs: {
+					adjust: function(owner){
+						owner.maxspeed += 1;
+						owner.size += 1;
+					}
+				},
+				flatteeth: {
+					adjust: function(owner){
+						owner.food.push('veggie');
+					}
+				},
+				sharpteeth: {
+					adjust: function(owner){
+						owner.food.push('meat');
+					}
+				}
+			}
+		}
+		
+		function constants(){
+			c = {};  //container for constants with a short name 
+			c.w = dojo.window.getBox().w;
+			c.h = dojo.window.getBox().h;
+			c.cx = c.w/2;
+			c.cy = c.h/2;
+			c.r = new Raphael(0,0,c.w,c.h);
+			c.big = c.h/8;
+			c.med = c.big*.6;
+			c.small = c.big*.3;
+			c.sbord = c.h/80;
+			c.bbord = c.h/20;
+		}
+		
+		function title(){
+			formatFrame(0,0,c.w,c.h,0, 'd');
+			var title = new button(c.cx, c.h/3, 'The Ellimist\'s Game', c.big*1.5, c.big*10, 'd');
+			var info = new button(c.cx, c.h*.5, 'a game of small changes and huge results', c.small, c.big, 'd');
+			var b = new button(c.cx, c.h*.8, 'Click to Begin', c.big*.7, c.big*3.7, selectLevel);
+		}
+		
+		function selectLevel(){
+			c.r.clear();
+			formatFrame(0,0,c.w,c.h,0, 'd');
+			var a = new button(c.cx, c.h/10, 'Choose a level', c.big, c.big, function(){
+				startLevel(levels[0]);
+			});
+			var lby = c.h/4;
+			var lbx = c.small;
+		    var lbw = 2*(c.w-c.small)/levels.length - c.small;
+			var lbh = (c.h-lby-c.small)/2 - c.small;
+			for (var i = 0; i < levels.length/2; i++){
+				var a = new button( lbx + lbw/2 + i*(lbw+c.small), lby+lbh*.5, levels[i].name, lbh, lbw, function(){console.log(i);startLevel(levels[i])});
+				var a = new button( lbx + lbw/2 + i*(lbw+c.small), lby+lbh*1.5+c.small, levels[i+levels.length/2].name, lbh, lbw, function() {startLevel(levels[i+levels.length/2])});
+			}
+		}
+		
+		function startLevel(level){
+			c.r.clear();
+			formatFrame(0,0,c.w,c.h,0, 'd');
+			//var a = new button(c.cx, c.h/10, 'About this level', c.big, c.big);
+			vw = c.w - 2*c.big;
+			vh = c.h - 2*c.big;
+			v = new Raphael( c.big, c.big, vw, vh );
+			random = [];
+			grid = [];
+			for (var j = 1; j < 100; j++){
+				var g = [0,0,0,0];
+				for (var k = 1; k < 100; k ++){
+					g.push(0);
+				}
+				grid.push(g);
+				random.push(j);
+			}
+			console.log('level', level);
+			var eco = new system(level);
+			console.log(eco, level)
+			setInterval( function(){
+				eco.step();
+			}, 100);
+		}
+		
+		function formatWords(x, y, text, size, style){
+			var a = c.r.text(x, y, text);
+			if (style == 'd'){ 
+				//a.attr({font: size + 'px Arial', fill: '#bbf', stroke:'#002', 'stroke-width':2});
+				a.attr({font: size + 'px Helvetica Nueue', fill: '#fff'});
+			}
+			return a;
+		}
+		
+		function formatFrame(x, y, w, h, r, style){
+			var a = c.r.rect(x, y, w, h, r);
+			if (style == 'd'){
+				a.attr({fill: '#000', opacity: .7, stroke:'#bbf', 'stroke-width': (w+h)/100});
+			}
+			return a;
+		}
+		
+		dojo.declare("button", null, { // constructor wants cx, cy, text, height, width, f
+			constructor: function(cx, cy, text, height, width, f){
+				var self = this;
+			
+				this.word = formatWords(cx,cy,text, c.small, 'd');
+				
+				var workingh = height*.7;
+				var workingw = width*.8;
+				var hscale = workingh/self.word.getBBox().height;
+				var wscale = workingw/self.word.getBBox().width;
+				var winner = Math.min(hscale, wscale);
+				//self.word.scale(winner, winner);
+				self.word.attr({font: workingh + 'px Arial'});
+				
+				var framewidth = this.word.getBBox().width*(1/.7);
+				this.box = formatFrame(cx - framewidth/2, cy - height/2, framewidth, height, (framewidth+height)/100, 'd');
+				this.word.toFront();
+				
+				this.elements = [this.word, this.box];
+				dojo.forEach( this.elements, function(e){
+					e.click(f);
+				});
+			},
+			destroy: function(){
+				dojo.forEach( this.elements, function(e){
+					e.remove();
+				});
+			}
+		});
+		
+		dojo.declare( "system", null, {
+			constructor: function(args){ // pop: array of species
+				dojo.mixin(this,args);
+				console.log('args', args, this);
+				this.orgs = [];
+				var self = this;
+				dojo.forEach( this.pops, function(pop){
+					console.log('a pop', pop);
+					for (var j = 0; j < pop.num; j++){
+						var a = new organism( pop.attrs );
+						console.log('an organism', a);
+						self.orgs.push(a);
+						a.place( unc.random.choice(random), unc.random.choice(random), v);
+					}
+				});
+				console.log(this.orgs);
+			},
+			step: function(){
+				var self = this;
+				dojo.forEach( self.orgs, function(o){
+					if (!o.dead){
+						var split = o.step(this.orgs, true);
+						if ( split==false){
+							//it did not reproduce
+						}
+						else{
+							self.orgs.push(split);
+						}
+					}
+				});
+			}
+		});
+		
+		dojo.declare( "organism" , null, {
+			maxspeed: 1,
+			drawnto: ['food'], 		//will include food
+			avoid: ['predator'], 	//will probably include predators
+			flesh: 'none',  		//'meat' or 'veggie'
+			size: 10,  				//equivalent to energy requirement
+			food: [],  				//meat, veggie, or both
+			parts: [],  
+			energy: 50,
+			dead: false,
+			children:0,
+			stifled: false,
+			constructor: function(args){
+				this.args = args;
+				dojo.mixin(this, args);
+				this.calcFactors();
+			},
+			calcFactors: function(){
+				dojo.forEach(this.parts, function(p){
+					p.adjust(this);
+				});
+				this.energy = unc.random.choice(random)*100;
+			},
+			place: function(x, y, r){
+				console.log(x, y);
+				this.pic = r.circle(x*vw/100, y*vh/100, this.size);
+				if (this.flesh == 'veggie'){
+					this.pic.attr({fill:'#0f0'});
+				}
+				if (this.flesh == 'meat'){
+					this.pic.attr({fill:'#f00'});
+				}
+				this.x = x;
+				this.y = y;
+				console.log(this.x, this.y);
+				grid[this.x][this.y] = 1;
+			},
+			step: function(neighbors, sunstate){
+				if (!this.dead){
+					var self = this;
+					if (this.energy < 0){
+						this.die();
+					}
+					if (this.flesh == 'veggie' && sunstate == true){
+						this.energy += 4;
+					}
+					if (this.maxspeed > 0){
+						
+					}
+					self.energy = self.energy - self.size/3;
+					return self.reproduce(neighbors);
+				}
+			},
+			reproduce: function(orgs){
+				//var num = this.countnearby();
+				var blahi = [-1,0,1];
+				unc.random.shuffle(blahi);
+				if (this.energy > 100){
+					for ( var i in blahi){
+						var blahj = [-1,0,1]
+						unc.random.shuffle(blahj);
+						for (var j in blahj ){
+							if (grid[this.x+blahi[i]][this.y+blahj[j]] == 0){
+								var n = new organism(this.args);
+								n.place(this.x+blahi[i], this.x+blahj[j], v);
+								this.energy = this.energy/2;
+								return n
+							}
+						}
+					}
+				}
+				return false;
+			},
+			countnearby: function(orgs){
+				var self = this;
+				var count = 0;
+				dojo.forEach( orgs, function(o){
+					if ( dist( o.x, o.y, self.x, self.y) < 2){
+						count +=1;
+					}
+				});
+				this.stifled =  true;
+				return count;
+			},
+			die: function(){
+				var self = this;
+				this.pic.attr({fill: '#000'});
+				this.pic.animate({opacity: 0}, 100, callback = function(){
+					self.pic.remove();
+				});
+				this.dead = true;
+				grid[this.x][this.y] = 0;
+			}
+		});
+		
+		function dist(x1, y1, x2, y2){
+			return Math.pow( Math.pow(x1-x2,2) + Math.pow(y1-y2,2) , .5);
+		}
+	
+		dojo.ready(setup);
+	</script>
+</head>
+
+<body>
+
+
+
+
+</body>

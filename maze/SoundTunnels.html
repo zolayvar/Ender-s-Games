@@ -34,7 +34,7 @@
 			}
 			
 			function constants(){
-				life = 1500;
+				life = 10;
 				playing = true;
 				sizebox = {};
 				sizebox.screenwidth = dojo.window.getBox().w;
@@ -56,14 +56,27 @@
 			function setupSound(){
 				soundbox = {};
 				uow.getAudio().then(function(a){
-					a.setProperty({name:'loop', value: true});
-					a.play({url: 'leftwall'});
+					a.setProperty({channel: 'left',
+								   name:'loop', 
+								   value: true,
+								   immediate: true});
+					a.play({channel: 'left', url: 'wallSoundLeftFixed'});
 					soundbox.left = a;
 				});
 				uow.getAudio().then(function(a){
-					a.setProperty({name:'loop', value: true});
-					//a.play({url: 'rightwall', channel:'custom'});
+					a.setProperty({channel: 'right',
+								   name:'loop', 
+								   value: true,
+								   immediate: true});
+					a.play({channel: 'right', url: 'wallSoundRightFixed'});
 					soundbox.right = a;
+				});
+				uow.getAudio().then(function(a){
+					a.setProperty({channel: 'woop',
+								   name:'volume', 
+								   value: .5,
+								   immediate: true});
+					soundbox.woop = a;
 				});
 			}
 			
@@ -86,7 +99,7 @@
 					}
 					this.draw();
 					this.generateRandomLevel();
-					setInterval( dojo.hitch(this, this.update), 2);
+					setInterval( dojo.hitch(this, this.update), 50);
 				},
 				draw: function(){
 					var i = 0
@@ -114,14 +127,18 @@
 				update: function(){
 					if (playing){
 						dojo.forEach( this.points, function(p){
-							p.scroll(3);
+							p.scroll(10);
 						});
 					}
 				}
 			});
 			
 			function finish(){
-				picbox.r.text(sizebox.screenwidth/2, sizebox.screenheight/2, "You win!").attr({font: '50px Arial'});
+				picbox.r.text(sizebox.screenwidth/2, sizebox.screenheight/2, "You are a winner!").attr({font: '50px Arial'});
+				soundbox.left.stop({channel: 'left'});
+				soundbox.right.stop({channel: 'right'});
+				soundbox.right.stop({channel: 'woop'});
+				soundbox.left.say({text: "You escaped the tunnel!  You are a winner!"});
 				playing = false;
 			}
 			
@@ -129,6 +146,10 @@
 			function lose(){
 				playing = false;
 				picbox.r.text(sizebox.screenwidth/2, sizebox.screenheight/2, "You are a loser!").attr({font: '50px Arial'});
+				soundbox.left.stop({channel: 'left'});
+				soundbox.right.stop({channel: 'right'});
+				soundbox.right.stop({channel: 'woop'});
+				soundbox.left.say({text: "You ran into the side too many times and died!"});
 				
 			}
 
@@ -237,6 +258,15 @@
 							var r = testIntersection(self.pic, p.rightbox);
 							if (l == true || r == true){
 								life -= 1;
+								soundbox.left.say({text: "Ouch!", channel:'woop'});
+								if ( l == true ){
+									var newdx = sizebox.boxsize*2;
+								}
+								if ( r == true ){
+									var newdx = -sizebox.boxsize*2;
+								}
+								self.pic.translate(newdx);
+								self.x += newdx;
 								if (life == 0){
 									lose();
 								}
@@ -245,11 +275,15 @@
 								if (l < closestleft){
 									closestleft = l;
 								}
+								if (r < closestright){
+									closestright = r;
+								}
 							}
 						});
 						var newvol = 1 - closestleft/sizebox.tunnwidth;
-						console.log(newvol);
-						soundbox.left.setProperty({name: 'volume', value: newvol, immediate: true});
+						soundbox.left.setProperty({channel: 'left', name: 'volume', value: newvol, immediate: true});
+						var newvol = 1 - closestright/sizebox.tunnwidth;
+						soundbox.right.setProperty({channel: 'right', name: 'volume', value: newvol, immediate: true});
 						function testIntersection(one, two){
 							box1 = one.getBBox();
 							box2 = two.getBBox();
