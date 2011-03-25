@@ -23,6 +23,7 @@
 			dojo.require('dojo.window');
 		
 			function setup(){
+				playing = false;
 				uow.getAudio().then(function(a) {
 				  a.say({text : "You are in some kind of electric tunnel.  If you touch the sides, you die!"});
 				});	
@@ -35,7 +36,6 @@
 			
 			function constants(){
 				life = 10;
-				playing = true;
 				sizebox = {};
 				sizebox.screenwidth = dojo.window.getBox().w;
 				sizebox.screenheight = dojo.window.getBox().h;
@@ -81,9 +81,12 @@
 			}
 			
 			function begin(){
-				constants();
-				setupGraphics();
-				setupSound();			
+				if (playing == false){
+					playing = true;
+					constants();
+					setupGraphics();
+					setupSound();	
+				}
 			}
 			
 			function go(){

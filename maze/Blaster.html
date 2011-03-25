@@ -1,0 +1,167 @@
+<head>
+	<script type="text/javascript">
+			var djConfig = {
+				isDebug: false,
+				parseOnLoad: true,
+				baseUrl: './',
+				modulePaths: { 'Hark': '.',
+							   'unc': 'unc'  }
+			};
+	</script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+	<script type="text/javascript" src="/libs/uow.js"></script>
+	<script type="text/javascript" src="raphael.js"></script>
+	<script type="text/javascript" src="random.js"></script>
+	<script type="text/javascript">
+		dojo.require("dojo.window");
+	
+		function setup(){
+			constants();
+			graphics();
+			sounds();
+			dojo.connect(null, 'onkeydown', function(e){
+				if (e.keyCode == dojo.keys.DOWN_ARROW){
+					start();
+				}
+			});
+		}
+		
+		function constants(){
+			c = {};
+			c.w = dojo.window.getBox().w;
+			c.h = dojo.window.getBox().h;
+			c.cx = c.w*.5;
+			c.cy = c.h*.5;
+			c.lx = c.w*.1;
+			c.ly = c.h*.9;
+			c.ax = c.w*.5;
+			c.ay = c.h*.1;
+			c.rx = c.w*.9;
+			c.ry = c.h*.9;
+			c.px = c.w*.5;
+			c.py = c.h*.9;
+		}
+		
+		function graphics(){
+			g = {};
+			g.r = new Raphael(0,0,c.w,c.h);
+			
+		}
+		
+		function sounds(){
+			noise = {};
+			console.log('well sounds is being called');
+			uow.getAudio().then(function(a){
+				a.say({text: 'The enemies are all around you!  Blast them!'});
+				//a.play({url: 'wallSoundLeftFixed'});
+				noise.a = a;
+			});
+		}
+		
+		function start(){
+			blast = new game();
+			blast.start();
+		}
+		
+		dojo.declare( "game", null, {
+			
+			constructor: function(args){
+				dojo.mixin(this, args);
+				this.eq = [-1,1,0,-1,1,0,-1,1,0,-1,1,0,-1,1,0,-1,1,0];
+				unc.random.shuffle(this.eq);
+				this.player = new player();
+			},
+			start: function(){
+				this.playing = true;
+				this.hasenemy = true;
+				this.newenemy();
+			},
+			newenemy: function(){
+				var self = this;
+				var e = new enemy({ loc : this.eq.shift() , game: self});
+			},
+			enemydied: function(){
+				console.log('okay an enemy died');
+				if (this.eq.length > 0 && this.hasenemy == false){
+					this.hasenemy = true;
+					this.newenemy();
+				}
+				else {
+					this.win();
+				}
+			},
+			win: function(){
+				g.r.text(c.cx, c.cy, "You are a winner!").attr({font:'24px Arial'});
+				noise.a.say({text: 'You blasted all the enemies!  You are a hero!'});
+			}
+		});
+		
+		dojo.declare( "player", null, {
+			constructor: function(args){
+				dojo.mixin( this, args );
+				this.point = [c.px, c.py];
+				this.draw();
+			},
+			draw: function(){
+				this.pic = g.r.circle( this.point[0], this.point[1], 10).attr({fill: '#f00'});
+			}
+		});
+		
+		dojo.declare( "enemy", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);
+				this.dead = false;
+				if (this.loc == -1){
+					this.sound = 'wallSoundLeftFixed';
+					this.point = [ c.lx, c.ly ];
+					this.dxdy = [ 1, 0];
+				}
+				if (this.loc == 0){
+					this.sound = 'wallSoundFixed';
+					this.point = [ c.ax, c.ay ];
+					this.dxdy = [ 0, 1];
+				}
+				if (this.loc == 1){
+					this.sound = 'wallSoundRightFixed';
+					this.point = [ c.rx, c.ry ];
+					this.dxdy = [ -1, 0];
+				}
+				this.draw();
+				var self = this;
+				dojo.connect( null, 'onkeyup', function(e){
+					console.log( e.keyCode);
+					if (e.keyCode == dojo.keys.LEFT_ARROW && self.loc == -1){
+						self.die();
+					}
+					if (e.keyCode == dojo.keys.UP_ARROW && self.loc == 0){
+						self.die();
+					}
+					if (e.keyCode == dojo.keys.RIGHT_ARROW && self.loc == 1){
+						self.die();
+					}
+				});
+			},
+			draw: function(){
+				this.pic = g.r.circle(this.point[0], this.point[1], 10);
+				console.log(this.sound);
+				noise.a.play({url: this.sound});
+			},
+			die: function(){
+				if (!this.dead){
+					noise.a.stop();
+					this.game.hasenemy = false;
+					this.dead = true;
+					console.log( this, this.pic );
+					this.pic.remove();
+					setTimeout(dojo.hitch(this.game, this.game.enemydied), 10);
+				}
+			}
+		});
+	
+		dojo.ready(setup);
+	</script>
+</head>
+
+<body>
+
+</body>
