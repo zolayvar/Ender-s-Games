@@ -149,6 +149,7 @@
 			die: function(){
 				if (!this.dead){
 					noise.a.stop();
+					noise.a.say({text: 'Boom!'});
 					this.game.hasenemy = false;
 					this.dead = true;
 					console.log( this, this.pic );
