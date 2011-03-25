@@ -1,0 +1,271 @@
+<head>
+	<script type="text/javascript">
+			var djConfig = {
+				isDebug: false,
+				parseOnLoad: true,
+				baseUrl: './',
+				modulePaths: { 'Hark': '.',
+							   'unc': 'unc'  }
+			};
+	</script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+	<script type="text/javascript" src="/libs/uow.js"></script>
+	<script type="text/javascript" src="raphael.js"></script>
+	<script type="text/javascript" src="random.js"></script>
+	<script type="text/javascript">
+		dojo.require("dojo.window");
+	
+		function setup(){
+			constants();
+			graphics();
+			sounds();
+			playing = false;
+			dojo.connect(null, 'onkeydown', function(e){
+				if (e.keyCode == dojo.keys.DOWN_ARROW && playing == false){
+					playing = true;
+					start();
+				}
+			});
+		}
+		
+		function constants(){
+			c = {};
+			c.w = dojo.window.getBox().w;
+			c.h = dojo.window.getBox().h;
+			c.cx = c.w /2;
+			c.cy = c.h/2;
+			c.px = c.w*.5;
+			c.py = c.h*.5;
+			c.rand = [.1, .2, .3, .4, .5, .6, .7, .8, .9];
+			c.kx = c.w*unc.random.choice(c.rand);
+			c.ky = c.h*unc.random.choice(c.rand);
+			c.moverate = 5;
+		}
+		
+		
+		function graphics(){
+			g = {};
+			g.r = new Raphael(0,0,c.w,c.h);
+		}
+		
+		function sounds(){
+			noise = {};
+			console.log('well sounds is being called');
+			uow.getAudio().then(function(a){
+				a.say({text: 'The kitten needs help!  Find her!'});
+				noise.a = a;
+			});
+		}
+		
+		function start(){
+			cg = new game();
+			cg.start();
+		}
+		
+		dojo.declare( "game", null, {
+			
+			constructor: function(args){
+				dojo.mixin(this, args);
+				this.player = new player();
+				this.kitten = new kitten();
+			},
+			start: function(){
+				this.playing = true;
+				var self = this;
+				setInterval( dojo.hitch(self, self.playSound), 2000);
+				setInterval( dojo.hitch(self, self.tryToWin), 50);
+			},
+			tryToWin: function(){
+				if (this.playing){
+					var d = dist(this.kitten, this.player);
+					if (d < 20){
+						this.win();
+					}
+				}
+			},
+			playSound: function(){
+				if (playing){
+					var soundname = getsound(this.kitten, this.player);
+					var vol = getvolume(this.kitten, this.player);
+					console.log(soundname, vol);				
+					noise.a.play({url: soundname});
+					noise.a.setProperty({name: 'volume', value: vol, immediate: true});
+				}
+			},
+			win: function(){
+				noise.a.stop();
+				g.r.text(c.cx, c.cy, "You are a winner!").attr({font:'24px Arial'});
+				noise.a.say({text: 'You saved the kitten!  You are a hero!'});
+				playing = false;
+				this.playing = false;
+			},
+			lose: function(){
+				g.r.text(c.cx, c.cy, "You are a winner!").attr({font:'24px Arial'});
+				noise.a.say({text: 'You didn\'t find the kitten in time!'});
+				playing = false;
+				this.playing = false;
+			}
+		});
+		
+		dojo.declare( "player", null, {
+			constructor: function(args){
+				dojo.mixin( this, args );
+				this.x  = c.px; 
+				this.y = c.py;
+				this.dx = 0;
+				this.dy = 0;
+				this.draw();
+				var self = this;
+				dojo.connect(null, 'onkeydown', function(e){
+					if (e.keyCode == dojo.keys.LEFT_ARROW){
+						self.setdx(-1);
+					}
+					if (e.keyCode == dojo.keys.RIGHT_ARROW){
+						self.setdx(1);
+					}
+					if (e.keyCode == dojo.keys.UP_ARROW){
+						self.setdy(-1);
+					}
+					if (e.keyCode == dojo.keys.DOWN_ARROW){
+						self.setdy(1);
+					}
+				});	
+				dojo.connect(null, 'onkeyup', function(e){
+					if (e.keyCode == dojo.keys.LEFT_ARROW || e.keyCode == dojo.keys.RIGHT_ARROW){
+						self.setdx(0);
+					}
+					if (e.keyCode == dojo.keys.DOWN_ARROW || e.keyCode == dojo.keys.UP_ARROW){
+						self.setdy(0);
+					}
+				});
+				setInterval( dojo.hitch( self, self.translate ), 50 );
+			},
+			setdx: function(d){
+				this.dx = d;
+			},
+			setdy: function(d){
+				this.dy = d;
+			},
+			translate: function(){
+				this.pic.translate(this.dx*c.moverate, this.dy*c.moverate);
+				this.x += this.dx*c.moverate;
+				this.y += this.dy*c.moverate;
+			},
+			draw: function(){
+				this.pic = g.r.circle( this.x, this.y, 10).attr({fill: '#f00'});
+			}
+		});
+		
+		dojo.declare( "kitten", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);
+				this.x = c.kx
+				this.y = c.ky;
+				this.draw();
+				this.randomize();
+				setInterval( dojo.hitch( this, this.randomize), 5000);
+				setInterval( dojo.hitch( this, this.wander), 50);
+			},
+			draw: function(){
+				this.pic = g.r.circle(this.x, this.y, 10);
+			},
+			randomize: function(){
+				this.dx = unc.random.choice( [-2, -1, 0, 1, 2] );
+				this.dy = unc.random.choice( [-2, -1, 0, 1, 2] );
+			},
+			wander: function(){
+				this.x += this.dx;
+				this.y += this.dy;
+				this.pic.translate(this.dx, this.dy);
+			}
+		});
+		
+		function dist(kitten, player){
+			return Math.pow( Math.pow( kitten.x - player.x ,2)+Math.pow( kitten.y - player.y ,2)  ,.5)
+		}
+		
+		function angle(kitten, player){
+			var d = dist(kitten, player);
+			return Math.acos( (kitten.x - player.x) / d );
+		}
+		
+		function getvolume(kitten, player){
+			var d = dist(kitten, player);
+			return 1-d/Math.max(c.h,c.w);
+		}
+		
+		function getsound(kitten, player){
+			var ang = angle(kitten, player)*180/Math.PI;
+			console.log(ang);
+			if (ang < 4.5){
+				return 'meow0';
+			}
+			if (ang < 13.5){
+				return 'meow9';
+			}
+			if (ang < 22.5){
+				return 'meow18';
+			}
+			if (ang < 31.5){
+				return 'meow27';
+			}
+			if (ang < 40.5){
+				return 'meow36';
+			}
+			if (ang < 49.5){
+				return 'meow45';
+			}
+			if (ang < 58.5){
+				return 'meow54';
+			}
+			if (ang < 67.5){
+				return 'meow63';
+			}
+			if (ang < 76.5){
+				return 'meow72';
+			}
+			if (ang < 85.5){
+				return 'meow81';
+			}
+			if (ang < 94.5){
+				return 'meow90';
+			}
+			if (ang < 103.5){
+				return 'meow99';
+			}
+			if (ang < 112.5){
+				return 'meow108';
+			}
+			if (ang < 121.5){
+				return 'meow117';
+			}
+			if (ang < 130.5){
+				return 'meow126';
+			}
+			if (ang < 139.5){
+				return 'meow135';
+			}
+			if (ang < 148.5){
+				return 'meow144';
+			}
+			if (ang < 157.5){
+				return 'meow153';
+			}
+			if (ang < 166.5){
+				return 'meow162';
+			}
+			if (ang < 175.5){
+				return 'meow171';
+			}
+			if (ang < 184.5){
+				return 'meow180';
+			}
+		}
+	
+		dojo.ready(setup);
+	</script>
+</head>
+
+<body>
+
+</body>
