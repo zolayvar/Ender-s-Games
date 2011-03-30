@@ -15,9 +15,10 @@
 			setTimeout(function(){
 				a.animate({opacity: 0}, 4000, callback=a.remove);
 			}, 2000);
-//			uow.getAudio().then(function(js){
-//				sound = js;  
-//			});
+			uow.getAudio().then(function(js){
+				sound = js;  
+				js.play({url: 'ouch'});
+			});
 		}
 		
 		function constants(){
