@@ -1,5 +1,13 @@
 <head>
+	<script type="text/javascript">
+		var djConfig = {
+			isDebug: false,
+			parseOnLoad: true,
+			baseUrl: './'
+		};
+	</script>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+	<script type="text/javascript" src="/libs/uow.js"></script>
 	<script type="text/javascript" src="raphael.js"></script>
 	<script type="text/javascript" src="random.js"></script>
 	<script type="text/javascript">
@@ -15,9 +23,9 @@
 			setTimeout(function(){
 				a.animate({opacity: 0}, 4000, callback=a.remove);
 			}, 2000);
-//			uow.getAudio().then(function(js){
-//				sound = js;  
-//			});
+			uow.getAudio().then(function(js){
+				sound = js;  
+			});
 		}
 		
 		function constants(){
@@ -192,9 +200,9 @@
 				this.xdir = dir;
 			}, 
 			translate: function(){
-				if (playing){
+				if (playing && !this.stopped){
 					if (this.energy <= 0){
-						lose("You died from exhaustion...");
+						lose("You died from your injuries...");
 					}
 					var seg = getseg(this.x);
 					if (!this.slipping){
@@ -228,6 +236,7 @@
 					if (uphillleft || uphillright){
 						this.slipping = false;
 						console.log('stopped slipping by violence');
+						sound.play({url: 'ouch'});
 						this.decreaseenergy(30);
 						var a = r.text(this.x, this.y, "OUCH!");
 						a.attr({font:"24px Arial", fill:"#f00"});
@@ -238,11 +247,12 @@
 						this.pic.rotate( 0 - this.rot );
 						this.rot = 0;
 						this.stopped = true;
+						var self = this;
 						setTimeout(function(){
 							console.log('trying to stop the stopping');
-							this.stopped = false;
+							self.stopped = false;
 							console.log(this.stopped);
-						}, 100);
+						}, 500);
 					}
 				}
 				if (this.xdir != 0 && playing){
