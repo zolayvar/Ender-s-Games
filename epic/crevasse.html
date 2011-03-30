@@ -15,6 +15,9 @@
 			setTimeout(function(){
 				a.animate({opacity: 0}, 4000, callback=a.remove);
 			}, 2000);
+//			uow.getAudio().then(function(js){
+//				sound = js;  
+//			});
 		}
 		
 		function constants(){
@@ -202,7 +205,7 @@
 						var workingdx = this.speed*Math.abs(Math.cos(seg[4]));
 					}
 					if (this.slipping){
-						var workingdx = .3*this.slipdir;
+						var workingdx = .7*this.slipdir;
 						this.pic.rotate(15);
 						this.rot += 15;
 					}
