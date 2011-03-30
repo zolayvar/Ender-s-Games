@@ -129,13 +129,15 @@
 		function lose(message){
 			playing = false;
 			r.text( .5*s.w, s.h*.5, message).attr({fill: '#f00', font:'50px Arial'});
-			
+			sound.stop();
+			sound.play({url:'scream'});
 		}
 		
 		function win(){
 			playing = false;
 			r.text( .5*s.w, s.h*.5, "You escaped the crevasse!").attr({fill: '#040', font:'50px Arial'});
-			
+			sound.stop();
+			sound.play({url:'cheer'});
 		}
 		
 		dojo.declare( "guy", null, {
@@ -201,6 +203,7 @@
 			}, 
 			translate: function(){
 				if (playing && !this.stopped){
+					sound.play({url:'pant'});
 					if (this.energy <= 0){
 						lose("You died from your injuries...");
 					}
@@ -236,6 +239,7 @@
 					if (uphillleft || uphillright){
 						this.slipping = false;
 						console.log('stopped slipping by violence');
+						sound.stop();
 						sound.play({url: 'ouch'});
 						this.decreaseenergy(30);
 						var a = r.text(this.x, this.y, "OUCH!");
@@ -255,11 +259,13 @@
 						}, 500);
 					}
 				}
-				if (this.xdir != 0 && playing){
+				if (this.xdir != 0 && playing  && !this.slipping){
 					var self= this;
 					var slip = unc.random.choice([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]);
 					if (slip == 1){
 						console.log('started slipping');
+						sound.stop();
+						//sound.play({url:'scream'});
 						var slipinstr = r.text( s.w*.8, s.h*.6, "You slipped!  Type 'SAVE'!");
 						dojo.connect( null, "onkeydown", function(e){
 							if (e.keyCode == 83){
@@ -301,7 +307,7 @@
 			}, 
 			catchself: function(){
 				if (this.slipping){
-					this.decreaseenergy( - 10);
+					sound.stop();
 					this.slipping = false;
 					var a = r.text(this.x, this.y, "CATCH!");
 					a.attr({font:"24px Arial", fill:"#080"});
@@ -312,9 +318,10 @@
 					this.pic.rotate( 0 - this.rot );
 					this.rot = 0;
 					this.stopped = true;
+					var self = this;
 					setTimeout(function(){
 						console.log('trying to stop the stopping');
-						this.stopped = false;
+						self.stopped = false;
 						console.log(this.stopped);
 					}, 100);
 				}
