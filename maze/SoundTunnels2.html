@@ -1,0 +1,384 @@
+<html>
+	<head>
+		<style type="text/css">
+        @import "http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/resources/dojo.css";
+        @import "http://ajax.googleapis.com/ajax/libs/dojo/1.5/dijit/themes/claro/claro.css";
+
+        html, body, .dijitBorderContainer {width: 100%; height: 100%;}
+		</style>
+		<script type="text/javascript">
+			var djConfig = {
+				isDebug: false,
+				parseOnLoad: true,
+				baseUrl: './',
+				modulePaths: { 'Hark': '.',
+							   'unc': 'unc'  }
+			};
+		</script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+		<script type="text/javascript" src="/libs/uow.js"></script>
+		<script type="text/javascript" src="raphael.js"></script>
+		<script type="text/javascript" src="random.js"></script>
+		<script>	
+			dojo.require('dojo.window');
+		
+			function setup(){
+				wasplaying = false;
+				playing = false;
+				finished = false;
+				diff = 1;
+				uow.getAudio().then(function(a) {
+				  js = a;
+				  console.log('huh?');
+				  a.play({url : "tunnintrohigh"});
+				});	
+				keyMenu();
+			}
+			
+			function keyMenu(){
+				var one = dojo.connect(null, 'onkeydown', function(e){
+					if (e.keyCode == dojo.keys.UP_ARROW && !playing){
+						begin();
+					}
+				});	
+				var two = dojo.connect(null, 'onkeydown', function(e){
+					if (e.keyCode == dojo.keys.RIGHT_ARROW && !playing){
+						readInstructions();
+					}
+				});	
+				var three = dojo.connect(null, 'onkeydown', function(e){
+					if (e.keyCode == dojo.keys.LEFT_ARROW && !playing){
+						cycleDifficulty();
+					}
+				});
+			}
+			
+			function readInstructions(){
+				js.stop();
+				js.say({text:'Just use the arrow keys to steer left and right, the ship will take care of the forward.  Try to center the sound of the tunnel.  When you hit the wall you will hear a loud bang! Press left to cycle through difficulties!  Press up when you are ready to play'});
+			}
+			
+			function cycleDifficulty(){
+				diff = (diff % 3)+1;
+				if (diff == 1){
+					var say = 'easy';
+				}
+				if (diff == 2){
+					var say = 'medium';
+				}
+				if (diff == 3){
+					var say = 'hard';
+				}
+				js.stop();
+				js.say({text: say});
+			}
+			
+			function constants(){
+				life = 10;
+				sizebox = {};
+				sizebox.screenwidth = dojo.window.getBox().w;
+				sizebox.screenheight = dojo.window.getBox().h;
+				sizebox.numboxes = 40;
+				sizebox.boxsize = dojo.window.getBox().h/(sizebox.numboxes-1);
+				sizebox.changeRate = 5;
+				done = -sizebox.numboxes + 1;
+			}
+			
+			function setupGraphics(){
+				picbox = {};
+				picbox.nextboxq = [];
+				picbox.r = new Raphael(0,0,dojo.window.getBox().w, dojo.window.getBox().h);
+				console.log(picbox.r.image("tunnback.png", 0, 0, sizebox.screenwidth, sizebox.screenheight));
+				picbox.tunnel = new tunnel();
+				picbox.guy = new guy();
+			}
+			
+			function setupSound(){
+				soundbox = {};
+				uow.getAudio().then(function(a){
+					a.setProperty({channel: 'left',
+								   name:'loop', 
+								   value: true,
+								   immediate: true});
+					a.play({channel: 'left', url: 'wallSoundLeftFixed'});
+					soundbox.left = a;
+				});
+				uow.getAudio().then(function(a){
+					a.setProperty({channel: 'right',
+								   name:'loop', 
+								   value: true,
+								   immediate: true});
+					a.play({channel: 'right', url: 'wallSoundRightFixed'});
+					soundbox.right = a;
+				});
+				uow.getAudio().then(function(a){
+					a.setProperty({channel: 'woop',
+								   name:'volume', 
+								   value: .5,
+								   immediate: true});
+					soundbox.woop = a;
+				});
+			}
+			
+			function begin(){
+				if (playing == false){
+					if (wasplaying == true){
+						picbox.r.clear();
+					}
+					uow.getAudio().then(function(a){
+						a.stop();
+						a.say({text:'Let\'s go!'});
+					});
+					wasplaying = true;
+					playing = true;
+					constants();
+					setupGraphics();
+					setupSound();	
+				}
+			}
+			
+			function go(){
+				setup();
+			}
+			
+			dojo.declare("tunnel", null, {
+				constructor: function(){
+					this.points = [];
+					for (i = 0; i <= sizebox.numboxes; i++){
+						var g = new tunnelPoint();
+						this.points.push(g);
+					}
+					this.draw();
+					this.generateRandomLevel();
+					setInterval( dojo.hitch(this, this.update), 50);
+				},
+				draw: function(){
+					var i = 0
+					dojo.forEach( this.points, function(p){
+						p.draw(sizebox.screenheight - i*sizebox.boxsize);
+						i+= 1;
+					});
+				},
+				generateRandomLevel: function(){
+					var start = 0;
+					var chunks = [ [-1, 0, 1, 0],
+								   [-1, -2, -1, 0, 1, 2, 1, 0],
+								   [-1,-2,-1,0,1,0,-1,1,2,1,0],
+								   [1,2,1,0,-1,0,1,-1,-2,-1,0],
+								   [1, 0, -1, 0], 
+								   [1, 2, 1, 0, -1, -2, 0] ];
+					var smallestInterval = sizebox.numboxes*.4
+					var lengths = [ smallestInterval, smallestInterval+1, smallestInterval+2, smallestInterval+3 ];
+					var numChunks = 2;
+					var shift = sizebox.boxsize*.3;
+					var poss = [];
+					for (var i = 0; i < numChunks; i++){
+						poss.push(unc.random.choice(chunks));
+					}
+					for (var i = 0; i < poss.length; i++){
+						var dir = poss[i];
+						var intervalLength = unc.random.choice(lengths);
+						for (var j = 0; j < dir.length; j++){
+							var mult = dir[j];
+							for (var k = 0; k < intervalLength; k++){
+								start += mult*shift;
+								picbox.nextboxq.push( start );
+							}
+						}
+					}
+				},
+				update: function(){
+					if (playing){
+						dojo.forEach( this.points, function(p){
+							p.scroll(10+2*diff);
+						});
+					}
+				}
+			});
+			
+			function finish(){
+				if (!finished){
+					finished = true;
+					picbox.r.text(sizebox.screenwidth/2, sizebox.screenheight/2, "You are a winner!").attr({font: '50px Arial'});
+					var score = life*900000*diff;
+					soundbox.left.stop({channel: 'left'});
+					soundbox.right.stop({channel: 'right'});
+					soundbox.right.stop({channel: 'woop'});
+					soundbox.left.say({text: "You escaped the tunnel!  You are a winner!  Your score is "+ score +"Want to play again?"}).addAfter(endstuff);
+				}
+			}
+			
+			
+			function lose(){
+				picbox.r.text(sizebox.screenwidth/2, sizebox.screenheight/2, "You are a loser!").attr({font: '50px Arial'});
+				soundbox.left.stop({channel: 'left'});
+				soundbox.right.stop({channel: 'right'});
+				soundbox.right.stop({channel: 'woop'});
+				soundbox.left.say({text: "You ran into the side too many times and died!  Want to try again?"}).addAfter(endstuff);
+			}
+			
+			function endstuff(){
+				soundbox.left.stop({channel: 'left'});
+				soundbox.right.stop({channel: 'right'});
+				soundbox.right.stop({channel: 'woop'});
+				playing = false;
+			}
+
+			dojo.declare("tunnelPoint", null, {
+				constructor: function(args){
+					this.w = dojo.window.getBox().w/3;  //tunnel width is proprtional to screen width
+					sizebox.tunnwidth = this.w;
+					this.center = dojo.window.getBox().w/2;  //initially, tunnel is positioned in the center of the screen
+					this.left = this.center - this.w/2;
+					this.right = this.center + this.w/2;
+					this.drawn = false;
+					dojo.mixin(this,args);
+					this.off = false;
+				}, 
+				draw: function(h){
+					this.h = h;
+					var s = sizebox.boxsize;
+					this.leftbox = picbox.r.rect(this.left-s/2, h-s/2, s, s).attr({fill:'#ff0', stroke:'#ff0'});
+					//this.nametag = picbox.r.text(this.center, h, h).attr({font:'24px Arial'});
+					this.rightbox = picbox.r.rect(this.right-s/2, h-s/2, s, s).attr({fill:'#ff0', stroke:'#ff0'});
+				},
+				scroll: function(dh){
+					if (this.off == false){
+						if (this.h > sizebox.screenheight + sizebox.boxsize/2){ // it has scrolled off the bottom of the screen
+							if (picbox.nextboxq.length > 0){
+								var newshift = picbox.nextboxq.shift();
+								this.leftbox.translate( sizebox.screenwidth/2 - (this.leftbox.getBBox().x + this.leftbox.getBBox().width/2) - this.w/2);
+								this.rightbox.translate( sizebox.screenwidth/2 - (this.rightbox.getBBox().x + this.rightbox.getBBox().width/2) + this.w/2);
+								this.leftbox.translate( newshift, -((sizebox.numboxes+1)*sizebox.boxsize));
+								this.rightbox.translate( newshift, -((sizebox.numboxes+1)*sizebox.boxsize));
+								this.leftbox.attr({fill:'#ff0', stroke:'#ff0', opacity:1});
+								this.rightbox.attr({fill:'#ff0', stroke:'#ff0', opacity:1});
+								//this.nametag.translate(0, -((sizebox.numboxes+1)*sizebox.boxsize));
+								this.h -= ((sizebox.numboxes+1)*sizebox.boxsize);
+							}
+							else {
+								this.off = true;
+								done += 1;
+								if (done > 0){
+									finish();
+								}
+							}
+						}
+						this.leftbox.translate(0, dh);
+						this.rightbox.translate(0, dh);
+						//this.nametag.translate(0, dh);
+						this.h += dh;
+					}
+				}
+			});
+			
+			dojo.declare("guy", null, {
+				constructor: function(){
+					var self = this;
+					self.x = dojo.window.getBox().w/2;
+					self.y = dojo.window.getBox().h*9/10
+					self.rot = 90;
+					self.dx = 0;
+					self.dr = 0;
+					self.path = "m 18.571386,148.07647 110.000004,16.42857 149.2858,165 454.2857,84.28572 -247.1429,0 36.4286,17.85714 112.1428,0 0,8.57143 49.2858,0.71428 0,31.42858 -49.2858,0.71428 0.7143,8.57143 -114.2857,-1.42857 -35,17.85714 247.8572,0 -455,84.28572 -152.1429,165.71428 -110.000004,14.28572 56.4286,-41.42858 48.571404,-187.14285 -30.714304,-17.14286 0,-34.28571 31.428604,-16.42858 47.1428,0.71429 -1.4285,-20.71429 -46.4286,0 -30.714304,-16.42857 1.4286,-34.28571 30.000004,-17.14286 -47.857204,-187.14286 -55,-42.85714 z";
+					self.draw();
+					dojo.connect(null, 'onkeydown', function(e){
+						if (e.keyCode == dojo.keys.LEFT_ARROW){
+							self.setstrafe(-1);
+						}
+						if (e.keyCode == dojo.keys.RIGHT_ARROW){
+							self.setstrafe(1);
+						}
+					});	
+					dojo.connect(null, 'onkeyup', function(e){
+						if (e.keyCode == dojo.keys.LEFT_ARROW){
+							self.setstrafe(0);
+						}
+						if (e.keyCode == dojo.keys.RIGHT_ARROW){
+							self.setstrafe(0);
+						}
+					});
+					setInterval(dojo.hitch(this,self.update), 15);
+				},
+				draw: function(){
+					var self = this;
+					var shipwidth = dojo.window.getBox().w/25;
+					var shipheight = shipwidth;
+					var pic = picbox.r.path(self.path);
+					pic.attr({fill: 'f00'});
+					pic.rotate(-self.rot);
+					pic.scale(shipheight/pic.getBBox().width, shipwidth/pic.getBBox().height);
+					pic.attr({'cx': self.x, 'cy': self.y});
+					pic.translate(self.x - (pic.getBBox().x + pic.getBBox().width/2), self.y - (pic.getBBox().y + pic.getBBox().width/2));
+					self.pic = pic;
+					console.log(self);
+				},
+				setstrafe: function(dir){
+					var self = this;
+					self.dx = sizebox.changeRate*dir;
+				},
+				update: function(){
+					if (playing){
+						this.pic.translate(this.dx);
+						var self = this;
+						var x = this.x;
+						var y = this.y;
+						this.x += this.dx;
+						closestleft = 1000000000;
+						closestright = 1000000000;
+						dojo.forEach(picbox.tunnel.points, function(p){
+							var l = testIntersection(self.pic, p.leftbox);
+							var r = testIntersection(self.pic, p.rightbox);
+							if (l == true || r == true){
+								life -= 1;
+								soundbox.left.stop({channel:'woop'});
+								if ( l == true ){
+									var newdx = sizebox.screenwidth*.05;
+									soundbox.left.play({url:'leftcrash', channel:'woop'});
+								}
+								if ( r == true ){
+									var newdx = -sizebox.screenwidth*.05;
+									soundbox.left.play({url:'rightcrash', channel:'woop'});
+								}
+								self.pic.translate(newdx);
+								self.x += newdx;
+								if (life == 0){
+									lose();
+								}
+							}
+							else{
+								if (l < closestleft){
+									closestleft = l;
+								}
+								if (r < closestright){
+									closestright = r;
+								}
+							}
+						});
+						var lfrac = closestleft/sizebox.tunnwidth;
+						var newvol = 1- lfrac;
+						soundbox.left.setProperty({channel: 'left', name: 'volume', value: newvol, immediate: true});
+						var newvol = 1 - closestright/sizebox.tunnwidth;
+						soundbox.right.setProperty({channel: 'right', name: 'volume', value: newvol, immediate: true});
+						function testIntersection(one, two){
+							box1 = one.getBBox();
+							box2 = two.getBBox();
+							yintersect = (box1.y > box2.y && box1.y < box2.y + box2.height) || (box2.y > box1.y && box2.y < box1.y + box1.height);
+							xintersect = (box1.x > box2.x && box1.x < box2.x + box2.width) || (box2.x > box1.x && box2.x < box1.x + box1.width);
+							if (yintersect && xintersect){
+								//one.attr({fill:'#000', stroke:'#000'});
+								two.attr({opacity:0});
+								return true;
+							}
+							return Math.pow( Math.pow(box1.x+box1.width/2-box2.x+box2.width/2,2) + Math.pow(box1.y+box1.height/2-box2.y+box2.height/2,2) , .5);
+						}
+					}
+				}
+			});
+			
+			dojo.ready(go);
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
