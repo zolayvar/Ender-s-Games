@@ -64,7 +64,7 @@
 			var right = new rock(w-10,0,10,gameh);
 			var bottom = new rock(0, gameh - 10, w, 10);
 			var rox = [top, left, right, bottom];
-			return rox;
+			//return rox;
 			for (var i = 0; i < 15; i ++){
 				var wnew = 10+Math.floor(Math.random()*biggest);
 				var hnew = 10+Math.floor(Math.random()*biggest);
@@ -179,6 +179,30 @@
 				if (this.uncrowd == true){
 					this.uncrowd = false;
 				}
+			}
+		});
+	
+		dojo.declare('animal', null, {
+			constructor: function(args){
+				this.args = args;
+				this.defaultself();
+				this.calcself();
+			},
+			defaultself: function(){
+				this.dx = 0;
+				this.dy = 0;
+			},
+			calcself: function(){
+				var self = this;
+				if ('parts' in self){
+					dojo.forEach(self.parts, function(p){
+						p.owner = self;
+						p.onbirth();
+					});
+				}
+			},
+			step: function(){
+				this.calc
 			}
 		});
 	

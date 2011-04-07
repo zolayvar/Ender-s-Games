@@ -201,7 +201,7 @@
 						}
 					}, 1000);
 					setInterval(function(){
-						if (self.mode == 'endless' || self.mode == 'survival'){
+						if (self.mode == 'endless'){
 							self.tunnwidth -= self.boxside/2;
 							self.score+=1;
 							dojo.forEach(self.points, function(p){
@@ -223,7 +223,7 @@
 					if (self.tunnelpath.length < self.numboxes*4 && self.mode == 'endless'){
 						self.extendpath();
 					}
-					if (self.hascoin == false){
+					if (self.hascoin == false && self.mode == 'endless'){
 						if (Math.random() > .9 && self.tunnelpath.length>0){
 							self.makecoin();
 						}

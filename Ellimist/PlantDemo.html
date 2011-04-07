@@ -1,0 +1,724 @@
+<head>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+	<script type="text/javascript" src="raphael.js"></script>
+	<script type="text/javascript" src="random.js"></script>
+	<script type="text/javascript">
+		dojo.require("dojo.window");
+	
+		function setup(){
+			plantshape = 'circle';
+			makegraphics();
+			title();
+		}
+		
+		function startgame(){
+			r.clear();
+			//menuframe.attr({opacity:0});
+			//playbutton.hide();
+			makegraphics();
+			makegame();
+			g.start();
+		}
+		
+		dojo.declare('slider', null, {
+			constructor: function(field, name, x, y, w, h, numbars, min, max){
+				this.field = field;
+				this.name = name;
+				this.x = x;
+				this.y = y;
+				this.w = w;
+				this.h = h;
+				this.max = max;
+				this.min = min;
+				this.numbars = numbars;
+				this.calc();
+				this.display();
+			},
+			calc: function(){
+				this.barstart = this.x + 30;
+				this.barlength = this.w/2;
+				this.barend = this.x + 10 + this.barlength;
+				this.barheight = this.h/4;
+				this.bary = this.y+this.h/2;
+				this.sheight = this.h;
+				this.swidth = this.h/3;
+				this.factor = this.barlength/(this.max - this.min);
+				if (this.numbars == 2){
+					this.minloc = this.barstart+this.field.min*this.factor;
+					this.maxloc = this.barstart+this.field.max*this.factor;
+				}
+				if (this.numbars == 1){
+					this.sloc = this.barstart + this.field*this.factor;
+				}
+			},
+			display: function(){
+				var self = this;
+				this.text = r.text(this.x, this.y+this.h/2, this.name).attr({font:this.h+"px Arial", fill:'#fff', 'text-anchor':'end'});
+				this.bar = r.rect(this.barstart, this.bary-this.barheight/2, this.barlength, this.barheight).attr({fill:'#fff'});
+				if (this.numbars == 2){
+					this.smin = r.rect(this.minloc-this.swidth/2,this.bary-this.sheight*.3, this.swidth, this.sheight*.8).attr({fill:'#f00'});
+					//this.smin.rotate(45);
+					this.smin.drag(
+						function(dx, dy){ // move
+							if (this.ox+dx+this.getBBox().width/2< self.smax.getBBox().x+self.smax.getBBox().width/2 && this.ox+dx > self.barstart-this.getBBox().width/2){
+								this.attr({x: this.ox + dx});
+							}
+						},
+						function(){ // start
+							this.attr({opacity:.7});
+							this.ox = this.attr('x');
+						},
+						function(){ // down
+							this.attr({opacity:1});
+							self.field.min = (this.attr('x') - self.barstart)/self.factor;
+						}
+					);
+					this.smax = r.rect(this.maxloc-this.swidth/2,this.bary-this.sheight/2, this.swidth, this.sheight*.8).attr({fill:'#00f'});
+					//this.smax.rotate(45);
+					this.smax.drag(
+						function(dx, dy){ // move
+							if (this.ox+dx+this.getBBox().width/2 < self.barstart+self.barlength && this.ox+dx+this.getBBox().width/2 > self.smin.getBBox().width/2+self.smin.getBBox().x){
+								this.attr({x: this.ox + dx});
+							}
+						},
+						function(){ // start
+							this.attr({opacity:.7});
+							this.ox = this.attr('x');
+						},
+						function(){ // down
+							this.attr({opacity:1});
+							self.field.max = (this.attr('x') - self.barstart)/self.factor;
+						}
+					);
+				}
+				if (this.numbars == 1){
+					this.sbar = r.rect(this.sloc-this.swidth/2,this.bary-this.sheight*.5, this.swidth, this.sheight*1).attr({fill:'#f0f'});
+					//this.smin.rotate(45);
+					this.sbar.drag(
+						function(dx, dy){ // move
+							if (this.ox+dx+this.getBBox().width/2+1 < self.barstart+self.barlength && this.ox+dx > 1+self.barstart-this.getBBox().width/2){
+								this.attr({x: this.ox + dx});
+							}
+						},
+						function(){ // start
+							this.attr({opacity:.7});
+							this.ox = this.attr('x');
+						},
+						function(){ // down
+							this.attr({opacity:1});
+							self.field = (this.attr('x') - self.barstart)/self.factor;
+						}
+					);
+				}
+			}
+		});
+		
+		function title(){
+			var framew = w-100;
+			var frameh = gameh-75;
+			menuframe = r.rect((w-framew)/2, (gameh-frameh)/2, framew, frameh).attr({fill:'#555','stroke':'#fff','stroke-width':10});
+			
+			//set up sliders
+			gameconstants = {
+				rocknum: 10,
+				rocksize: {
+					min: 5,
+					max: biggest
+				},
+				penergyi: {
+					min: 0,
+					max: 1
+				},
+				psizei:{
+					min:Math.floor(biggest),
+					max:Math.floor(biggest)
+				},
+				pmaxsize:{
+					min:biggest,
+					max:biggest
+				},
+				erate:{
+					min:1,
+					max:5
+				},
+				growprice: {
+					min: 1,
+					max: 20
+				},
+				repecost: {
+					min: 9,
+					max: 50
+				},
+				repreqsize: {
+					min:10,
+					max:biggest
+				},
+				repreqage:{
+					min: 0,
+					max: 0
+				},
+				repwait:{
+					min: 10,
+					max: 30
+				},
+				repnum:{
+					min: 3,
+					max: 5
+				},
+				repdist:{
+					min: 2,
+					max: 4
+				},
+				sturdyage:{
+					min: 4,
+					max: 4
+				},
+				sturdysize:{
+					min: 10,
+					max: 12
+				},
+				personalspace:{
+					min: .75,
+					max: 1
+				}
+			}
+			num = 15;
+			slidersw = frameh - 50;
+			slidersh = frameh - 50;
+			slidersx = w/2;
+			sheight = .7*slidersh/num;
+			slidersy = menuframe.getBBox().y + sheight;
+			sroom = slidersh/num;
+			var rocknumslider = new slider(gameconstants.rocknum, 'Num Rocks', slidersx, slidersy, slidersw, sheight, 1, 0, 100);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.rocksize, 'Rock Size', slidersx, slidersy, slidersw, sheight, 2, 0, biggest*4);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.penergyi, 'Initial Energy', slidersx, slidersy, slidersw, sheight, 2, 0, 100);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.psizei, 'Initial Size', slidersx, slidersy, slidersw, sheight, 2, 0, biggest);
+			
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.erate, 'Energy Rate', slidersx, slidersy, slidersw, sheight, 2, 0,100);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.growprice, 'Grow Price', slidersx, slidersy, slidersw, sheight, 2, 0, 100);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.repecost, 'Reproduction Energy Cost', slidersx, slidersy, slidersw, sheight, 2, 0, 100);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.repreqsize, 'Reproduction Required Size', slidersx, slidersy, slidersw, sheight, 2, 0, biggest);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.repreqage, 'Reproduction Required Age', slidersx, slidersy, slidersw, sheight, 2, 0, 1000);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.repwait, 'Max Reproduction Frequency', slidersx, slidersy, slidersw, sheight, 2, 0, 1000);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.repnum, 'Number of Children per reproduction', slidersx, slidersy, slidersw, sheight, 2, 0, 20);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.repdist, 'Reproduction distance', slidersx, slidersy, slidersw, sheight, 2, 0, 10);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.sturdyage, 'Sturdy Age', slidersx, slidersy, slidersw, sheight, 2, 0, 100);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.sturdysize, 'Sturdy Size', slidersx, slidersy, slidersw, sheight, 2, 0, biggest);
+			slidersy += sroom;
+			var rocknumslider = new slider(gameconstants.personalspace, 'Personal Space', slidersx, slidersy, slidersw, sheight, 2, 0, 3);
+			//rocks: size, number
+			//initial fields: initial energy, initial size
+			//rates of change: rate at which it generates energy, energy price of growing
+			//priority: growing or reproducing
+			//reproduction when: energy price, required size, required age, minimum time since last reproduction
+			//reproduction how: # of children, distance, # of steps before it is sturdy, size before it is sturdy
+			
+			playbutton = new button({
+				det: 'text',
+				x: w/2,
+				y: h*.9,
+				t: 'Click to Play',
+				s: 55,
+				f: startgame,
+				r: r
+			});
+		}
+		
+		function makegraphics(){
+			var grid = [];
+			var numh = 150;
+			w = dojo.window.getBox().w;
+			h = dojo.window.getBox().h;
+			biggest = 30;
+			maxplants = 20000;
+			gameh = h*.8;
+			r = new Raphael(0,0,w,h);
+			r.rect(0,0,w,gameh).attr({fill:'#630'});
+			//r.rect(0,0,w,gameh).attr({fill:'#000'});
+			stepout = r.text(w/2, h*.9, '0').attr({font:w*.05+'px Arial'});
+			var gridside = Math.floor(w/numh)+1;
+			var numv = 1+Math.floor(gameh/gridside);
+			//for (var i = 0; i < numv; i++){
+			//	var gridrow = [];
+			//	for (var j = 0; j < numh; j++){
+			//		var gridbox = r.rect(j*gridside, i*gridside, gridside, gridside).attr({fill:'#000'});
+			//		gridrow.push(gridbox);
+			//	}
+			//	grid.push(gridrow);
+			//	console.log(i);
+			//}
+		}
+		
+		function makegame(){
+			var p = makesomeplants();
+			var r = makesomerocks();
+			g = new game({
+				plants: p,
+				rocks: r
+			});
+		}
+		
+		function makesomeplants(){
+			var plants = [];
+			for (var i = 0; i < 1; i++){
+				var aplant = new plant({
+					parts: []
+				});
+				plants.push(aplant);
+			}
+			return plants;
+		}
+		
+		function makesomerocks(){
+			var top = new rock(0,0,w,10);
+			var left = new rock(0,0,10,gameh);
+			var right = new rock(w-10,0,10,gameh);
+			var bottom = new rock(0, gameh - 10, w, 10);
+			var rox = [top, left, right, bottom];
+			//return rox;
+			for (var i = 0; i < gameconstants.rocknum; i ++){
+				var wnew = 10+Math.floor(Math.random()*biggest);
+				var hnew = 10+Math.floor(Math.random()*biggest);
+				var xnew = 10+Math.floor(Math.random()*(w-wnew-10));
+				var ynew = 10+Math.floor(Math.random()*(gameh-hnew-10));
+				var newrock = new rock(xnew, ynew, wnew, hnew);
+				rox.push(newrock);
+			}
+			return rox;
+		}
+		
+		dojo.declare( "button", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);
+				this.texto = 1;
+				this.backo = 1;
+				this.make();
+			},
+			make: function(){
+				if (this.det == 'text'){ //size of the button is to be determined by the text size
+					var self = this;
+					this.text = this.r.text(this.x, this.y, this.t).attr({font: this.s +'px Arial', opacity:this.texto});
+					
+					var w = this.text.getBBox().width*1.2;
+					var h = this.text.getBBox().height*1.1;
+					this.back = this.r.rect(this.x - w/2, this.y - h/2, w, h,4).attr({'stroke-width':5, fill:'#fff', opacity:this.backo});
+					
+					this.text.toFront();					
+					
+					this.text.click(this.f);
+					this.back.click(this.f);
+				}
+				if (this.det == 'size'){ //size of the button is to be determined by the text size
+					var self = this;
+					this.back = this.r.rect(this.x, this.y, this.w, this.h,4);
+					this.back.attr({'stroke-width':5, fill:'#fff', opacity:this.backo});
+					this.size = this.back.getBBox().height*(1/1.1);
+					this.text = this.r.text(this.x+this.w/2, this.y+this.h/2, this.t).attr({font: this.size+'px Arial', opacity: this.texto});
+					if (this.text.getBBox().width > this.w){
+						var tw = this.text.getBBox().width;
+						var wlimit = this.w*(1/1.2);
+						if (tw/wlimit < 15000){
+							this.text.attr({font: wlimit*this.size/tw+'px Arial'});
+							this.size = wlimit*this.size/tw;
+						}
+						if (this.text.getBBox().height > this.h){
+							var th = this.text.getBBox().height;
+							var hlimit = this.h*(1/1.1);
+							if (th/hlimit < 150000){
+								this.text.attr({font: hlimit*this.size/th+'px Arial'});
+								this.size = hlimit*this.size/th;
+							}
+						}
+					}
+					if (this.text.getBBox().height > this.h){
+						var th = this.text.getBBox().height;
+						var hlimit = this.h*(1/1.1);
+						if (th/hlimit < 150000){
+							this.text.attr({font: hlimit*this.size/th+'px Arial'});
+							this.size = hlimit*this.size/th;
+						}
+						if (this.text.getBBox().width > this.w){
+							var tw = this.text.getBBox().width;
+							var wlimit = this.w*(1/1.2);
+							if (tw/wlimit < 1500000){
+								this.text.attr({font: wlimit*this.size/tw+'px Arial'});
+								this.size = wlimit*this.size/tw;
+							}
+						}
+					}
+					this.text.toFront();					
+					
+					this.text.click(this.f);
+					this.back.click(this.f);
+				}
+			},
+			hide: function(){
+				this.text.attr({opacity: 0});
+				this.back.attr({opacity: 0});
+			},
+			show: function(){
+				this.text.attr({opacity: this.texto});
+				this.back.attr({opacity: this.backo});
+			},
+			setf: function(f){
+				this.f = f;
+				this.text.click(f);
+				this.back.click(f);
+			},
+			remove: function(){
+				this.back.remove();
+				this.text.remove();
+			}
+		});
+		
+		dojo.declare('game', null, {
+			constructor: function(args){
+				dojo.mixin(this, args);
+				this.count = 0;
+			},
+			start: function(){
+				this.going = true;
+				var self = this;
+				dojo.connect( null, 'onkeydown', function(e){
+					if (e.keycode == dojo.keys.SPACEBAR){
+					//console.log('got a push');
+						self.flip();
+					}
+				});
+				setInterval(dojo.hitch(self, self.step), 50);
+				this.uncrowd = true;
+				setInterval(function(){
+					//this.uncrowd = true;
+				}, 2000);
+			},
+			step: function(){
+				var self = this;
+				if (self.going){
+					self.count += 1;
+					self.plantcount = self.plants.length;
+					self.nextplants = [];
+					self.checkIntersections();
+					unc.random.shuffle(self.plants);
+					dojo.forEach(self.plants, function(p){
+						p.step();
+						if (!p.dead){
+							self.nextplants.push(p);
+						}
+					});
+					self.plants = self.nextplants;
+	//					dojo.forEach(self.animals, function(a){
+	//						a.step();
+	//					});
+					stepout.attr({text:self.count});
+				}
+			},
+			flip: function(){
+				if (this.going == true){
+					this.going = false;
+				}
+				else{
+					this.going = true;
+				}
+			},
+			checkIntersections: function(){
+				var self = this;
+				dojo.forEach(self.plants, function(p){
+					if (this.uncrowd == true){
+						//p.crowded = false;
+					}
+					if (p.crowded == false){
+						dojo.forEach(self.rocks, function(r){
+							var xint = false;
+							var yint = false;
+							if (Math.abs(p.x-r.x) <= p.size+1){ 
+								xint = true;
+							}
+							if (Math.abs(p.x-(r.x+r.w)) <= p.size+1){
+								xint = true;
+							}
+							if (Math.abs(p.y-r.y) <= p.size+1){
+								yint = true;
+							}
+							if (Math.abs(p.y-(r.y+r.h)) <= p.size+1){
+								yint = true;
+							}
+							if (p.x > r.x && p.x < r.x+r.w){
+								xint = true;
+							}
+							if (p.y > r.y && p.y < r.y + r.h){
+								yint = true;
+							}
+							if (xint && yint){
+								p.crowd();
+								//p.die();
+								//if ('pic' in p){
+								//	p.pic.attr({fill:'#f00'});
+								//}
+								if (p.age < p.sturdyage){
+									p.die();
+								}
+							}
+							//console.log(Math.abs(p.x-r.x), Math.abs(p.y-r.y), p.x, p.y, r.x, r.y, p.size, r.w, r.h, xint, yint);
+						});
+					}
+				});
+				dojo.forEach(self.plants, function(p){
+					if (p.crowded == false){
+						dojo.forEach(self.plants, function(q){
+							if ( p != q && q.dead == false){
+								plantIntersection(p,q);
+							}
+						});
+					}
+				});
+				if (this.uncrowd == true){
+					this.uncrowd = false;
+				}
+			}
+		});
+	
+		dojo.declare('animal', null, {
+			constructor: function(args){
+				this.args = args;
+				this.defaultself();
+				this.calcself();
+			},
+			defaultself: function(){
+				this.dx = 0;
+				this.dy = 0;
+			},
+			calcself: function(){
+				var self = this;
+				if ('parts' in self){
+					dojo.forEach(self.parts, function(p){
+						p.owner = self;
+						p.onbirth();
+					});
+				}
+			},
+			step: function(){
+				this.calc
+			}
+		});
+	
+		dojo.declare('plant', null, {
+			constructor: function(args){
+				this.defaultself();
+				dojo.mixin(this, args);
+				this.args = args;
+				this.calcself();
+				if (this.drawimmediate){
+					this.drawself();
+				}
+			},
+			defaultself: function(){
+				this.size = gameconstants.psizei.min + Math.floor(Math.random()*(gameconstants.psizei.max-gameconstants.psizei.min));
+				this.maxsize = gameconstants.pmaxsize.min + Math.floor(Math.random()*(gameconstants.pmaxsize.max-gameconstants.pmaxsize.min));
+				this.energyrate = gameconstants.erate.min + Math.floor(Math.random()*(gameconstants.erate.max-gameconstants.erate.min));
+				this.color = '#090';
+				this.x = this.maxsize+10 + Math.floor(Math.random()*(w-this.maxsize*2-20));
+				this.y = this.maxsize+10 + Math.floor(Math.random()*(gameh-this.maxsize*2-20));
+				this.energy = gameconstants.penergyi.min + Math.floor(Math.random()*(gameconstants.penergyi.max-gameconstants.penergyi.min));
+				this.growrate = 1;
+				this.growprice = gameconstants.growprice.min + Math.floor(Math.random()*(gameconstants.growprice.max-gameconstants.growprice.min));
+				this.sturdyage = gameconstants.sturdyage.min + Math.floor(Math.random()*(gameconstants.sturdyage.max-gameconstants.sturdyage.min)); 
+				this.tol = gameconstants.personalspace.min + Math.floor(Math.random()*(gameconstants.personalspace.max-gameconstants.personalspace.min)); 
+				
+				//begin reproduction factors
+				this.rprice = gameconstants.repecost.min + Math.floor(Math.random()*(gameconstants.repecost.max-gameconstants.repecost.min));
+				this.rsize = gameconstants.repreqsize.min + Math.floor(Math.random()*(gameconstants.repreqsize.max-gameconstants.repreqsize.min));
+				this.renergy = this.rprice;
+				this.rage = gameconstants.repreqage.min + Math.floor(Math.random()*(gameconstants.repreqage.max-gameconstants.repreqage.min));
+				this.rcount = gameconstants.repwait.min + Math.floor(Math.random()*(gameconstants.repwait.max-gameconstants.repwait.min));
+				this.rnum = gameconstants.repnum.min + Math.floor(Math.random()*(gameconstants.repnum.max-gameconstants.repnum.min));
+				this.rdist = gameconstants.repdist.min + Math.floor(Math.random()*(gameconstants.repdist.max-gameconstants.repdist.min));
+				
+				this.crowded = false;
+				this.age = 0;
+				this.rcounter = Math.floor(Math.random()*this.rcount);
+				this.dead = false;
+				this.drawimmediate = true;
+				//console.log('a new plant is', this);
+			},
+			calcself: function(){
+				var self = this;
+				dojo.forEach(this.parts, function(p){
+					p.owner = self;
+				});
+			},
+			drawself: function(){
+				var self = this;
+				if (plantshape == 'rectangle'){
+					self.pic = r.rect(this.x-this.size, this.y-this.size, this.size*2, this.size*2).attr({fill:this.color,stroke:this.color});
+				}
+				if (plantshape == 'circle'){
+					self.pic = r.circle(this.x, this.y, this.size).attr({fill:this.color,stroke:this.color});
+				}
+				//self.pic = r.circle(this.x, this.y, this.size).attr({stroke:this.color, 'stroke-width':5});
+			},
+			step: function(){
+				if (this.dead == false){
+					var self = this;
+					
+					this.age = this.age + 1;
+					this.rcounter = this.rcounter + 1;
+					this.energy += this.energyrate;
+					
+					this.trygrow();
+					this.tryreproduce();
+					this.updatepic();
+					this.randomdeath();
+				}
+			},
+			tryreproduce: function(){
+				var self = this;
+				if (self.energy < self.renergy){return}
+				if (self.size < self.rsize){return}
+				if (self.age < self.rage){return}
+				if (self.rcounter < self.rcount){return}
+				if (g.plantcount > maxplants){return}
+				self.rcounter = 0;
+				g.plantcount = g.plantcount + 1;
+				this.energy = this.energy - this.rprice;
+				for (var i = 0; i < self.rnum; i++){
+					var self = this;
+					function getnewset(){
+						var d = self.maxsize + Math.floor(Math.random()*self.maxsize*self.rdist);
+						var a = Math.random()*360;
+						var x = Math.floor(self.x + d*cos(a));
+						var y = Math.floor(self.y + d*sin(a));
+						return {x: x, y: y, drawimmediate:false};
+					}
+					var set = getnewset();
+					if (set.x < w - 20 && set.x > 20){
+						if (set.y<gameh - 10 && set.y > 10){
+							var a = new plant(set);
+							g.nextplants.push(a);
+						}
+					}
+				}
+			},
+			trygrow: function(){
+				if (this.crowded == false){
+					if (this.energy > this.growrate*this.growprice){
+						var prevsize = this.size;
+						if (this.size < this.maxsize){
+							this.size += this.growrate;
+							if (this.size > this.maxsize){
+								this.size = this.maxsize;
+							}
+						}
+						this.energy -= (this.size - prevsize);
+						if (this.energy < 0){
+							this.energy = 0;
+						}
+					}
+				}
+			},
+			crowd: function(){
+				this.crowded = true;
+			},	
+			die: function(){
+				this.dead = true;
+				//r.text(this.x, this.y, 'dead');
+				if ('pic' in this){
+					this.pic.remove();
+					//this.pic.attr({fill:'#000'});
+				}
+				//this.pic.animate({fill:'#000', opacity:0}, 500);
+			},
+			randomdeath: function(){
+				var self = this;
+				if (Math.random()*100000 < 1){
+					//self.die();
+				}
+			},
+			updatepic: function(){
+				if ('pic' in this){
+					if (this.crowded == false){
+						this.pic.remove();
+						this.drawself();
+						//var scale = this.size/(this.pic.getBBox().width/2);
+						//this.pic.scale(scale, scale);
+					}
+				}
+				else{
+					if (this.age > 2 && this.dead == false && this.crowded == false){
+						this.drawself();
+					}
+				}
+			}
+		});
+	
+		dojo.declare("rock", null, {
+			constructor: function(x, y, w, h){
+				this.x = x;
+				this.y = y;
+				this.w = w;
+				this.h = h;
+				this.drawself();
+			},
+			drawself: function(){
+				this.pic = r.rect(this.x, this.y, this.w, this.h).attr({fill:'#999', stroke:'#999'});
+				//this.pic = r.rect(this.x, this.y, this.w, this.h).attr({stroke:'#999', 'stroke-width':5});
+			}
+		});
+		
+		function plantIntersection(p,q){
+			var i = dist(p,q) < (p.size + q.size)*(p.tol+q.tol)/2;
+			if (i){
+				if (p.size >= q.size && q.age < q.sturdyage){
+					q.crowd();
+					q.die();
+				}
+				else{
+					if (p.age < p.sturdyage){
+						p.crowd();
+						p.die();
+					}
+				}
+				if (q.dead == false){
+					p.crowd();
+				}
+				if (p.dead == false){
+					q.crowd();
+				}
+			}
+			//console.log(i, dist(p,q), p, q, p.size, q.size, p.tol, q.tol);
+		}
+		
+		function cos(a){
+			return Math.cos(a*Math.PI/180);
+		}
+		
+		function sin(a){
+			return Math.sin(a*Math.PI/180);
+		}
+		
+		function dist(p, q){
+			return Math.pow( Math.pow(p.x - q.x, 2) + Math.pow(p.y - q.y, 2) , .5);
+		}
+		
+		dojo.ready(setup);
+	</script>
+</head>
+
+<body>
+
+
+
+
+</body>

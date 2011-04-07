@@ -6,7 +6,6 @@
 		dojo.require("dojo.window");
 	
 		function setup(){
-			console.log('the new version');
 			makegraphics();
 			makegame();
 			g.start();
@@ -17,7 +16,7 @@
 			var numh = 150;
 			w = dojo.window.getBox().w;
 			h = dojo.window.getBox().h;
-			biggest = 170;
+			biggest = 50;
 			maxplants = 20000;
 			gameh = h*.8;
 			r = new Raphael(0,0,w,h);
@@ -38,13 +37,27 @@
 		}
 		
 		function makegame(){
-			var p = makesomeplants();
 			var r = makesomerocks();
+			var p = makesomeplants();
+			var a = makesomeanimals();
 			g = new game({
+				animals: a,
 				plants: p,
 				rocks: r
 			});
-			console.log(g);
+		}
+		
+		function makesomeanimals(){
+			var a = [];
+			for (var i = 0; i < 2; i++){
+				var ani = new animal({
+					name: 'first',
+					eats: ['plant', 'animal'],
+					parts: []
+				});
+				a.push(ani);
+			}
+			return a;
 		}
 		
 		function makesomeplants(){
@@ -64,7 +77,7 @@
 			var right = new rock(w-10,0,10,gameh);
 			var bottom = new rock(0, gameh - 10, w, 10);
 			var rox = [top, left, right, bottom];
-			return rox;
+			//return rox;
 			for (var i = 0; i < 15; i ++){
 				var wnew = 10+Math.floor(Math.random()*biggest);
 				var hnew = 10+Math.floor(Math.random()*biggest);
@@ -90,7 +103,7 @@
 						self.flip();
 					}
 				});
-				setInterval(dojo.hitch(self, self.step), 50);
+				setInterval(dojo.hitch(self, self.step), 100);
 				this.uncrowd = true;
 				setInterval(function(){
 					//this.uncrowd = true;
@@ -111,9 +124,9 @@
 						}
 					});
 					self.plants = self.nextplants;
-	//					dojo.forEach(self.animals, function(a){
-	//						a.step();
-	//					});
+						dojo.forEach(self.animals, function(a){
+							a.step();
+						});
 					stepout.attr({text:self.count});
 				}
 			},
@@ -176,9 +189,201 @@
 						});
 					}
 				});
+				dojo.forEach(self.plants, function(p){
+					if (p.dead == false && 'pic' in p){
+						dojo.forEach(self.animals, function(a){
+							a.nearby = [];
+							//console.log(dist(a,p));
+							if (dist(a,p) < a.sight){
+								a.nearby.push(p);
+								//p.pic.attr({fill:'#fff'});
+//								if ('target' in p == false){
+//									p.target = r.circle(p.x, p.y, p.maxsize*p.tol).attr({fill:'#fff'});
+//									p.target = r.circle(p.x, p.y, p.maxsize*p.tol*.9).attr({fill:'#f00'});
+//									p.target = r.circle(p.x, p.y, p.maxsize*p.tol*.8).attr({fill:'#fff'});
+//									p.target = r.circle(p.x, p.y, p.maxsize*p.tol*.7).attr({fill:'#f00'});
+	//								p.target = r.circle(p.x, p.y, p.maxsize*p.tol*.6).attr({fill:'#fff'});
+//									p.target = r.circle(p.x, p.y, p.maxsize*p.tol*.5).attr({fill:'#f00'});
+//									p.target = r.circle(p.x, p.y, p.maxsize*p.tol*.4).attr({fill:'#fff'});
+//									p.target = r.circle(p.x, p.y, p.maxsize*p.tol*.3).attr({fill:'#f00'});
+//									p.target = r.circle(p.x, p.y, p.maxsize*p.tol*.2).attr({fill:'#fff'});
+//								}
+								//console.log('a thing is near another thing');
+							}
+						});
+					}
+				});
+				dojo.forEach(self.animals, function(a){
+					dojo.forEach(self.rock, function(r){
+						var ab = a.pix.getBBox();
+						var rb = r.pic.getBBox();
+						var xint = false;
+						var yint = false;
+						if (ab.x > rb.x && ab.x < rb.x+rb.width){
+							xint = true;
+						}
+						if (rb.x > ab.x && rb.x < ab.x+ab.width){
+							xint = true;
+						}
+						if (ab.y > rb.y && ab.y < rb.y+rb.height){
+							yint = true;
+						}
+						if (rb.y > ab.y && rb.y < ab.y+ab.height){
+							yint = true;
+						}
+						if (xint && yint){
+							a.dx =0;
+							a.dy = 0;
+						}
+					});
+				});
 				if (this.uncrowd == true){
 					this.uncrowd = false;
 				}
+			}
+		});
+	
+		dojo.declare('animal', null, {
+			constructor: function(args){
+				this.args = args;
+				dojo.mixin(this, args);
+				this.defaultself();
+				dojo.mixin(this, args);
+				this.calcself();
+				this.drawself();
+			},
+			defaultself: function(){
+				if (this.parts.length == 0){
+					this.foodaccel = 2;
+					this.cloneaccel = -.01;
+					this.parentaccel = .01;
+					this.childaccel = -.01;
+					this.neutralaccel = -.01;
+					this.predaccel = -.01;
+					this.preyaccel = .01;
+					this.rockaccel = -.01;
+					this.priority = ['pred', 'food', 'prey'];
+					
+					this.burnrate = 1;
+					this.sight = 200;
+					this.maxsize = biggest;
+					this.size = 20;
+					this.x = this.size + Math.floor(Math.random()*(w - this.size*2));
+					this.y = this.size + Math.floor(Math.random()*(gameh - this.size*2));
+					this.maxspeed = 1;
+					this.sizefriction = this.maxspeed/this.predaccel;
+					
+					this.energy = 100;
+					this.target = 'none';
+					this.nearby = [];
+				}
+				else{
+					this.dx = 0;
+					this.dy = 0;
+					this.maxspeed = 0;
+					this.maxsize = 0;
+					this.size = 0;
+				}
+				this.flesh = animal;
+			},
+			identify: function(other){
+				if (other.size > this.size){
+					if (this.flesh in other.eats){
+						return 'pred';
+					}
+				}
+				var ieatit = false;
+				dojo.forEach(this.eats, function(e){
+					if (e == other.flesh){
+						ieatit = true;
+					}
+				});
+				if (ieatit){
+					if (other.dead || other.maxspeed == 0){
+						return 'food';
+					}
+					return 'prey';
+				}
+				if (other.name == this.name){
+					return 'clone';
+				}
+				return 'neutral';
+			},
+			calcself: function(){
+				var self = this;
+				if ('parts' in self){
+					dojo.forEach(self.parts, function(p){
+						p.owner = self;
+						p.onbirth();
+					});
+				}
+			},
+			drawself: function(){
+				this.pic = r.rect(this.x-this.size, this.y-this.size, this.size, this.size, 1).attr({fill:'#ff0', stroke:'#ff0'}).toFront();
+				this.horizon = r.circle(this.x, this.y, this.sight).attr({'stroke-width':3, stroke:'#ff0'}).toFront();
+			},
+			getModifier: function(id){
+				return this[id+'accel'];
+			},
+			step: function(){
+				var self = this;
+				var finished = false;
+				if (self.target != 'none'){
+					console.log(self.identify(self.target));
+					var speed = self.getModifier(self.identify(self.target));
+					var dx = -speed*cos(angle(self, self.target));
+					var dy = -speed*sin(angle(self, self.target));
+					self.x = self.x + dx;
+					self.y = self.y + dy;
+					self.pic.translate(dx, dy);
+					self.horizon.translate(dx, dy);
+					if (dist(self, self.target) > self.sight){
+						self.target = 'none';
+					}
+					if (dist(self, self.target) < self.size+self.target.size){
+						self.target.die();
+						self.target = 'none';
+					}
+				}
+				else{
+					dojo.forEach(self.priority, function(i){
+						if (finished == false){
+							var active = [];
+							dojo.forEach(self.nearby, function(other){
+								if (self.identify(other) == i){
+									active.push(other);
+								}
+							});
+							if (active.length > 0){
+								finished = true;
+								if (i == 'pred'){
+									var way = 'sum';
+								}
+								if (i == 'food'){
+									var way = 'pick';
+								}
+								if (way == 'sum'){
+									var dx = 0;
+									var dy = 0;
+									var speed = self.getModifier(i)/active.length;
+									dojo.forEach(active, function(other){
+										dx += speed*cos(angle(self, other));
+										dy += speed*sin(angle(self, other));
+									});
+									self.x += dx;
+									self.y += dy;
+									self.pic.translate(dx, dy);
+									self.horizon.translate(dx, dy);
+								}
+								if (way == 'pick'){
+									var chosen = unc.random.choice(active);
+									self.target = chosen;
+								}
+							}
+						}
+					});
+				}
+				
 			}
 		});
 	
@@ -193,9 +398,13 @@
 				}
 			},
 			defaultself: function(){
+				this.eats = [];
+				this.name = 'plant';
+				this.flesh = 'plant';
+				this.maxspeed = 0;
 				this.size = 1 + Math.floor(Math.random()*10);
 				this.maxsize = biggest/4 + Math.floor(Math.random()*biggest/4);
-				this.energyrate = 1 + Math.floor(Math.random()*2);
+				this.energyrate = Math.random();
 				this.color = '#090';
 				this.x = this.maxsize+10 + Math.floor(Math.random()*(w-this.maxsize*2-20));
 				this.y = this.maxsize+10 + Math.floor(Math.random()*(gameh-this.maxsize*2-20));
@@ -203,15 +412,15 @@
 				this.growrate = 1;//+Math.floor(Math.random()*2);
 				this.growprice = 3;
 				this.sturdyage = 3; 
-				this.tol = 1// + Math.random();
+				this.tol = 1 + Math.random();
 				//begin reproduction factors
 				this.rprice = 30;
 				this.rsize = this.maxsize*.25;
 				this.renergy = this.rprice*1.5;
 				this.rage = 5;
 				this.rcount = 4;
-				this.rnum = 3;
-				this.rdist = this.maxsize*4;
+				this.rnum = 1;
+				this.rdist = 0 + biggest*5;
 				
 				this.crowded = false;
 				this.age = 0;
@@ -228,6 +437,7 @@
 			drawself: function(){
 				var self = this;
 				self.pic = r.circle(this.x, this.y, this.size).attr({fill:this.color,stroke:this.color});
+				//self.overlay = r.circle(this.x, this.y, this.size).attr({fill:'#fff',stroke:'#fff'});
 				//self.pic = r.circle(this.x, this.y, this.size).attr({stroke:this.color, 'stroke-width':5});
 			},
 			step: function(){
@@ -314,6 +524,11 @@
 						//var scale = this.size/(this.pic.getBBox().width/2);
 						//this.pic.scale(scale, scale);
 					}
+					var c = this.energy/this.renergy;
+					if (c > .9){
+						c = .9
+					}
+					//this.overlay.attr({opacity:1-c});
 				}
 				else{
 					this.drawself();
@@ -361,6 +576,14 @@
 		
 		function dist(p, q){
 			return Math.pow( Math.pow(p.x - q.x, 2) + Math.pow(p.y - q.y, 2) , .5);
+		}
+		
+		function angle(p,q){
+			var a = Math.atan((p.y-q.y)/(p.x-q.x));
+			if (p.x-q.x < 0){
+				a += Math.PI;
+			}
+			return a*180/Math.PI;
 		}
 		
 		dojo.ready(setup);
