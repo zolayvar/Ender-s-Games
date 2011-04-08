@@ -29,9 +29,7 @@
 			h = h - border*2;
 			maxstage = 2;
 			days = 0;
-			statusbarwidth = w/6;
 			turnsBetweenLandmarks = 5;
-			money = 500;
 			r = new Raphael(border,border,w,h);
 			splashpic = 'landscape1.jpg';
 			teamscreenpic = 'outpost.jpg';
@@ -61,28 +59,16 @@
 			pictures = [ ['iceberglagoon.jpg', 'berg.jpg', 'igloo.jpg'],
 						 ['landscape1.jpg', 'mount.jpg'],
 						 ['inner.jpg', 'landscape2.jpg']  ];
-			events = [ [{text: 'You found some penguins!', 
-						 options: [{text:'take pictures', consequences: [{text:'You get some cool pictures.', f: function(team){days+=1;}}]},
-																	 {text:'hunt them', consequences: [{text:'You killed some penguins and got some food.', f: function(team){team.food += 30;days+=1;}}]}], pic: 'peng.jpg'},
-						{text: 'A member of your team has started snuffling.', options: [{text: 'Take a break.', consequences: [{text:'Better safe than sorry.  You use up food to take a break.', f:function(team){team.food-=20;days+=7;}}]},
-																					     {text:'Keep going!', consequences: [{text:'It is just some snuffles.  Moving on.', f:function(team){}},
-																															 {text:'It wasn\'t just snuffles.  He died.', f:function(team){team.changeStateOfRandom('Dead');}}]}], pic: 'scape.jpg'}
-						],	
-						
-
-						
-					   [{text: 'You think a blizzard is coming.', options: [{text:'keep moving', consequences: [{text:'You kept moving and no blizzard came.  Cool!', f:function(team){}},
-																											    {text:'A blizzard came and two people died.', f:function(team){team.changeStateOfRandom('Dead');team.changeStateOfRandom('Dead');}}]},
-															 {text:'stop and set up camp', consequences: [{text:'You holed up, but no blizzard came.', f:function(team){days += 7;}},
-																										  {text:'You holed up and a blizzard came.  Good call.', f:function(team){days += 7;}}]}],  pic: 'blizz.jpg'}
-						],
-						
-						
-						
-					   [{text: 'A member of your team broke a leg.', options: [{text:'leave behind', consequences: [{text:'Without him, you will have a better chance of surviving.', f:function(team){team.changeStateOfRandom('Dead');}}]},
-															 {text:'carry', consequences: [{text:'He is heavy, but you can\'t leave him behind.', f:function(team){days+=1;team.changeStateOfRandom('Broken');}}]}],  pic: 'stretcher.jpg'}
-						] 
-			];
+			events = [ [{text: 'You found some penguins!', options: [{text:'take pictures', consequences: ['You get some cool pictures.']},
+																	 {text:'hunt them', consequences: ['You killed some penguins']},
+																	 {text:'run away', consequences: ['Penguins?  Danger!  You run away.']}], pic: 'peng.jpg'},
+						{text: 'A member of your team has started snuffling.', options: [{text: 'Take a break.', consequences: ['Better safe than sorry.  You use up some food to take a break.']},
+																					     {text:'Keep going!', consequences: ['It is just some snuffles.  Moving on.']}], pic: 'scape.jpg'}
+							],		
+					   [{text: 'You think a blizzard is coming.', options: [{text:'keep moving', consequences: ['You kept moving and no blizzard came.  Cool!']},
+															 {text:'stop and set up camp', consequences: ['You holed up, but no blizzard came.']}],  pic: 'blizz.jpg'}],
+					   [{text: 'A member of your team slipped and broke a leg.', options: [{text:'leave behind', consequences: ['Without him, you will have a better chance of surviving.']},
+															 {text:'carry', consequences: ['He is heavy, but you can\'t leave him behind.']}],  pic: 'stretcher.jpg'}] ]
 			randomness = [ true, false];
 		}
 		
@@ -106,14 +92,13 @@
 								  t.getBBox().y - bigborder, 
 								  t.getBBox().width + bigborder*8, 
 								  t.getBBox().height + bigborder*2);
-				b.attr({opacity: .9});
 			}
 			t.toFront();
 			return t
 		}
 		
 		function backFrame(x, y, w, h){
-			return r.rect(x, y, w, h, 2).attr({fill:'#888', stroke:'#003', 'stroke-width':bigborder, opacity: .8, 'stroke-opacity':.9});
+			return r.rect(x, y, w, h, h/10).attr({fill:'#888', stroke:'#003', 'stroke-width':bigborder, opacity: .8, 'stroke-opacity':.9});
 		}
 		
 		function buttonify(piece, f){
@@ -191,8 +176,7 @@
 			console.log('need to implements supplies as a field of the team object, but screw that for now');
 			r.clear();
 			r.image('outpost.jpg', 0,0,w,h);
-			button('Buy food', (w)/2, h/2, smalltext, function(){
-				team.food+= 400;
+			button('On this screen we will buy supplies.', w/2, h/2, smalltext, function(){
 				intro();
 			});
 		}
@@ -238,13 +222,12 @@
 				setup();
 			}
 			r.clear();
-			team.drawStatus();
 			function next(){
 				turnCount += 1;
 				if (turnCount == turnsBetweenLandmarks){
-					r.image( landmarks[currentstage][1], statusbarwidth,0,w-statusbarwidth,h);
+					r.image( landmarks[currentstage][1], 0,0,w,h);
 					button('next', w*.9, h*.90, smalltext, function(){
-						text( landmarks[currentstage][0], (w+statusbarwidth)/2, h*2/5, smalltext*.7, true);
+						text( landmarks[currentstage][0], w/2, h*2/5, smalltext, true);
 						turnCount = 0;
 						currentstage += 1;
 						button('next', w*.9, h*.90, smalltext, infoScreen);
@@ -255,25 +238,20 @@
 				}
 			}
 			function event(){
-				days+= 3;
 				r.clear();
-				team.drawStatus();
-				r.image( unc.random.choice(pictures[currentstage]), statusbarwidth,0,w-statusbarwidth,h);
+				r.image( unc.random.choice(pictures[currentstage]), 0,0,w,h);
 				if (unc.random.choice([0,1])){
-					text( unc.random.choice(messages[currentstage]), (w+statusbarwidth)/2, h/5, regtext, true);
+					text( unc.random.choice(messages[currentstage]), w/2, h/5, regtext, true);
 				}
 				else{
 					var e = unc.random.choice( events[currentstage]);
-					r.image( e.pic, statusbarwidth,0,w-statusbarwidth,h);
-					text( e.text, (w+statusbarwidth)/2, h/5, regtext, true);	
+					r.image( e.pic, 0,0,w,h);
+					text( e.text, w/2, h/5, regtext, true);	
 					var desiredy = h/2-smalltext-bigborder;
 					dojo.forEach(e.options, function(o){
 						var op = o;
-						button( o.text, (w+statusbarwidth)/2, desiredy, smalltext, function(){
-							var con = unc.random.choice(op.consequences);
-							text(con.text, (w+statusbarwidth)/2, 5*h/7, smalltext, true);
-							con.f(team);
-							console.log(team);
+						button( o.text, w/2, desiredy, smalltext, function(){
+							text(unc.random.choice(op.consequences), w/2, 6*h/7, regtext, true);
 						});
 						desiredy += smalltext*2 + bigborder;
 					});
@@ -290,9 +268,7 @@
 			members: [],
 			max: 4,
 			full: false,
-			food: 0,
 			choosePage: false,
-			dogs: 'Happy',
 			constructor: function(args){
 				dojo.mixin(this,args);
 				this.choosepageh = (this.infoh-bigborder*3+bigborder)/4 - bigborder;
@@ -319,31 +295,6 @@
 				console.log(x, y, self.infoy1, bigborder, self.currdy, self.choosepageh);
 				text(self.members[self.members.length-1].name, x, y, smalltext);
 				self.currdy += self.choosepageh + bigborder;
-			},
-			drawStatus: function(){
-				var b = backFrame(0,0,statusbarwidth,h);
-				//b.attr({stroke:'#107'});
-				var y = bigborder*8;
-				var stattext = smalltext*.7
-				dojo.forEach(this.members, function(m){
-					text(m.name + ': '+ m.state, statusbarwidth/2, y, stattext);
-					y+= stattext+bigborder;
-				});
-				y += bigborder;
-				text('Dogs' + ': '+ this.dogs, statusbarwidth/2, y, stattext);
-				y += bigborder + stattext;
-				text('Food' + ': '+ (this.food-10*days), statusbarwidth/2, y, stattext);
-				y += bigborder + stattext;
-				text('Days' + ': '+ days, statusbarwidth/2, y, stattext);
-			},
-			changeStateOfRandom: function(state){
-				var m = unc.random.choice(this.members);
-				if (m.state != state){
-					m.state = state;
-				}
-				else{
-					this.changeStateOfRandom(state);
-				}
 			}
 		});
 		
@@ -380,43 +331,28 @@
 			drawInfo: function(x,y,w,h){
 				console.log('darwinfo', this.name);
 				var self = this;
-				self.infoout = text(this.text, x + w/2, y + h*.6, smalltext/2);
+				self.infoout = text(this.text, x + w/2, y + h*.6, smalltext);
 			}
 		});
 		
 		function makePerson(type){
 			if (type == 'Doctor'){
 				return member({
-					text: 'Sir Arthur Cromwell: A descendant of Oliver Cromwell who ruled England'+
-					      '\nwith an Iron Fist and became fairly unpopular. To remedy his family image,'+
-						  '\nSir Arthur Cromwell is striving to explore Antarctica for medical research.'+ 
-						  '\nAlthough a brilliant doctor of medicine, he tends to be naïve in his own '+
-						  '\nthinking. He can be overly-ambitious and blinded by his own quest for glory,'+
-						  '\ncausing him to pay little heed to those around him at times. Regardless… '+
-						  '\nlike his family line, he is a leader and very adventurous.',
+					text: "Hi!  I help the team by curing minor\nailments and preventing major ones,\nbut I'm not very strong myself.",
 					skills: ['heals'],
 					name: 'Doctor'
 				});
 			}
 			if (type == 'Explorer'){
 				return member({
-					text: 'Leon Chevalier: Hailing from the Rhone-Aples region of France. From the early'+
-						  '\nage of 7, Leon became an accomplished hunter. He won many awards growing up' +
-						  '\nand has used his expert hunting skills, extensive knowledge of nature, and'+
-						  '\nlove for the outdoors to become an experienced explorer. He boasts having '+
-						  '\nexplored over 100 countries, although his rather presumptuous character makes'+
-						  '\none question the validity of his claims.',
+					text: "Yo, I can climb mountains and stuff \nto help move the group along faster.",
 					skills: ['climbs'],
-					name: 'Explorer'
+					name: 'Climber'
 				});
 			}
 			if (type == 'Soldier'){
 				return member({
-					text: 'Oscar Zimmermann: Born of German parents. His father Hludwig was an old'+
-						  '\nmilitary type. Oscar tries to follow in his father’s footsteps and live'+ 
-						  '\nup to his father’s superior military status. He has volunteered for the '+
-						  '\nAntarctic expedition during a time of peace to make his father proud. Oscar'+
-						  '\nis a very promising and capable soldie, but inexperienced in actual war.',
+					text: "Sir!  I can protect the group in case\nof attack!  I am also hardy and unlikely\nto get injured!",
 					skills: ['fights'],
 					name: 'Soldier'
 				});
@@ -430,11 +366,7 @@
 			}
 			if (type == 'Dog Expert'){
 				return member({
-					text: 'Lorraine Kaplan: Coming from her idyllic upbringing in rural South Dakota,'+
-						  '\nher innate connection to animals and ambition to see the world make her '+
-						  '\na world-famous dog expert. Her specialty is raising and training sled dogs.'+
-						  '\nShe is known for her greatly optimistic character, but her loquacious nature'+
-						  '\ncan sometimes become abrasive.',
+					text: "I can manage the dogs, keeping them\nhealthy and happy.",
 					skills: ['dogs'],
 					name: 'Dog Leader'
 				});

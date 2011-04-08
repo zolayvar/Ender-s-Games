@@ -120,7 +120,7 @@
 				}
 			}, 1000);
 			r.text( .2*s.w, s.h*.6+72, "You will die if you run out of energy:").attr({fill: '#222', font:'24px Arial'});
-			var e = 500;
+			var e = 600;
 			var ecounter = r.text( .2*s.w, s.h*.6 + 96, t ).attr({fill: '#f00', font:'24px Arial'});
 			player.energy = e;
 			player.energyout = ecounter;
@@ -267,25 +267,30 @@
 						sound.stop();
 						//sound.play({url:'scream'});
 						var slipinstr = r.text( s.w*.8, s.h*.6, "You slipped!  Type 'SAVE'!");
-						dojo.connect( null, "onkeydown", function(e){
+						var shandle = dojo.connect( null, "onkeydown", function(e){
 							if (e.keyCode == 83){
 								console.log('saw the s');
-								dojo.connect( null, "onkeydown", function(e){
+								var ahandle = dojo.connect( null, "onkeydown", function(e){
 									if (e.keyCode == 65){
-								console.log('saw the a');
-										dojo.connect( null, "onkeydown", function(e){
+										console.log('saw the a');
+										var vhandle = dojo.connect( null, "onkeydown", function(e){
 											if (e.keyCode == 86){
-								console.log('saw the v');
-												dojo.connect( null, "onkeydown", function(e){
+												console.log('saw the v');
+												var ehandle = dojo.connect( null, "onkeydown", function(e){
 													if (e.keyCode == 69){
-								console.log('saw the e');
+														console.log('saw the e');
 														self.catchself();
+														console.log('ehandle is', ehandle);
+														dojo.disconnect(ehandle);
 													}
 												});
+												dojo.disconnect(vhandle);
 											}
-										});
+										});	
+										dojo.disconnect(ahandle);
 									}
 								});
+								dojo.disconnect(shandle);
 							}
 						});
 						slipinstr.attr({fill: '#f00', font:'24px Arial'});

@@ -1,0 +1,1010 @@
+<head>
+	<script type="text/javascript">
+		var djConfig = {
+			isDebug: false,
+			parseOnLoad: true,
+			baseUrl: './',
+			modulePaths: { 'unc': 'unc'  }
+		};
+	</script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+	<script type="text/javascript" src="/libs/uow.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+	<script src="raphael.js"></script>
+	<script src="random.js"></script>
+	<script>
+		dojo.require("dojo.window");
+		
+		function go(){
+			g = new game();
+			g.title();
+		}
+		
+		dojo.declare("game", null, {
+			constructor: function(args){  //will have a team object, visuals object, and eventbox
+				dojo.mixin(this, args);
+				this.vis = new visuals({game: this});
+				this.team = new team({game: this});
+				this.eventbox = new eventbox({game: this});
+				this.days = 0;
+				this.weapons = 0;
+				this.dogs = 0;
+				this.food = 0;
+				this.blankets = 0;
+				this.weight = 0;
+				this.speed = 0;
+				this.money = 3000;
+				this.miles = 0;
+				this.playing = true;
+				this.q = [];
+				this.steppable = true;
+			},
+			title: function(){
+				this.state = 'title';
+				this.vis.setup();
+				this.team.setup();
+				this.eventbox.setup();
+			},
+			start: function(){
+				if (this.state == 'title'){
+					this.vis.intro();
+					this.state = 'intro';
+				}
+			},
+			chooseteam: function(){
+				if (this.state == 'intro'){
+					this.vis.chooseteam();
+					this.state = 'chooseteam';
+				}
+			},
+			supplies: function(){
+				if (this.state == 'chooseteam'){
+					this.vis.supplies();
+					this.state = 'supplies';
+				}
+			},
+			startJourney: function(){
+				if (this.playing){
+					this.vis.startJourney();
+				}
+			},
+			step: function(){
+				console.log('step was called');
+				this.steppable = false;
+				setTimeout(function(){
+					this.steppable = true;
+				}, 300);
+				dojo.forEach(g.team.members, function(m){
+					m.updatestat();
+				});
+				if (this.playing){
+					if (this.q.length > 0){
+						var f = this.q.shift();
+						console.log('got out of the queue', f);
+						f.die();
+					}
+					else{
+						this.vis.cleartemp();
+						this.calcspeed();
+						var h = this.eventbox.getNext();
+						h.occur();
+						this.days = this.days + 1;
+						this.miles = this.miles + this.speed;
+						this.managefood();
+						this.checkwin();
+						this.sidebar.update();
+					}
+				}
+			},
+			calcspeed: function(){
+				var dogfactor = 100*this.dogs/(this.weight+500);
+				var personfactor = this.team.getspeedfactor();
+				this.speed = Math.floor(10*dogfactor*personfactor)+1;
+			},
+			managefood: function(){
+				if (this.food > 0){
+					this.food = this.food - this.team.alive - this.dogs/2;
+				}
+				if (this.food <= 0){
+					this.food = 0;
+					this.team.starve();
+				}
+			},
+			checkwin: function(){
+				if (this.miles > 400){
+					this.vis.win();
+					this.playing = false;
+				}
+			},
+			lose: function(){
+				this.vis.lose();
+				this.playing = false;
+			},
+			changesupplies: function( type, change ){
+				if (type == 'food'){
+					this.food = this.food + change;
+				}
+				if (type == 'blankets'){
+					this.blankets = this.blankets + change;
+				}
+				if (type == 'weapons'){
+					this.weapons = this.weapons + change;
+				}
+				if (type == 'dogs'){
+					this.dogs = this.dogs + change;
+				}
+				this.weight = this.food + this.blankets*10 + this.weapons*30;
+				this.sidebar.update();
+			}
+		});
+		
+		
+		dojo.declare("visuals", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);
+			},
+			setup: function(){
+				var self = this;
+				this.temp = [];
+				uow.getAudio().then( function(a){
+					self.noise = a;
+					console.log('sound came back');
+					self.title();
+				});
+				self.say = function(text){
+					self.noise.stop();
+					self.noise.say({text:text});
+				}
+				this.k = {}; // k is for constants
+				this.k.w = dojo.window.getBox().w;
+				this.k.h = dojo.window.getBox().h;
+				this.k.big = this.k.w/25;
+				this.k.med = this.k.big/2;
+				this.k.small = this.k.med/2;
+				this.k.nextx = this.k.w*.9;
+				this.k.nexty = this.k.h*.9;
+				this.k.sidebarw = this.k.w*.2;
+				this.nameImages();
+				this.messages();
+				
+				this.r = new Raphael(0,0,this.k.w, this.k.h);
+			},
+			nameImages: function(){
+				this.im = {};
+				this.im.title = "titlepic.jpg"; //jan_krutisch on flickr
+				this.im.intro = "introSTANDIN.jpg";
+				this.im.teamchoose = "teamchooseSTANDIN.jpg";
+				this.im.supplies = "suppliesSTANDIN.jpg";
+				this.im.journeystart = "journeystartSTANDIN.jpg";					
+			},
+			messages: function(){
+				var mess = {};
+				mess.title = "Epic Journey";
+				mess.intro = "You are now making your mark and\n"+ 
+							 "rewriting history in the Heroic Age\n"+
+							 "of Antarctic Exploration era. Resources\n"+ 
+							 "will be scarce, the journey will be \n"+
+							 "long, and your team will struggle… but\n" +
+							 "will you overcome adversity and become\n"+
+							 "a hero?";
+				mess.introsound = 'You are going to go on a Journey through Antarctica.  Resources will be scarce, the journey will be long, and your team will struggle.  But, if you are wise and brave, you may become a hero.';	 
+				mess.start = "Your team sets off across Antarctica!\n"+
+							 "Your team's spirits are really high, and\n"+
+							 "everyone is talking about how they will\n"+
+							 "leave their mark at the pole!";
+				this.mess = mess;
+			},
+			title: function(){
+				var self = this;
+				this.back = this.r.image(this.im.title, 0,0,this.k.w, this.k.h);
+				this.border = this.r.rect(0,0,this.k.w, this.k.h).attr({'stroke-width':this.k.small}).attr({opacity:.6});
+				this.tbutton( this.k.w/2, this.k.h*.8, "Click to play", this.k.big, this.r, dojo.hitch(this.game,this.game.start) );
+				this.tbutton( this.k.w/2, this.k.h*.3, this.mess.title, this.k.big*2, this.r, dojo.hitch(this.game,this.game.start) );
+				console.log('trying to say the intro text');
+				this.say('Welcome to Epic Journey.  Press down to hear controls.');
+				this.currentControls = 'Press right to continue.  Press down to hear the instructions again';
+				dojo.connect(null, 'onkeydown', function(e){
+					if (e.keyCode == dojo.keys.DOWN_ARROW){
+						console.log('saying the controls');
+						self.say(self.currentControls);
+					}
+				});
+				self.bloop = dojo.connect(null, 'onkeydown', function(e){
+					if (e.keyCode == dojo.keys.RIGHT_ARROW){
+						self.game.start();
+						dojo.disconnect(self.bloop);
+					}
+				});
+			},
+			intro: function(){
+				var self = this;
+				this.cleartemp();
+				this.changeback(this.im.intro);
+				this.next = new button({det:'text', x:this.k.nextx, y:this.k.nexty, t:' next ', s:this.k.big, f:dojo.hitch(this.game, this.game.chooseteam), r:this.r});
+				this.central(this.mess.intro);
+				this.say(this.mess.introsound+' Press down to hear controls.');
+				self.currentControls = self.currentControls;
+				self.bloop2 = dojo.connect(null, 'onkeydown', function(e){
+					if (e.keyCode == dojo.keys.RIGHT_ARROW){
+						self.game.chooseteam();
+						dojo.disconnect(self.bloop2);
+					}
+				});
+			},
+			chooseteam: function(){			
+				if (false){
+					this.cleartemp();
+					this.changeback(this.im.teamchoose);
+					this.next.hide();
+					this.sidebar();
+					this.header('Choose Four People');
+					var num = 4;
+					var teambuttony = this.k.big*4;
+					var teambuttonheight = (this.k.h - this.k.small - teambuttony + this.k.med)/4 - this.k.med;
+					var teambuttonwidth = (this.k.w*.2);
+					var teambuttonx = this.k.sidebarw+this.k.med;
+					
+					var infox = teambuttonx+teambuttonwidth+this.k.small;
+					var infoy = teambuttony;
+					var infow = this.k.w - this.k.small - infox;
+					var infoh = this.k.h - this.k.small - infoy;
+					
+					var self = this;
+					self.infobox = self.sbutton(infox, infoy, self.game.team.poss[0].text, infow, infoh, self.r, function(){self.game.team.add(self.game.team.poss[0]);});
+					function select(person){
+						dojo.forEach(teambuttons, function(b){
+							b.back.attr({fill:'#fff'});
+						});
+						self.infobox.remove();
+						self.infobox = self.sbutton(infox, infoy, person.text, infow, infoh, self.r, function(){self.game.team.add(person);});
+					}
+					
+					var i = 0;
+					var teambuttons = [];
+					var minfont = 1000000;
+					dojo.forEach( this.game.team.poss, dojo.hitch(this, function(person){
+						var b = this.sbutton(teambuttonx, 
+									 teambuttony+(teambuttonheight+this.k.med)*i, 
+									 this.game.team.poss[i].type, 
+									 teambuttonwidth, 
+									 teambuttonheight, 
+									 this.r, 
+									 function(){
+										select(person);
+									}
+						);
+						b.setf(function(){
+							select(person);
+							b.back.attr({fill:'#0f0'});
+						});
+						if (b.size < minfont){
+							minfont = b.size;
+						}
+						teambuttons.push(b);
+						i = i +1;
+					}));
+					teambuttons[0].back.attr({fill:"#0f0"});
+					dojo.forEach(teambuttons, function(b){
+						b.text.attr({font:minfont+'px Arial'});
+					});
+				}
+				else{
+					var self = this;
+					this.sidebar();
+					dojo.forEach(self.game.team.poss,function(person){self.game.team.add(person);});
+					self.sidebar.supplies();
+					self.cleartemp();
+					self.central('You are ready to go on your journey.  Your\n'+
+								 'team consists of a smart doctor, a nice sled\n'+
+								 'dog expert, a brave soldier, and a heroic\n'+
+								 'explorer. You have 150 pounds of food, 4 blankets,\n'+
+								 '5 sled dogs, and 1 weapon to help you during your journey.');				
+					self.game.changesupplies( 'food' , 120 );
+					self.game.changesupplies( 'blankets' , 4 );
+					self.game.changesupplies( 'dogs' , 6 );
+					self.game.changesupplies( 'weapons' , 1 );
+					self.say('You are ready to go on your journey.  Your team consists of a smart doctor, a nice sled dog expert, a brave soldier, and a heroic explorer.   You have 120 pounds of food, 4 blankets, 5 sled dogs, and 1 weapon to help you during your journey.');				
+					self.currentControls = 'press left to hear the status of your team. Press up to hear the status of your supplies, press down to hear the instructions again, and press right to continue.';
+					self.bloop3 = dojo.connect(null, 'onkeydown', function(e){
+						if (e.keyCode == dojo.keys.RIGHT_ARROW){
+							self.game.startJourney();
+						}
+					});
+					dojo.connect(null, 'onkeydown', function(e){
+						if (e.keyCode == dojo.keys.LEFT_ARROW){
+							self.readStatus();
+						}
+					});
+				}
+			},
+			supplies: function(){
+				this.cleartemp();
+				var self = this;
+				this.changeback(this.im.supplies);
+				this.next.show();
+				self.next.clickable = true;
+				this.next.setf(function(){
+					if (self.next.clickable){
+						self.next.clickable = false;
+						self.game.startJourney();
+						setTimeout( function(){
+							self.next.clickable = true;
+						}, 300);
+					}
+				});
+				this.header('Buy Supplies');
+				this.sidebar.supplies();
+				var bx = this.k.sidebarw+this.k.med;
+				var by = this.k.big*4;
+				var bw = (this.k.w - bx - this.k.small*2 - this.k.med)/2;
+				var bh = (this.k.nexty - by - this.k.small - this.k.med*2 - this.k.big)/2;
+				var minfont = 1000000;
+				var moneyout = this.tbutton( this.k.w/2+this.k.sidebarw/2, this.k.nexty, 'Money: $'+this.game.money, this.k.big, this.r, function(){});	
+				function updateMoney(dmoney){
+					self.game.money = self.game.money - dmoney;
+					moneyout.text.attr({text:"Money: $"+self.game.money});
+				}
+				var one = this.sbutton(bx, by, 'BUY 3 DAY\'S FOOD\n'+
+											   'weight: 15 lbs\n'+
+											   'price: $50', bw, bh, self.r, function(){
+					if (self.game.money >= 50){
+						self.game.changesupplies( 'food' , 15 );
+						updateMoney(50);
+					}
+				});
+				var two = this.sbutton(bx + bw + this.k.small, by, 'BUY 1 WEAPON\n'+
+																   'weight: 20 lbs\n'+
+																   'price: $200', bw, bh, self.r, function(){
+					if (self.game.money >= 200){
+						self.game.changesupplies( 'weapons' , 1 );
+						updateMoney(200);
+					}
+				});
+				var three = this.sbutton(bx, by+ bh + this.k.small, 'BUY 1 BLANKET\n'+
+																	'weight: 10 lbs\n'+
+																	'price: $50', bw, bh, self.r, function(){
+					if (self.game.money >= 50){
+						self.game.changesupplies( 'blankets' , 1 );
+						updateMoney(50);
+					}
+				});
+				var four = this.sbutton(bx+ bw + this.k.small, by+ bh + this.k.small, 'BUY 1 DOG\n'+
+																					  'weight: N/A\n'+
+																					  'price: $400', bw, bh, self.r, function(){
+					if (self.game.money >= 400){
+						self.game.changesupplies( 'dogs' , 1 );
+						updateMoney(400);
+					}
+				});
+				dojo.forEach( [one, two, three, four], function(e){
+					if (minfont > e.size){
+						minfont = e.size;
+					}
+				});
+				dojo.forEach( [one, two, three, four], function(e){
+					e.text.attr({font:minfont+'px Arial'});
+				});			
+			},
+			readStatus: function(){
+				if (this.currentread == 'explorer'){
+					this.say('Your explorer is '+this.game.team.members[0].status);
+				}
+			},
+			startJourney: function(){
+				var self = this;
+				this.currentread = 'explorer';
+				this.cleartemp();
+				this.sidebar.journey();
+				this.changeback(this.im.journeystart);
+				this.central(this.mess.start);
+				self.say(this.mess.start.replace(new RegExp('\n', 'g'), ' '));				
+				self.currentControls = 'press left to hear the status of your team, supplies, and journey. press up to cycle through choices.  press right to continue. press down to hear the instructions again.';
+				dojo.disconnect(self.bloop3);
+				self.bloop3 = dojo.connect(null, 'onkeydown', function(e){
+					if (e.keyCode == dojo.keys.RIGHT_ARROW){
+						self.game.step();
+					}
+				});
+				this.next.clickable = true;
+				this.next.setf(function(){
+					if (self.next.clickable){
+						self.next.clickable = false;
+						self.game.step();
+						setTimeout( function(){
+							self.next.clickable = true;
+						}, 300);
+					}
+				});
+			},
+			displaynormal: function(message, im){
+				var self = this;
+				this.next.show();
+				this.next.clickable = true;
+				this.cleartemp();
+				this.central(message);
+				this.changeback(im);
+				self.say(message.replace(new RegExp('\n', 'g'), ' '));				
+				self.currentControls = 'press left to hear the status of your team, supplies, and journey. press up to choose between choices, press down to hear the instructions again, and press right to continue.';
+				dojo.disconnect(self.bloop3);
+				self.bloop3 = dojo.connect(null, 'onkeydown', function(e){
+					if (e.keyCode == dojo.keys.RIGHT_ARROW){
+						self.game.step();
+					}
+				});
+			},
+			displaycomplex: function(message, im, choices){
+				this.cleartemp();
+				this.next.hide();
+				this.next.clickable = false;
+				this.tbutton(this.k.w/2+this.k.sidebarw/2, this.k.h*.3, message, this.k.med, this.r, function(){});
+				this.changeback(im);
+				var cx = this.k.w/2 + this.k.sidebarw/2;
+				var csize = this.k.med;
+				var cy = this.k.h*.7 - choices.length*(csize+this.k.small)/2;
+				var self = this;
+				dojo.forEach(choices, function(c){
+					if (c.canhappen()){
+						self.tbutton(cx, cy, c.message, csize, self.r, dojo.hitch(c, c.pick));
+						cy = cy + (self.k.small+csize*2)
+					}
+				});
+				self.say(message.replace(new RegExp('\n', 'g'), ' ')+ ' Press up to cycle through your choices.');				
+				self.currentControls = 'press left to hear the status of your team, supplies, and journey. press up to cycle through choices, press down to hear the instructions again, and press right to continue.';
+				dojo.disconnect(self.bloop3);
+				self.bloop3 = dojo.connect(null, 'onkeydown', function(e){
+					if (e.keyCode == dojo.keys.RIGHT_ARROW){
+						self.game.step();
+					}
+				});
+			},
+			win: function(){
+				this.cleartemp();
+				var score = g.team.alive*101+g.food+g.dogs*40;
+				this.central("You have conquered the unforgiving Antarctic and completed\n"+
+							 "your journey to the South Pole and back with " + g.team.alive+" people\n"+ 
+							 "left on your team, "+g.food+" food supply, and "+g.dogs+" sled dogs. \n"+
+							 "Congratulations! You have earned a score of "+score+".");
+				this.next.hide();
+				this.next.clickable = false;
+			},
+			lose: function(){
+				this.cleartemp();
+				this.central("It is not easy to become a hero in history. \n"+
+							 "Rather than follow in Roald Amundsen’s footsteps,\n"+
+							 "you have suffered the same ultimate fate that \n"+
+							 "Robert Falcon Scott and his party suffered. Your\n"+
+							 "team has perished.");
+				this.next.hide();
+				this.next.clickable = false;
+			},
+			sidebar: function(){
+				this.sidebar = new sidebar({x:0, y:0, w:this.k.sidebarw, h:this.k.h, r:this.r});
+				this.game.team.sidebar = this.sidebar;
+				this.game.sidebar = this.sidebar;
+				this.sidebar.team = this.game.team;
+				this.sidebar.game = this.game;
+			},
+			header: function(text){
+				var usefulw = this.k.w/2;
+				if ('sidebar' in this){
+					var usefulw = usefulw + this.k.sidebarw*.5;
+				}
+				var head = this.tbutton(usefulw, this.k.h*.08, text, this.k.big*1.3, this.r, function(){});
+				this.temp.push(head);
+			},
+			central: function(text){
+				if ("sidebar" in this){
+					var a = this.sbutton(this.k.big*2+this.k.sidebarw, this.k.big*4, text, this.k.w - this.k.big*6 - this.k.sidebarw, this.k.h - this.k.big*8, this.r, function(){});
+				}
+				else{
+					this.sbutton(this.k.big*4, this.k.big*4, text, this.k.w - this.k.big*8, this.k.h - this.k.big*8, this.r, function(){});
+				}
+				this.next.show();
+				this.next.clickable = true;
+			},
+			changeback: function(imagename){
+				var newback = this.r.image(imagename, 0,0,this.k.w, this.k.h);
+				this.back.remove();
+				this.back = newback;	
+				this.back.toBack();
+			},
+			innerpic: function(imagename, x, y, w, h){
+				var back = this.r.rect(x, y, w, h).attr({'stroke-width':w*.05, opacity:.7});
+				var inner = this.r.image(imagename, x, y, w, h);
+				this.temp.push(inner);
+				this.temp.push(back);
+			},
+			tbutton: function(xpos,ypos,text,size,raph,func){ //button for which the size is based on the size of the text
+				var b = new button({det: 'text', x:xpos, y:ypos, t:text, s:size, f:func, r:raph});
+				this.temp.push(b);
+				return b;
+			},
+			sbutton: function(xpos,ypos,text,width,height,raph,func){ //button for which the size of the text is limited by the size of the button
+				var b = new button({det: 'size', x:xpos, y:ypos, t:text, w:width, h:height, f:func, r:raph});
+				this.temp.push(b);
+				return b
+			},
+			cleartemp: function(){
+				dojo.forEach(this.temp, function(e){
+					e.remove();
+				});
+			}
+		});
+		
+		function clearnewlines(block){
+			
+		}
+		
+		dojo.declare("sidebar", null, { 
+		// 
+		//  Team members
+		//
+		//	Name 1:
+		//		Status
+		//	Name 2:
+		//		Status
+		//	Name 3:
+		//		Status
+		//	Name 4:
+		//		Status
+		//
+		//	*************
+		//  *           *
+		//  *    MAP    *
+		//  *   HERE    *
+		//  *           *
+		//	*************
+		//
+			constructor: function(args){ //give me an x, y, w, h, raph.  I know what to display
+				dojo.mixin(this, args);
+				this.texto = 1;
+				this.backo = .9;
+				this.textsize = this.w/10;
+				this.bordersize = this.w/14;
+				this.mapx = this.bordersize;
+				this.mapw = this.w - this.bordersize*2;
+				this.maph = this.mapw;
+				this.mapy = this.h-this.maph-this.bordersize;  //this needs to be changed
+				this.make();
+			},
+			make: function(){
+				this.back = this.r.rect(this.x, this.y, this.w, this.h).attr({'stroke-width':this.w*.03, fill:'#fff', opacity:this.backo});
+				this.head = this.r.text(this.x+this.bordersize, this.bordersize*2, "Team members:").attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.persony = this.head.getBBox().height + this.bordersize*4;
+				this.mapbox = this.r.rect(this.mapx, this.mapy, this.mapw, this.maph);
+				this.map = this.r.text(this.mapx+this.mapw/2, this.mapy+this.maph/2, "MAP HERE").attr({font:this.textsize+'px Arial'});
+				this.mapbox.attr({opacity: 0});
+				this.map.attr({opacity: 0});
+			},
+			add: function(p){
+				this.r.text(this.bordersize, this.persony, p.type+':').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				p.statout = this.r.text(this.w - this.bordersize, this.persony, p.state).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.persony = this.persony+this.textsize*1.3+this.bordersize;
+			},
+			supplies: function(){
+				this.suppliesy = this.persony + this.textsize;
+				
+				//weight, food, blankets, dogs, weapons
+				this.r.text(this.bordersize, this.suppliesy, 'Weight:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.weightout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.weight).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+				
+				this.r.text(this.bordersize, this.suppliesy, 'Food:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.foodout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.food).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+				
+				this.r.text(this.bordersize, this.suppliesy, 'Blankets:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.blanketsout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.blankets).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+				
+				this.r.text(this.bordersize, this.suppliesy, 'Dogs:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.dogsout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.dogs).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+				
+				this.r.text(this.bordersize, this.suppliesy, 'Weapons:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.weaponsout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.weapons).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+			}, 
+			journey: function(){
+				if (!('journeyy' in this)){
+					this.journeyy = this.suppliesy + this.textsize;
+				
+					this.r.text(this.bordersize, this.journeyy, 'Days:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+					this.daysout = this.r.text(this.w - this.bordersize, this.journeyy, this.game.days).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+					this.journeyy = this.journeyy+this.textsize*1.3+this.bordersize;
+					
+					this.r.text(this.bordersize, this.journeyy, 'Miles:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+					this.milesout = this.r.text(this.w - this.bordersize, this.journeyy, this.game.miles).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				}
+			},
+			update: function(){
+				this.foodout.attr({text: this.game.food});
+				this.weightout.attr({text: this.game.weight});
+				this.blanketsout.attr({text: this.game.blankets});
+				this.dogsout.attr({text: this.game.dogs});
+				this.weaponsout.attr({text: this.game.weapons});
+				if ('daysout' in this){
+					this.daysout.attr({text: this.game.days});
+					this.milesout.attr({opacity:0});
+					this.milesout = this.r.text(this.w - this.bordersize, this.journeyy, this.game.miles).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				}
+			}
+		});
+		
+		dojo.declare( "button", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);
+				this.texto = 1;
+				this.backo = .9;
+				this.make();
+			},
+			make: function(){
+				if (this.det == 'text'){ //size of the button is to be determined by the text size
+					var self = this;
+					this.text = this.r.text(this.x, this.y, this.t).attr({font: this.s +'px Arial', opacity:this.texto});
+					
+					var w = this.text.getBBox().width*1.2;
+					var h = this.text.getBBox().height*1.1;
+					this.back = this.r.rect(this.x - w/2, this.y - h/2, w, h,4).attr({'stroke-width':5, fill:'#fff', opacity:this.backo});
+					
+					this.text.toFront();					
+					
+					this.text.click(this.f);
+					this.back.click(this.f);
+				}
+				if (this.det == 'size'){ //size of the button is to be determined by the text size
+					var self = this;
+					this.back = this.r.rect(this.x, this.y, this.w, this.h,4);
+					this.back.attr({'stroke-width':5, fill:'#fff', opacity:this.backo});
+					this.size = this.back.getBBox().height*(1/1.1);
+					this.text = this.r.text(this.x+this.w/2, this.y+this.h/2, this.t).attr({font: this.size+'px Arial', opacity: this.texto});
+					if (this.text.getBBox().width > this.w){
+						var tw = this.text.getBBox().width;
+						var wlimit = this.w*(1/1.2);
+						if (tw/wlimit < 15000){
+							this.text.attr({font: wlimit*this.size/tw+'px Arial'});
+							this.size = wlimit*this.size/tw;
+						}
+						if (this.text.getBBox().height > this.h){
+							var th = this.text.getBBox().height;
+							var hlimit = this.h*(1/1.1);
+							if (th/hlimit < 150000){
+								this.text.attr({font: hlimit*this.size/th+'px Arial'});
+								this.size = hlimit*this.size/th;
+							}
+						}
+					}
+					if (this.text.getBBox().height > this.h){
+						var th = this.text.getBBox().height;
+						var hlimit = this.h*(1/1.1);
+						if (th/hlimit < 150000){
+							this.text.attr({font: hlimit*this.size/th+'px Arial'});
+							this.size = hlimit*this.size/th;
+						}
+						if (this.text.getBBox().width > this.w){
+							var tw = this.text.getBBox().width;
+							var wlimit = this.w*(1/1.2);
+							if (tw/wlimit < 1500000){
+								this.text.attr({font: wlimit*this.size/tw+'px Arial'});
+								this.size = wlimit*this.size/tw;
+							}
+						}
+					}
+					this.text.toFront();					
+					
+					this.text.click(this.f);
+					this.back.click(this.f);
+				}
+			},
+			hide: function(){
+				this.text.attr({opacity: 0});
+				this.back.attr({opacity: 0});
+			},
+			show: function(){
+				this.text.attr({opacity: this.texto});
+				this.back.attr({opacity: this.backo});
+			},
+			setf: function(f){
+				this.f = f;
+				this.text.click(f);
+				this.back.click(f);
+			},
+			remove: function(){
+				this.back.remove();
+				this.text.remove();
+			}
+		});
+				
+		
+		dojo.declare("team", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);
+				this.members = [];
+				this.alive = 4;
+			},
+			setup: function(){
+				var doc = new person({name: 'Sir Arthur Cromwell', type: 'Doctor', text: "SIR ARTHUR CROMWELL\n\n"+
+																						 "A descendant of Oliver Cromwell who ruled England\n"+ 
+																		                 "with an Iron Fist and became fairly unpopular. To\n"+
+																						 "remedy his family image, Sir Arthur Cromwell is \n"+
+																						 "striving to explore Antarctica for medical research.\n"+
+																						 "Although a brilliant doctor of medicine, he tends\n" +
+																						 "to be naïve in his own thinking. He can be overly-ambitious\n"+ 
+																						 "and blinded by his own quest for glory, causing him to\n" +
+																						 "pay little heed to those around him at times. Regardless…\n" +
+																						 "like his family line, he is a leader and very adventurous.", sturdy: 1});
+				var dogs = new person({name: 'Lorraine Kaplan', type: 'Dog Expert', text: "LORRAINE KAPLAN\n\n"+
+																						  "Coming from her idyllic upbringing in rural South Dakota, \n"+
+																						  "her innate connection to animals and ambition to see the \n"+
+																						  "world make her a world-famous dog expert. Her specialty is \n"+
+																						  "raising and training sled dogs. She is known for her greatly \n"+
+																						  "optimistic character, but her loquacious nature can sometimes \n"+
+																						  "become abrasive.", sturdy: 2});
+				var sold = new person({name: 'Oscar Zimmermann', type: 'Soldier', text: "OSCAR ZIMMERMANN\n\n"+ 
+																						"Born of German parents. His father Hludwig was an old \n"+
+																						"military type. Oscar tries to follow in his father’s \n"+
+																						"footsteps and live up to his father’s superior military \n"+
+																						"status. He has volunteered for the Antarctic expedition \n"+
+																						"during a time of peace to make his father proud. Oscar \n"+
+																						"is a very promising and capable soldier, but inexperienced \n"+
+																						"in actual war.", sturdy: 4});
+				var expl = new person({name: 'Leon Chevalier', type: 'Explorer', text: "LEON CHEVALIER\n\n"+
+																					   "Hailing from the Rhone-Aples region of France. \n"+
+																					   "From the early age of 7, Leon became an accomplished \n"+
+																					   "hunter. He won many awards growing up and has used \n"+
+																					   "his expert hunting skills, extensive knowledge of \n"+
+																					   "nature, and love for the outdoors to become an \n"+
+																					   "experienced explorer. He boasts having explored \n"+
+																					   "over 100 countries, although his rather presumptuous \n"+
+																					   "character makes one question the validity of his claims.", sturdy: 3});
+				this.poss = [expl, dogs, doc, sold];
+			},
+			starve: function(){
+				dojo.forEach(this.members, function(m){
+					if (!m.dead){
+						m.starve();
+					}
+				});
+			},
+			getspeedfactor: function(){
+				var sum = 0;
+				for (var i = 0; i < 4; i++){
+					sum = sum+ this.members[i].health;
+				}
+				return sum/(4*75);
+			},
+			add: function(pers){
+				var newperson = new person(pers.args);
+				this.members.push(newperson);
+				this.sidebar.add(newperson);
+				if (this.members.length ==4){
+					this.game.supplies();
+				}
+			},
+			hastype: function(type){
+				dojo.forEach(this.members, function(m){
+					if (m.type == type && m.dead == false){
+						return true;
+					}
+				});
+				return false;
+			},
+			improvehealth: function(){
+				dojo.forEach(g.team.members, function(m){
+					if (!m.dead){
+						m.health = m.health + Math.random()*(30 + m.sturdy);
+						m.updatestat();
+					}
+				});
+			}
+		});
+		
+		dojo.declare("person", null, {
+			constructor: function(args){
+				this.args = args;
+				this.state = 'cold';
+				this.status = 'cold';
+				this.health = 100;
+				this.dead = false;
+				dojo.mixin(this, args);
+			},
+			starve: function(){
+				this.health = this.health - Math.random()*(18 - this.sturdy);
+				this.updatestat();
+			},
+			updatestat: function(){
+				if (this.dead == false){
+					if (this.health < 60){
+						this.statout.attr({text:'Tired'});
+						this.status = 'Tired';
+					}
+					if (this.health < 30){
+						this.statout.attr({text:'Dying'});
+						this.status = 'Dying';
+					}
+					if (this.health <= 0){
+						this.health = 0;
+						this.statout.attr({text:'Dead'});
+						this.status = 'Dead';
+						g.q.push(this);
+					}
+				}
+			},
+			die: function(){
+				g.vis.next.clickable = false;
+				setTimeout(function(){
+					g.vis.next.clickable = true;
+				}, 300);
+				console.log('die was called', this);
+				this.dead = true;
+				g.vis.cleartemp();
+				g.vis.central("The journey has overcome "+this.name+"\n and you watch your "+this.type+" collapse to\n the ground. You have lost this team member.");
+				this.state = "Dead";
+				this.statout.attr({text:'Dead'});
+				g.team.alive = g.team.alive - 1;
+				if (g.team.alive == 0){
+					g.lose();
+				}
+			}
+		});
+		
+		
+		dojo.declare("eventbox", null, {
+			constructor: function(args){
+				dojo.mixin(this, args); 
+				this.events = [];
+				this.setup();
+			},
+			setup: function(){
+				this.createBasicEvent(1,  "Nothing of note happened today.", 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){});
+				this.createBasicEvent(1, "The terrain was rough today.\nYou made little progress.", 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.miles = g.miles - g.speed + 1;
+				});
+				this.createBasicEvent(1, "It was warmer today, so you\n made extra progress.", 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.miles = g.miles + Math.floor(g.speed/2);
+				});
+				this.createBasicEvent(1, "You realize that you have\nbeen going the wrong way.\nYou backtrack and lose time.", 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 4;
+				});
+				this.createBasicEvent(1, "Your explorer found a shortcut!\nYou gain 20 miles!\nGood thing you brought that explorer.", 'basic1STANDIN.jpg', function(){
+					for (var i = 0; i < 4; i++){
+						if (g.team.members[i].type == 'Explorer'){
+							return true;
+						}
+					};
+					return false
+				}, function(){
+					g.miles = g.miles + 20;
+				});
+				this.createBasicEvent(1, "Your soldier disappears for a\n"+"while and returns with a bird.\n"+"Creepy, but you gain food!", 'basic1STANDIN.jpg', function(){
+					for (var i = 0; i < 4; i++){
+						if (g.team.members[i].type == 'Soldier'){
+							return true;
+						}
+					};
+					return false
+				}, function(){
+					g.food += 20;
+				});
+				this.createBasicEvent(1, "Your dogs got in a fight, and\none was killed.  If only you\nhad had a dog expert around.", 'basic1STANDIN.jpg', function(){
+					for (var i = 0; i < 4; i++){
+						if (g.team.members[i].type == 'Dog Expert'){
+							return false;
+						}
+					};
+					return g.dogs >= 2
+				}, function(){
+					g.dogs -= 1;
+				});
+				this.someComplexEvents();
+			},
+			createBasicEvent: function(prob, message, image, prereq, func){
+				var o = new outcome({message: message, imagename: image, prob:1, effect: func});
+				var e = new event({canhappen: prereq, prob: prob, outcome: o, choices: []});
+				this.events.push(e);
+			},
+			someComplexEvents: function(){
+				var gb = new outcome({message: 'You choose to keep going,\n'+ "but a blizzard did come.\n" +'Your team was severely weakened!', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.team.starve();
+				}});
+				var gn = new outcome({message: 'You choose to keep going,\n'+'and no blizzard came.\n'+' Good call!', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+
+				}});
+				var sb = new outcome({message: 'You choose to set up shelter,\n'+'and a blizzard did come.\n'+' Good call!', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					var i = Math.random();
+					var nd = Math.floor(i*10);
+					g.days = g.days + nd;
+					g.food = g.food - nd*g.team.alive;
+				}});
+				var sn = new outcome({message: 'You choose to set up shelter,\n'+'but no blizzard came.\n'+'You lost time and food for nothing!', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					var i = Math.random();
+					var nd = Math.floor(i*10);
+					g.days = g.days + nd;
+					g.food = g.food - nd*g.team.alive;
+				}});
+				var gchoice = new choice( {canhappen: function(){return true}, message: 'Keep going', outcomes: [gb, gn]} );
+				var schoice = new choice( {canhappen: function(){return true}, message: 'Make shelter', outcomes: [sb, sn]} );
+				var blizzardevent = new event( {prob: 1, imagename:'blizz.jpg', message: 'You made good progress today, but\nyou think a blizzard may be coming.', canhappen:function(){return true;}, choices:[gchoice, schoice] });
+				this.events.push(blizzardevent);
+				
+				var toasty = new outcome({message: 'You spend a night getting\nwarm. The health of your\nteam improved.\nGood thing you had blankets!', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.team.improvehealth();
+				}});
+				var moveoncold = new outcome({message: 'You keep going anyway.\nUnfortunately, the cold\ndoes not let up and your\nteam is weakened.', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.team.starve();
+				}});
+				var moveonwarm = new outcome({message: 'You keep going anyway.\nLuckily, it warms up a\nlittle and you are okay.', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					
+				}});
+				var gchoice = new choice( {canhappen: function(){return g.blankets >= g.team.alive}, message: 'Use blankets to get warm', outcomes: [toasty]} );
+				var schoice = new choice( {canhappen: function(){return true}, message: 'Keep moving anyway', outcomes: [moveoncold, moveonwarm]} );
+				var coldfrontevent = new event( {prob: 1, imagename:'basic1STANDIN.jpg', message: 'It has been bitterly cold for a week.\nYour are worried about frostbite.', canhappen:function(){return g.days > 10;}, choices:[gchoice, schoice] });
+				this.events.push(coldfrontevent);
+			},
+			getNext: function(){
+				var self = this;
+				function tryone(){
+					unc.random.shuffle(self.events);
+					var i = Math.random();
+					if (i < self.events[0].prob && self.events[0].canhappen()){
+						return self.events[0];
+					}
+					else{
+						return tryone();
+					}
+				}
+				return tryone();
+			}
+		});
+		
+		dojo.declare("event", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);  //need a probability, need an image and message, need a precondition function, and an array of choices
+			},
+			occur: function(){
+				if (this.choices.length == 0){ //this event is really just an outcome
+					//g.vis.displaynormal(this.message, this.imagename);
+					this.outcome.occur();
+				}
+				if (this.choices.length > 0){
+					g.vis.displaycomplex(this.message, this.imagename, this.choices);
+				}
+			}
+		});
+		
+		dojo.declare("choice", null, {
+			constructor: function(args){ //needs a message, a precondition function, and an array of outcomes
+				dojo.mixin(this, args);
+			},
+			pick: function(){
+				var result = unc.random.choice(this.outcomes);
+				//display the message for the result
+				result.occur();
+			}
+		});
+		
+		dojo.declare("outcome", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);  //need a probability, need an occur(game) function, need an image and text
+			},
+			occur: function(){
+				this.effect();
+				g.vis.displaynormal(this.message, this.imagename);
+			}
+		});
+		
+		dojo.ready(go);
+	</script>
+</head>
+
+<body>
+
+</body>

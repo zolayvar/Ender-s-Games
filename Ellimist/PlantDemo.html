@@ -48,7 +48,7 @@
 					this.maxloc = this.barstart+this.field.max*this.factor;
 				}
 				if (this.numbars == 1){
-					this.sloc = this.barstart + this.field*this.factor;
+					this.sloc = this.barstart + this.field.value*this.factor;
 				}
 			},
 			display: function(){
@@ -106,7 +106,9 @@
 						},
 						function(){ // down
 							this.attr({opacity:1});
-							self.field = (this.attr('x') - self.barstart)/self.factor;
+							console.log(self.field, gameconstants.rocknum);
+							self.field.value = (this.attr('x') - self.barstart)/self.factor;
+							console.log(self.field, gameconstants.rocknum);
 						}
 					);
 				}
@@ -120,7 +122,7 @@
 			
 			//set up sliders
 			gameconstants = {
-				rocknum: 10,
+				rocknum: {value:50},
 				rocksize: {
 					min: 5,
 					max: biggest
@@ -130,8 +132,8 @@
 					max: 1
 				},
 				psizei:{
-					min:Math.floor(biggest),
-					max:Math.floor(biggest)
+					min:2,
+					max:2.01
 				},
 				pmaxsize:{
 					min:biggest,
@@ -139,35 +141,35 @@
 				},
 				erate:{
 					min:1,
-					max:5
+					max:1.01
 				},
 				growprice: {
-					min: 1,
-					max: 20
+					min: 4,
+					max: 4
 				},
 				repecost: {
-					min: 9,
-					max: 50
+					min: 29,
+					max: 29
 				},
 				repreqsize: {
 					min:10,
-					max:biggest
+					max:10.1
 				},
 				repreqage:{
-					min: 0,
-					max: 0
+					min: 10,
+					max: 10
 				},
 				repwait:{
 					min: 10,
-					max: 30
+					max: 10
 				},
 				repnum:{
-					min: 3,
-					max: 5
+					min: 1,
+					max: 1
 				},
 				repdist:{
 					min: 2,
-					max: 4
+					max: 2
 				},
 				sturdyage:{
 					min: 4,
@@ -175,11 +177,11 @@
 				},
 				sturdysize:{
 					min: 10,
-					max: 12
+					max: 10.1
 				},
 				personalspace:{
-					min: .75,
-					max: 1
+					min: 1,
+					max: 1.01
 				}
 			}
 			num = 15;
@@ -242,7 +244,7 @@
 			var numh = 150;
 			w = dojo.window.getBox().w;
 			h = dojo.window.getBox().h;
-			biggest = 30;
+			biggest = 60;
 			maxplants = 20000;
 			gameh = h*.8;
 			r = new Raphael(0,0,w,h);
@@ -289,9 +291,10 @@
 			var bottom = new rock(0, gameh - 10, w, 10);
 			var rox = [top, left, right, bottom];
 			//return rox;
-			for (var i = 0; i < gameconstants.rocknum; i ++){
-				var wnew = 10+Math.floor(Math.random()*biggest);
-				var hnew = 10+Math.floor(Math.random()*biggest);
+			console.log(gameconstants.rocknum);
+			for (var i = 0; i < gameconstants.rocknum.value; i ++){
+				var wnew = gameconstants.rocksize.min+Math.floor(Math.random()*gameconstants.rocksize.max);
+				var hnew = gameconstants.rocksize.min+Math.floor(Math.random()*gameconstants.rocksize.max);
 				var xnew = 10+Math.floor(Math.random()*(w-wnew-10));
 				var ynew = 10+Math.floor(Math.random()*(gameh-hnew-10));
 				var newrock = new rock(xnew, ynew, wnew, hnew);
