@@ -15,7 +15,8 @@
               "media" : {
                   "icon" : "Ender-s-Games/Electric/tunnelsicon.png",
                   "screenshots" : ['Ender-s-Games/Electric/endlessshot1.png']
-              }
+              }, 
+			  attribution: ""
           }
       ]
   }
