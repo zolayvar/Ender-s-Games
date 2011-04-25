@@ -1,0 +1,22 @@
+{
+      "identifier" : "url",
+      "items" : [
+          {
+              "url" : "Ender-s-Games/epic",
+              "label" : {
+                  "en-us" : "Epic Journey"
+              },
+              "tags" : {
+                  "en-us" : "text, adventure"
+              },
+              "description" : {
+                  "en-us" : "Go on a journey through Antarctica to the South Pole."
+              },
+              "media" : {
+                  "icon" : "Ender-s-Games/epic/epicicon.png",
+                  "screenshots" : []
+              }, 
+			  attribution: ""
+          }
+      ]
+  }
