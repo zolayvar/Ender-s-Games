@@ -979,7 +979,7 @@
 				this.prevevent = unc.random.choice(this.events);
 			},
 			createMiniGameEvents: function(){
-				this.createBasicEvent(1, function(){return g.team.victim.name+', your '+g.team.victim.type+',\nhas fallen into a crevasse.'}, 'crevasse.jpg',
+				this.createBasicEvent(1, function(){return g.team.victim.name+', your '+g.team.victim.type+',\nhas fallen into a crevasse.'}, 'crevasse.JPG',
 					function(){
 						return g.team.victim.dead == false;
 					},
@@ -1000,7 +1000,7 @@
 							var crevassegame = new crevasse( g.vis.k.sidebarw, 0, g.vis.k.w - g.vis.k.sidebarw, g.vis.k.h, f);
 						});
 					});
-				this.createBasicEvent(1, function(){return 'You have come to a patch of thin ice.'}, 'crevasse.jpg',
+				this.createBasicEvent(1, function(){return 'You have come to a patch of thin ice.'}, 'crevasse.JPG',
 					function(){
 						return g.team.victim.dead == false;
 					},
@@ -1015,7 +1015,7 @@
 									dojo.hitch(g, g.step);
 									g.vis.next.setf(dojo.hitch(g,g.step));
 								}));
-								g.vis.changeback('crevasse.jpg');
+								g.vis.changeback('crevasse.JPG');
 								g.vis.central(mess);
 								resultfunction();
 							}
@@ -1024,7 +1024,7 @@
 							ig.setup();
 						});
 					});
-				this.createBasicEvent(1, function(){return 'You think there may be fish below the ice here.'}, 'crevasse.jpg',
+				this.createBasicEvent(1, function(){return 'You think there may be fish below the ice here.'}, 'crevasse.JPG',
 					function(){
 						return g.miles <= 150;
 					},
@@ -1039,7 +1039,7 @@
 									dojo.hitch(g, g.step);
 									g.vis.next.setf(dojo.hitch(g,g.step));
 								}));
-								g.vis.changeback('crevasse.jpg');
+								g.vis.changeback('crevasse.JPG');
 								g.vis.central(mess);
 								resultfunction();
 							}
