@@ -1,0 +1,1193 @@
+<head>	
+	<script type="text/javascript" src="./lib/prototype.js"></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/common/b2Settings.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/common/math/b2Vec2.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/common/math/b2Mat22.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/common/math/b2Math.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2AABB.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Bound.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2BoundValues.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Pair.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2PairCallback.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2BufferedPair.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2PairManager.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2BroadPhase.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Collision.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/Features.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2ContactID.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2ContactPoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Distance.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Manifold.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2OBB.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Proxy.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/ClipVertex.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2Shape.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2ShapeDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2BoxDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2CircleDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2CircleShape.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2MassData.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2PolyDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2PolyShape.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2Body.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2BodyDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2CollisionFilter.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2Island.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2TimeStep.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2ContactNode.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2Contact.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2ContactConstraint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2ContactConstraintPoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2ContactRegister.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2ContactSolver.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2CircleContact.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2Conservative.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2NullContact.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2PolyAndCircleContact.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2PolyContact.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2ContactManager.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2World.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2WorldListener.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2JointNode.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2Joint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2JointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2DistanceJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2DistanceJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2Jacobian.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2GearJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2GearJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2MouseJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2MouseJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2PrismaticJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2PrismaticJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2PulleyJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2PulleyJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2RevoluteJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2RevoluteJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/demos/draw_world.js'></script> 
+	<script type="text/javascript">
+		var djConfig = {
+			isDebug: false,
+			parseOnLoad: true,
+			baseUrl: './',
+			modulePaths: { 'unc': 'unc'  }
+		};
+	</script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+	<script src="raphael.js"></script>
+	<script type="text/javascript" src="/libs/uow.js"></script>
+	<script src="fishingintegrateme.js"></script>
+	<script src="crevasseintegrateme.js"></script>
+	<script src="iceintegrateme.js"></script>
+	<script src="random.js"></script>
+	<script>
+		dojo.require("dojo.window");
+		
+		function go(){
+			g = new game();
+			uow.getAudio().then(function(js){
+				g.noise = js;
+				g.title();
+			});
+		}
+		
+		dojo.declare("game", null, {
+			constructor: function(args){  //will have a team object, visuals object, and eventbox
+				dojo.mixin(this, args);
+				this.vis = new visuals({game: this});
+				this.team = new team({game: this});
+				this.eventbox = new eventbox({game: this});
+				this.days = 0;
+				this.weapons = 0;
+				this.dogs = 0;
+				this.food = 0;
+				this.blankets = 0;
+				this.weight = 0;
+				this.speed = 0;
+				this.money = 3000;
+				this.miles = 0;
+				this.playing = true;
+				this.q = [];
+				this.steppable = true;
+			},
+			title: function(){
+				this.state = 'title';
+				this.vis.setup();
+				this.team.setup();
+				this.vis.title();
+			},
+			start: function(){
+				if (this.state == 'title'){
+					this.vis.intro();
+					this.state = 'intro';
+				}
+			},
+			chooseteam: function(){
+				if (this.state == 'intro'){
+					this.vis.chooseteam();
+					this.state = 'chooseteam';
+				}
+			},
+			supplies: function(){
+				if (this.state == 'chooseteam'){
+					this.eventbox.setup();
+					this.vis.supplies();
+					this.state = 'supplies';
+				}
+			},
+			startJourney: function(){
+				if (this.playing){
+					this.vis.startJourney();
+				}
+			},
+			step: function(){
+				this.steppable = false;
+				setTimeout(function(){
+					this.steppable = true;
+				}, 300);
+				dojo.forEach(g.team.members, function(m){
+					m.updatestat();
+				});
+				if (g.playing){
+					if (this.q.length > 0){
+						var f = this.q.shift();
+						f.die();
+					}
+					else{
+						this.team.makeVictim();
+						this.vis.cleartemp();
+						this.calcspeed();
+						var h = this.eventbox.getNext();
+						h.occur();
+						this.managefood();
+						this.checkwin();
+						this.sidebar.update();
+					}
+				}
+			},
+			calcspeed: function(){
+				var dogfactor = 100*this.dogs/(this.weight+500);
+				var personfactor = this.team.getspeedfactor();
+				this.speed = Math.floor(10*dogfactor*personfactor)+1;
+				this.eatfactor = Math.floor((this.team.alive*2 + this.dogs)/2);
+			},
+			managefood: function(){
+				this.food = Math.floor(this.food);
+				this.miles = Math.floor(this.miles);
+				if (this.food <= 0){
+					this.food = 0;
+					this.team.starve();
+				}
+			},
+			checkwin: function(){
+				if (this.miles > 400){
+					this.vis.win();
+					this.playing = false;
+				}
+			},
+			lose: function(){
+				this.vis.lose();
+				this.playing = false;
+			},
+			changesupplies: function( type, change ){
+				if (type == 'food'){
+					this.food = this.food + change;
+				}
+				if (type == 'blankets'){
+					this.blankets = this.blankets + change;
+				}
+				if (type == 'weapons'){
+					this.weapons = this.weapons + change;
+				}
+				if (type == 'dogs'){
+					this.dogs = this.dogs + change;
+				}
+				this.weight = this.food + this.blankets*10 + this.weapons*30;
+				this.sidebar.update();
+			}
+		});
+		
+		
+		dojo.declare("visuals", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);
+			},
+			setup: function(){
+				this.temp = [];
+			
+				this.k = {}; // k is for constants
+				this.k.w = dojo.window.getBox().w;
+				this.k.h = dojo.window.getBox().h;
+				this.k.big = this.k.w/25;
+				this.k.med = this.k.big/2;
+				this.k.small = this.k.med/2;
+				this.k.nextx = this.k.w*.9;
+				this.k.nexty = this.k.h*.9;
+				this.k.sidebarw = this.k.w*.2;
+				this.nameImages();
+				this.messages();
+				
+				this.r = new Raphael(0,0,this.k.w, this.k.h);
+			},
+			nameImages: function(){
+				this.im = {};
+				this.im.title = "titlepic.jpg"; //jan_krutisch on flickr
+				this.im.intro = "introSTANDIN.jpg";
+				this.im.teamchoose = "teamchooseSTANDIN.jpg";
+				this.im.supplies = "suppliesSTANDIN.JPG";
+				this.im.journeystart = "journeystartSTANDIN.jpg";					
+			},
+			messages: function(){
+				var mess = {};
+				mess.title = "Epic Journey";
+				mess.intro = "You are now making your mark and\n"+ 
+							 "re-writing history in the Heroic Age\n"+
+							 "of Antarctic Exploration era. Resources\n"+ 
+							 "will be scarce, the journey will be \n"+
+							 "long, and your team will struggle… but\n" +
+							 "will you overcome adversity and become\n"+
+							 "a hero?";
+				mess.start = "Your team sets off across Antarctica!\n"+
+							 "Your team's spirits are really high, and\n"+
+							 "everyone is talking about how they will\n"+
+							 "leave their mark at the pole!";
+				this.mess = mess;
+			},
+			title: function(){
+				this.back = this.r.image(this.im.title, 0,0,this.k.w, this.k.h);
+				this.border = this.r.rect(0,0,this.k.w, this.k.h).attr({'stroke-width':this.k.small}).attr({opacity:.6});
+				this.tbutton( this.k.w/2, this.k.h*.8, "Click to play", this.k.big, this.r, dojo.hitch(this.game,this.game.start) );
+				this.tbutton( this.k.w/2, this.k.h*.3, this.mess.title, this.k.big*2, this.r, dojo.hitch(this.game,this.game.start) );
+			},
+			intro: function(){
+				this.cleartemp();
+				this.changeback(this.im.intro);
+				this.next = new button({det:'text', x:this.k.nextx, y:this.k.nexty, t:' next ', s:this.k.big, f:dojo.hitch(this.game, this.game.chooseteam), r:this.r});
+				this.central(this.mess.intro);
+			},
+			chooseteam: function(){
+				this.cleartemp();
+				this.changeback(this.im.teamchoose);
+				this.next.hide();
+				this.sidebar();
+				this.header('Choose Four People');
+				var num = 4;
+				var teambuttony = this.k.big*4;
+				var teambuttonheight = (this.k.h - this.k.small - teambuttony + this.k.med)/4 - this.k.med;
+				var teambuttonwidth = (this.k.w*.2);
+				var teambuttonx = this.k.sidebarw+this.k.med;
+				
+				var infox = teambuttonx+teambuttonwidth+this.k.small;
+				var infoy = teambuttony;
+				var infow = this.k.w - this.k.small - infox;
+				var infoh = this.k.h - this.k.small - infoy;
+				
+				
+				var self = this;
+				self.infobox = self.sbutton(infox, infoy, self.game.team.poss[0].text, infow, infoh, self.r, function(){self.game.team.add(self.game.team.poss[0]);});
+				function select(person){
+					dojo.forEach(teambuttons, function(b){
+						b.back.attr({fill:'#fff'});
+					});
+					self.infobox.remove();
+					self.infobox = self.sbutton(infox, infoy, person.text, infow, infoh, self.r, function(){self.game.team.add(person);});
+				}
+				
+				var i = 0;
+				var teambuttons = [];
+				var minfont = 1000000;
+				dojo.forEach( this.game.team.poss, dojo.hitch(this, function(person){
+					var b = this.sbutton(teambuttonx, 
+								 teambuttony+(teambuttonheight+this.k.med)*i, 
+								 this.game.team.poss[i].type, 
+								 teambuttonwidth, 
+								 teambuttonheight, 
+								 this.r, 
+								 function(){
+									select(person);
+								}
+					);
+					b.setf(function(){
+						select(person);
+						b.back.attr({fill:'#0f0'});
+					});
+					if (b.size < minfont){
+						minfont = b.size;
+					}
+					teambuttons.push(b);
+					i = i +1;
+				}));
+				teambuttons[0].back.attr({fill:"#0f0"});
+				dojo.forEach(teambuttons, function(b){
+					b.text.attr({font:minfont+'px Arial'});
+				});
+			},
+			supplies: function(){
+				this.cleartemp();
+				var self = this;
+				this.changeback(this.im.supplies);
+				this.next.show();
+				self.next.clickable = true;
+				this.next.setf(function(){
+					if (self.next.clickable){
+						self.next.clickable = false;
+						self.game.startJourney();
+						setTimeout( function(){
+							self.next.clickable = true;
+						}, 300);
+					}
+				});
+				this.header('Buy Supplies');
+				this.sidebar.supplies();
+				var bx = this.k.sidebarw+this.k.med;
+				var by = this.k.big*4;
+				var bw = (this.k.w - bx - this.k.small*2 - this.k.med)/2;
+				var bh = (this.k.nexty - by - this.k.small - this.k.med*2 - this.k.big)/2;
+				var minfont = 1000000;
+				var moneyout = this.tbutton( this.k.w/2+this.k.sidebarw/2, this.k.nexty, 'Money: $'+this.game.money, this.k.big, this.r, function(){});	
+				function updateMoney(dmoney){
+					self.game.money = self.game.money - dmoney;
+					moneyout.text.attr({text:"Money: $"+self.game.money});
+				}
+				var one = this.sbutton(bx, by, 'BUY 3 DAY\'S FOOD\n'+
+											   'weight: 15 lbs\n'+
+											   'price: $50', bw, bh, self.r, function(){
+					if (self.game.money >= 50){
+						self.game.changesupplies( 'food' , 15 );
+						updateMoney(50);
+					}
+				});
+				var two = this.sbutton(bx + bw + this.k.small, by, 'BUY 1 WEAPON\n'+
+																   'weight: 20 lbs\n'+
+																   'price: $200', bw, bh, self.r, function(){
+					if (self.game.money >= 200){
+						self.game.changesupplies( 'weapons' , 1 );
+						updateMoney(200);
+					}
+				});
+				var three = this.sbutton(bx, by+ bh + this.k.small, 'BUY 1 BLANKET\n'+
+																	'weight: 10 lbs\n'+
+																	'price: $50', bw, bh, self.r, function(){
+					if (self.game.money >= 50){
+						self.game.changesupplies( 'blankets' , 1 );
+						updateMoney(50);
+					}
+				});
+				var four = this.sbutton(bx+ bw + this.k.small, by+ bh + this.k.small, 'BUY 1 DOG\n'+
+																					  'weight: N/A\n'+
+																					  'price: $400', bw, bh, self.r, function(){
+					if (self.game.money >= 400){
+						self.game.changesupplies( 'dogs' , 1 );
+						updateMoney(400);
+					}
+				});
+				dojo.forEach( [one, two, three, four], function(e){
+					if (minfont > e.size){
+						minfont = e.size;
+					}
+				});
+				dojo.forEach( [one, two, three, four], function(e){
+					e.text.attr({font:minfont+'px Arial'});
+				});			
+			},
+			startJourney: function(){
+				var self = this;
+				this.cleartemp();
+				this.sidebar.journey();
+				this.changeback(this.im.journeystart);
+				this.central(this.mess.start);
+				this.next.clickable = true;
+				this.next.setf(function(){
+					self.game.step();
+				});
+			},
+			displaynormal: function(message, im){
+				this.next.show();
+				this.cleartemp();
+				this.central(message);
+				this.changeback(im);
+			},
+			displaycomplex: function(message, im, choices){
+				this.cleartemp();
+				this.next.hide();
+				this.tbutton(this.k.w/2+this.k.sidebarw/2, this.k.h*.3, message, this.k.med, this.r, function(){});
+				this.changeback(im);
+				var cx = this.k.w/2 + this.k.sidebarw/2;
+				var csize = this.k.med;
+				var cy = this.k.h*.7 - choices.length*(csize+this.k.small)/2;
+				var self = this;
+				dojo.forEach(choices, function(c){
+					if (c.canhappen()){
+						self.tbutton(cx, cy, c.message, csize, self.r, dojo.hitch(c, c.pick));
+						cy = cy + (self.k.small+csize*2)
+					}
+				});
+			},
+			win: function(){
+				this.cleartemp();
+				var score = g.team.alive*101+g.food+g.dogs*43;
+				this.central("You have conquered the unforgiving Antarctic and completed\n"+
+							 "your journey to the South Pole and back with " + g.team.alive+" people\n"+ 
+							 "left on your team, "+g.food+" food supply, and "+g.dogs+" sled dogs. \n"+
+							 "Congratulations! You have earned a score of "+score+".");
+				this.next.hide();
+				this.next.clickable = false;
+			},
+			lose: function(){
+				this.cleartemp();
+				this.central("It is not easy to become a hero in history. \n"+
+							 "Rather than follow in Roald Amundsen’s footsteps,\n"+
+							 "you have suffered the same ultimate fate that \n"+
+							 "Robert Falcon Scott and his party suffered. Your\n"+
+							 "team has perished.");
+				this.next.hide();
+				this.next.clickable = false;
+			},
+			sidebar: function(){
+				this.sidebar = new sidebar({x:0, y:0, w:this.k.sidebarw, h:this.k.h, r:this.r});
+				this.game.team.sidebar = this.sidebar;
+				this.game.sidebar = this.sidebar;
+				this.sidebar.team = this.game.team;
+				this.sidebar.game = this.game;
+			},
+			header: function(text){
+				var usefulw = this.k.w/2;
+				if ('sidebar' in this){
+					var usefulw = usefulw + this.k.sidebarw*.5;
+				}
+				var head = this.tbutton(usefulw, this.k.h*.08, text, this.k.big*1.3, this.r, function(){});
+				this.temp.push(head);
+			},
+			central: function(text){
+				if ("sidebar" in this){
+					var a = this.sbutton(this.k.big*2+this.k.sidebarw, this.k.big*4, text, this.k.w - this.k.big*6 - this.k.sidebarw, this.k.h - this.k.big*8, this.r, function(){});
+					var b = this.r.image('paperbackground.png', this.k.big*2+this.k.sidebarw, this.k.big*4, this.k.w - this.k.big*6 - this.k.sidebarw, this.k.h - this.k.big*8);
+					this.temp.push(b);
+					a.back.remove();
+					a.text.toFront();
+				}
+				else{
+					this.sbutton(this.k.big*4, this.k.big*4, text, this.k.w - this.k.big*8, this.k.h - this.k.big*8, this.r, function(){});
+				}
+				this.next.show();
+				this.next.clickable = true;
+			},
+			changeback: function(imagename){
+				console.log(imagename);
+				var newback = this.r.image(imagename, 0,0,this.k.w, this.k.h);
+				this.back.remove();
+				this.back = newback;	
+				this.back.toBack();
+			},
+			innerpic: function(imagename, x, y, w, h){
+				var back = this.r.rect(x, y, w, h).attr({'stroke-width':w*.05, opacity:.7});
+				var inner = this.r.image(imagename, x, y, w, h);
+				this.temp.push(inner);
+				this.temp.push(back);
+			},
+			tbutton: function(xpos,ypos,text,size,raph,func){ //button for which the size is based on the size of the text
+				var b = new button({det: 'text', x:xpos, y:ypos, t:text, s:size, f:func, r:raph});
+				this.temp.push(b);
+				return b;
+			},
+			sbutton: function(xpos,ypos,text,width,height,raph,func){ //button for which the size of the text is limited by the size of the button
+				var b = new button({det: 'size', x:xpos, y:ypos, t:text, w:width, h:height, f:func, r:raph});
+				this.temp.push(b);
+				return b
+			},
+			cleartemp: function(){
+				dojo.forEach(this.temp, function(e){
+					e.remove();
+				});
+			}
+		});
+		
+		dojo.declare("sidebar", null, { 
+		// 
+		//  Team members
+		//
+		//	Name 1:
+		//		Status
+		//	Name 2:
+		//		Status
+		//	Name 3:
+		//		Status
+		//	Name 4:
+		//		Status
+		//
+		//	*************
+		//  *           *
+		//  *    MAP    *
+		//  *   HERE    *
+		//  *           *
+		//	*************
+		//
+			constructor: function(args){ //give me an x, y, w, h, raph.  I know what to display
+				dojo.mixin(this, args);
+				this.texto = 1;
+				this.backo = .9;
+				this.textsize = this.w/10;
+				this.bordersize = this.w/14;
+				this.mapx = this.bordersize;
+				this.mapw = this.w - this.bordersize*2;
+				this.maph = this.mapw;
+				this.mapy = this.h-this.maph-this.bordersize;  //this needs to be changed
+				this.textsize = (this.h-this.maph-this.bordersize*2)/13-this.bordersize*.6;
+				this.make();
+			},
+			make: function(){
+				this.back = this.r.rect(this.x, this.y, this.w, this.h).attr({'stroke-width':this.w*.03, fill:'#fff', opacity:this.backo});
+				this.head = this.r.text(this.x+this.bordersize, this.bordersize*2, "Team members:").attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.persony = this.head.getBBox().height + this.bordersize*4;
+				this.mapbox = this.r.rect(this.mapx, this.mapy, this.mapw, this.maph);
+//				this.map = this.r.text(this.mapx+this.mapw/2, this.mapy+this.maph/2, "MAP HERE").attr({font:this.textsize+'px Arial'});
+				this.map = this.r.image('map.png', this.mapx, this.mapy, this.mapw, this.maph);
+				var mappath = "m 291.80776,222.67851 13.69395,-1.77909 1.27868,5.70113 3.49982,7.64086 3.62061,3.16182 -0.14142,-4.83169 3.49981,1.52816 0.26066,0.4556 -0.41253,1.16794 0,1.52816 0.41253,0.36026 1.33747,-0.36025 1.74991,0 0.82493,0.72037 -0.82493,2.33593 0,3.05633 0.41253,0.36026 1.22819,-0.22801 1.74991,0 0.73781,0.32225 1.01209,1.20599 1.74989,1.52818 0.52172,0.22763 1.33747,-0.36027 1.74991,0 0.41254,0.36024 -0.26109,1.07254 0,1.52815 0.36902,0.64432 1.16662,1.01879 1.74991,1.52816 0.58329,0.50938 1.0121,1.20599 1.74991,1.52818 0.52171,0.22763 1.33746,-0.36027 1.7499,0 0.87498,0.76405 -0.87493,3.82043 0,4.58448 0.41253,0.36027 1.33747,-0.36026 1.74991,0 0.41253,0.36027 -0.41253,1.16799 0,1.52816 0.41253,0.36027 1.33746,-0.36024 1.74991,0 0.82493,0.7204 -0.8249,2.33598 0,3.05633 0.41252,0.36027 1.33745,-0.36026 1.7499,0 0.41253,0.36027 -0.26066,1.07257 0,1.52818 0.73785,1.28867 2.762,1.76767 3.49981,3.05631 0.52176,0.91125 -0.82488,2.33598 0,3.05634 0.82493,0.72039 2.67493,-0.72036 3.49986,0 0.58319,0.50933 -0.58325,2.54703 0,3.05637 0.41253,0.36025 1.33742,-0.36026 1.7499,0 0.41253,0.36025 -0.1845,1.04488 0,1.52816 0.41253,1.08057 1.02642,2.10859 1.74991,3.05633 0.45757,0.5994 2.33319,1.01875 1.7499,1.52816 -0.58333,0.50938 -2.57484,-1.52816 -1.7499,-1.52816 1.30431,0 2.57753,0.72275 3.49981,1.52816 0.87493,0.76405 -0.87498,3.82039 0,4.58449 0.41254,0.36026 1.33742,-0.36025 1.74991,0 0.41252,0.36026 -0.41254,1.16799 0,1.52817 0.41252,0.36025 1.33746,-0.36026 1.74991,0 0.92227,0.80541 1.33745,1.97574 1.7499,3.05633 0.36901,0.96649 -0.82493,2.33596 0,3.05632 0.41253,0.36026 1.33746,-0.36025 1.7499,0 0.41254,0.36026 -0.41253,1.16799 0,1.52817 0.41254,0.36025 1.33746,-0.36026 1.74991,0 4.42008,3.85998 0.67241,1.76165 1.7499,4.58449 0.41254,1.08058 2.91653,2.54695 1.74991,3.05633 -1.16662,0.50941 -3.05421,-3.05633 -1.74991,-3.05633 1.64983,0 2.58467,1.85756 3.49982,3.05633 0.32375,0.42387 -0.26066,1.07256 0,1.5282 0.36902,0.64432 1.38102,0.88381 1.74991,1.52816 0.26065,0.45561 -0.41254,1.16795 0,1.52817 0.41252,0.36025 1.33745,-0.36026 1.7499,0 0.41253,0.36025 -0.41253,1.16794 0,1.52816 0.41253,0.36026 1.33746,-0.36026 1.74991,0 0.82493,0.72036 -0.82489,2.33593 0,3.05633 0.41253,0.36025 1.33745,-0.36026 1.7499,0 0.82493,0.72036 -0.82489,2.33592 0,3.05633 0.41253,0.36025 1.33746,-0.36026 1.7499,0 0.41254,0.36025 -0.41252,1.16798 0,1.52816 0.41254,0.36026 1.33747,-0.36026 1.74991,0 0.27154,0.23713 -0.22716,3.98984 0,4.58449 0.41254,1.08058 1.33747,1.97576 1.74991,3.05633 0.1845,0.48327 -0.41254,1.16798 0,1.52816 0.41254,0.36026 1.48907,-0.4556 1.74995,0 0.52171,0.91125 -0.36901,2.08983 0,3.05633 0.26066,0.68342 1.38098,0.88385 1.7499,1.52816 0.52171,0.91125 -0.36901,2.08983 0,3.05633 2.39151,6.26543 2.85818,-0.15277 5.24972,6.11271 0.1845,0.48323 -0.1845,1.04488 0,1.52815 0.41254,1.08058 1.33742,1.97575 1.74991,3.05634 0.1845,0.48323 -0.26067,1.07256 0,1.52815 0.36902,0.64432 1.29233,0.92876 1.74991,1.52816 0.72348,0.94774 1.16662,2.03754 1.7499,3.05633 0.58329,1.0188 1.33746,1.97576 1.7499,3.05634 0.18451,0.48327 -0.26066,1.07256 0,1.52815 0.36902,0.64432 1.48904,0.84475 1.74991,1.52818 0.36901,0.9665 0,2.03758 0,3.05633 0,0.50941 -0.26066,1.07256 0,1.52816 0.36901,0.64436 1.29233,0.92879 1.7499,1.52815 0.7235,0.94774 1.02641,2.10862 1.74991,3.05634 0.45757,0.5994 1.38098,0.88385 1.74991,1.5282 0.26109,0.45561 -0.26066,1.07252 0,1.52817 0.36902,0.64432 1.38102,0.88379 1.74991,1.52816 0.52171,0.9112 -0.8249,2.33593 0,3.05633 0.41252,0.36025 1.33745,-0.36026 1.7499,0 0.41253,0.36025 -0.41253,1.16794 0,1.52816 2.33323,2.03754 1.7499,-2.54695 1.7499,1.52817 0,4.23175 1.74991,-1.17548 1.74991,3.05632 0,0.50938 0,2.03754 0,1.52817 0,-1.01879 -1.16658,-3.05633 0,-3.05633 1.30431,0 1.33746,1.97575 1.74991,3.05633 2.33324,6.11265 -2.91649,-2.54695 1.7499,1.52816 0.82493,0.7204 -0.52171,2.14512 0,3.05633 0.36902,0.64432 1.38102,0.88384 1.74991,1.52816 0.26066,0.45561 -0.26066,1.07256 0,1.52817 0.36902,0.64435 1.38102,0.88384 1.74994,1.52816 0.26067,0.45561 -0.41252,1.16798 0,1.52817 0.41254,0.36025 1.33742,-0.36026 1.74991,0 0.87493,0.7641 -0.87496,3.82042 0,4.58449 0.41254,0.36025 1.33742,-0.36026 1.74991,0 0.58377,0.50983 -0.58381,2.54653 0,3.05636 0.41253,0.36026 1.33742,-0.36025 1.74991,0 0.58377,0.5098 -0.58381,2.5465 0,3.05633 2.33319,2.03754 1.7499,-2.54695 1.7499,1.52816 0,0.50938 0,1.01876 0,1.52817 0,0.50937 -0.41253,1.16798 0,1.52816 0.41253,0.36026 1.33742,-0.36025 1.74991,0 0.41253,0.36026 -0.41254,1.16798 0,1.52817 0.41253,0.36025 1.33742,-0.36026 1.74991,0 0.82488,0.72036 -0.82493,2.33592 0,3.05632 0.41252,0.36026 1.33745,-0.36025 1.74991,0 0.41252,0.36026 0,1.01879 0,1.52817 0,0.50937 0,2.03754 0,1.52816 0,-1.01879 -0.82495,-3.77673 0,-3.05633 1.93436,1.68926 1.74989,4.04206 1.74989,6.11266 0,0.50941 -0.26109,1.07257 0,1.52816 0.36902,0.64436 1.38099,0.88385 1.74991,1.52817 0.4654,0.81286 -0.4654,2.24351 0,3.05634 0.36902,0.64434 1.48903,0.84477 1.74991,1.52815 0.36901,0.96651 0,2.03759 0,3.05636 0,1.01877 0,2.03754 0,3.05633 0,4.07508 0,8.15021 0,12.22531 0,0.56121 0.0705,6.05118 0,6.11267 -0.5842,0.51018 -2.91561,-0.51014 -3.49982,0 -0.82493,0.72039 0.52172,2.14512 0,3.05633 -3.64137,6.35986 0.12098,-1.63366 -3.4998,1.52816 -0.58377,0.50983 0.58376,2.54653 0,3.05633 -0.41254,0.36026 -1.33747,-0.36026 -1.74991,0 -0.58381,0.50983 0.58376,2.54653 0,3.05636 -0.41254,0.36026 -1.33746,-0.36025 -1.74991,0 -0.41253,0.36026 0.58329,1.52817 0,1.52817 -0.52293,0 1.15196,-5.06829 -1.7499,0 -0.26066,0.4556 0.58328,1.52816 0,1.52816 -0.52294,0 1.15195,-5.0683 -1.74991,0 -0.2611,0.45561 0.26067,1.07252 0,1.52817 -2.10452,3.67561 -1.39533,-0.61932 -3.49982,3.05632 -0.26109,0.45561 0.41254,1.16799 0,1.52817 -0.41252,0.36025 -1.22819,-0.22801 -1.74994,0 -0.73781,0.32225 -1.16657,1.01879 -1.74991,1.52816 -0.58328,0.50938 -1.38097,0.88385 -1.7499,1.52817 -0.26066,0.4556 0.41253,1.16798 0,1.52816 -0.41253,0.36026 -1.33742,-0.36026 -1.74991,0 -0.41253,0.36026 0.41253,1.16798 0,1.52816 -0.41253,0.36026 -1.33742,-0.36025 -1.74991,0 -0.82488,0.7204 0.82494,2.33597 0,3.05633 -0.41252,0.36026 -1.33742,-0.36025 -1.7499,0 -0.41253,0.36026 0.2611,1.07256 0,1.52817 -0.36901,0.64431 -1.38098,0.88384 -1.7499,1.52816 -0.26067,0.4556 0.41252,1.16798 0,1.52816 -0.41254,0.36026 -1.33747,-0.36025 -1.74991,0 -0.87493,0.7641 0.87498,3.82043 0,4.58449 -0.41254,0.36026 -1.33747,-0.36025 -1.74991,0 -0.41253,0.36026 0,1.01879 0,1.52817 0,3.56574 0,7.13144 0,10.69718 0,2.03754 0,4.07512 0,6.11266 0,1.01879 0,4.07513 0,3.05633 0,-1.01879 0,-4.07512 0,-3.05633 0,1.52816 -0.42427,3.10197 0,4.58449 0.20018,0.69889 1.38098,0.88386 1.74991,1.52816 0.52171,0.91125 -0.82488,2.33598 0,3.05633 0.41252,0.36026 1.33747,-0.36024 1.74991,0 0.58376,0.50983 -0.58378,2.54655 0,3.05633 0.41252,0.36027 1.33745,-0.36026 1.7499,0 0.41253,0.36027 0,1.0188 0,1.52816 0,0.50943 0,1.01879 0,1.52822 0,0.50936 0,2.03754 0,1.52816 0,-1.0188 0,-4.07513 0,-3.05638 0,2.54697 0,5.09392 0,7.64087 0,1.01874 0,4.07512 0,3.05633 0,-1.01879 0,-4.07513 0,-3.05633 0,1.52817 0,3.05633 0,4.58449 0,0.50938 0.2611,1.07256 0,1.52817 -3.64133,6.35985 0.12097,-1.63366 -3.49981,1.52816 -0.87493,0.76405 0.87498,3.82043 0,4.58449 -0.41254,0.36026 -1.33747,-0.36025 -1.74991,0 -0.82493,0.72039 0.52172,2.14512 0,3.05633 -0.36901,0.64436 -1.38097,0.88385 -1.74991,1.52816 -0.26065,0.45561 0.41254,1.16799 0,1.52817 -0.41252,0.36025 -1.33746,-0.36026 -1.7499,0 -0.82493,0.7204 1.16662,3.05633 0,3.05633 -0.71831,0 1.86709,-7.9478 -1.74991,1.52816 -0.1845,0.48327 0.41254,1.16798 0,1.52816 -0.41252,0.36026 -1.33745,-0.36025 -1.7499,0 -0.54186,0.4732 0.54186,7.16766 0,7.64086 -0.41253,0.36026 -1.33746,-0.36026 -1.7499,0 -0.87498,0.76406 0.87493,3.82039 0,4.58449 -0.41254,0.36026 -1.33747,-0.36025 -1.74991,0 -0.54186,0.4732 0.54186,7.16763 0,7.64082 -0.41254,0.36026 -1.33747,-0.36025 -1.74991,0 -0.41253,0.36026 0,1.01879 0,1.52817 0,0.50941 0,1.01878 0,1.52816 0,5.60328 0,11.20656 0,16.80984 0,4.07513 0,8.15021 0,12.22531 0,0.50941 0,1.01879 0,1.52818 0,0.50941 -0.26065,1.07256 0,1.52815 0.36902,0.64437 1.74991,2.24856 1.74991,1.52816 0,-1.13901 -1.74991,-4.19535 -1.74991,-3.05631 0.58329,2.03756 1.16658,4.0751 1.74991,6.11264 0.58329,0 1.33747,-0.36024 1.74991,0 0.0792,0.0692 0,6.92032 0,7.64087 0,0.50936 -0.41254,1.16794 0,1.52816 0.41252,0.36026 1.33745,-0.36025 1.7499,0 0.42124,0.36785 -0.42124,5.74491 0,6.11266 0.41253,0.36025 1.33746,-0.36026 1.7499,0 0.41254,0.36025 0,1.01879 0,1.52816 0,0.50938 0,1.01879 0,1.52817 0,1.01878 0,2.03754 0,3.05632 0,0.50938 0.58329,1.52817 0,1.52817 -0.58329,0 0,-2.03754 0,-1.52817 0,0.1246 0,3.75834 0,4.5845 0,0.50941 0,1.01878 0,1.52816 0,0.50941 -0.41252,1.16798 0,1.52816 0.41254,0.36026 1.33747,-0.36025 1.74991,0 0.42124,0.36785 -0.42123,5.74496 0,6.1127 0.41253,0.36025 1.33746,-0.36026 1.7499,0 0.47882,0.41813 -0.47466,5.28365 0,6.11265 0.36902,0.64432 1.38099,0.88381 1.74991,1.52817 0.26632,0.46507 0,3.89627 0,4.58449 0,0.50937 0,2.03754 0,1.52816 0,-1.01879 0,-4.07511 0,-3.05633 0,1.52817 0,3.05633 0,4.5845 0,0.50937 0,1.01878 0,1.52816 0,0.50938 -0.26065,1.07256 0,1.52816 0.36902,0.64432 2.3332,1.01879 1.74991,1.52817 -0.58329,0.50941 -1.74991,-2.24853 -1.74991,-1.52817 0,1.13903 1.33747,1.97576 1.74991,3.05633 0.36902,0.9665 -0.36902,2.08983 0,3.05633 0.41252,1.08058 1.33747,1.97579 1.74991,3.05633 0.1845,0.48326 -0.18452,1.04493 0,1.52816 0.41252,1.08058 1.33745,1.97579 1.7499,3.05638 0.55339,1.44971 -0.34334,3.086 0,4.58448 0.36162,1.57954 1.30256,3.02175 1.7499,4.58449 0.32289,1.12813 0,6.55074 0,7.64083 0,0.50936 -0.41252,1.16798 0,1.52815 0.41254,0.36027 1.33747,-0.36024 1.74991,0 0.41253,0.36027 -0.1845,1.04495 0,1.52818 0.82493,2.16115 2.86713,3.90262 3.49981,6.11264 0.54452,1.90196 -0.54447,4.21075 0,6.11271 2.11257,7.3794 0.83159,-0.0757 3.49985,4.58449 0.26067,0.45559 -0.1845,1.04489 0,1.52816 4.22509,11.06914 -0.50451,-2.40931 3.49982,4.58449 0.55195,0.96407 -0.55199,6.67675 0,7.64082 2.16235,3.77673 1.74991,-0.52747 1.74991,3.05633 0,0.37051 -0.0562,4.53536 0,4.58449 0.41253,0.36026 1.33741,-0.36025 1.7499,0 0.0705,0.0615 0,5.55149 0,6.1127 0,3.58378 -0.41253,-0.72041 1.74991,3.05632 0.26066,0.45561 0.58329,1.52817 0,1.52817 -0.58333,0 0,-2.03758 0,-1.52817 0,1.52817 0,3.05633 0,4.5845 0,1.52816 0,3.05632 0,4.58449 0,0.50937 0.58329,1.52816 0,1.52816 -0.58333,0 0,-2.03754 0,-1.52816 0,1.01879 0,2.03754 0,3.05632 0,0.50938 -0.41254,1.168 0,1.52817 0.41253,0.36025 1.33742,-0.36026 1.74991,0 0.35769,0.31238 -0.34683,3.97859 0,4.58449 0.369,0.64437 1.38097,0.88385 1.74991,1.52816 0.5217,0.91125 -0.52172,2.14513 0,3.05633 0.369,0.64437 1.38097,0.88385 1.74989,1.5282 0.26067,0.45561 0,1.01875 0,1.52818 0,0.50936 0,1.01874 0,1.52815 0,0.50939 0.58329,1.52818 0,1.52818 -0.58329,0 0,-2.03759 0,-1.52818 0,1.01875 0,2.03754 0,3.05634 0,0.50936 0,1.01874 0,1.52815 0,0.50939 -0.26109,1.07257 0,1.52818 0.36902,0.64432 1.38099,0.88383 1.74991,1.52816 0.26109,0.45561 0,1.01879 0,1.52815 0,1.01879 -0.28286,2.06799 0,3.05633 0.31636,1.10503 1.33746,1.97576 1.74991,3.05634 0.36901,0.9665 -0.36902,2.08983 0,3.05633 4.9572,8.65813 -0.65217,-2.27805 1.7499,6.11265 0.31637,1.10506 1.33747,1.97579 1.74991,3.05637 0.36902,0.96646 0,2.03754 0,3.05633 0,0.50937 0,2.03754 0,1.52816 0,-1.01879 -0.52171,-3.96757 0,-3.05633 1.07558,1.8785 1.27824,4.05315 1.74991,6.11266 0.11442,0.49949 -0.41254,1.16798 0,1.52816 0.41252,0.36026 1.74991,0.50938 1.74991,0 0,-0.7204 -1.74991,-2.24856 -1.74991,-1.52816 0,1.13902 1.33745,1.97574 1.74991,3.05633 0.1845,0.48323 -0.41254,1.16798 0,1.52816 0.41252,0.36026 1.33745,-0.36026 1.74989,0 0.41254,0.36026 0,1.01879 0,1.52816 0,0.50938 0.58334,1.52817 0,1.52817 -0.58328,0 0,-2.03754 0,-1.52817 0,1.01879 -0.5217,2.14512 0,3.05633 0.26111,0.45561 1.33747,-0.36025 1.74991,0 0.41254,0.36026 -0.26066,1.07256 0,1.52817 0.21889,0.38267 3.28071,2.67365 3.49981,3.05632 0.26066,0.45561 -0.41253,1.16799 0,1.52817 0.92233,0.80541 2.41458,0.89634 3.49982,1.52816 1.37275,0.79922 2.02418,2.41201 3.49985,3.05633 0.52171,0.22801 1.22816,-0.22763 1.74991,0 3.53915,1.54535 0.56113,3.5464 1.7499,4.58453 0.41253,0.36025 1.19651,-0.16113 1.74991,0 1.23737,0.36025 2.57753,0.72272 3.49981,1.52816 0.41253,0.36026 0,1.01875 0,1.52817 1.16662,0.50937 2.26244,1.16794 3.49981,1.52816 0.55335,0.16113 1.33747,-0.36026 1.74991,0 0.41253,0.36026 -0.26066,1.07256 0,1.52816 0.36901,0.64432 1.38097,0.88385 1.7499,1.52817 0.2611,0.4556 -0.41253,1.16798 0,1.52816 1.72623,1.50749 3.49982,-3.13134 3.49982,1.52817";
+				this.mappathdrawn = this.r.path(mappath).attr({stroke:'#00f', 'stroke-width':2, opacity:0});
+				this.mappathdrawn.scale((this.maph*.15)/this.mappathdrawn.getBBox().width, (this.maph*.15)/this.mappathdrawn.getBBox().width);
+				this.mappathdrawn.translate(this.mapx+this.mapw*.44-this.mappathdrawn.getBBox().x,
+											this.mapy+this.mapw*.13-this.mappathdrawn.getBBox().y);
+				this.pathpieces = this.mappathdrawn.attr("path").toString().split('L');
+				this.pathpoints = [];
+				for (var i = this.pathpieces.length-1; i > 1; i = i-2){
+					var blah = this.pathpieces[i].split(',');
+					var point = [parseFloat(blah[0]), parseFloat(blah[1])];
+					this.pathpoints.push(point);
+				}
+				this.marker = this.r.circle(this.pathpoints[0][0], this.pathpoints[0][1], 7).attr({fill:'#55f'});
+	//			this.mapbox.attr({opacity: 0});
+		//		this.map.attr({opacity: 0});
+			},
+			add: function(p){
+				this.r.text(this.bordersize, this.persony, p.type+':').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				p.statout = this.r.text(this.w - this.bordersize, this.persony, p.state).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.persony = this.persony+this.textsize*1+this.bordersize*.3;
+			},
+			supplies: function(){
+				this.suppliesy = this.persony + this.textsize;
+				
+				//weight, food, blankets, dogs, weapons
+//				this.r.text(this.bordersize, this.suppliesy, 'Weight:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+//				this.weightout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.weight).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+//				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+				
+				this.r.text(this.bordersize, this.suppliesy, 'Food:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.foodout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.food).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.suppliesy = this.suppliesy+this.textsize*1+this.bordersize*.3;
+				
+				this.r.text(this.bordersize, this.suppliesy, 'Blankets:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.blanketsout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.blankets).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.suppliesy = this.suppliesy+this.textsize*1+this.bordersize*.3;
+				
+				this.r.text(this.bordersize, this.suppliesy, 'Dogs:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.dogsout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.dogs).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.suppliesy = this.suppliesy+this.textsize*1+this.bordersize*.3;
+				
+				this.r.text(this.bordersize, this.suppliesy, 'Weapons:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+				this.weaponsout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.weapons).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				this.suppliesy = this.suppliesy+this.textsize*1+this.bordersize*.3;
+			}, 
+			journey: function(){
+				if (!('journeyy' in this)){
+					this.journeyy = this.suppliesy + this.textsize;
+				
+					this.r.text(this.bordersize, this.journeyy, 'Days:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+					this.daysout = this.r.text(this.w - this.bordersize, this.journeyy, this.game.days).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+					this.journeyy = this.journeyy+this.textsize*1+this.bordersize*.3;
+					
+					this.r.text(this.bordersize, this.journeyy, 'Miles:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+					this.milesout = this.r.text(this.w - this.bordersize, this.journeyy, this.game.miles).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				}
+			},
+			update: function(){
+				this.foodout.attr({text: this.game.food});
+//				this.weightout.attr({text: this.game.weight});
+				this.blanketsout.attr({text: this.game.blankets});
+				this.dogsout.attr({text: this.game.dogs});
+				this.weaponsout.attr({text: this.game.weapons});
+				if ('daysout' in this){
+					this.daysout.attr({text: this.game.days});
+					this.milesout.attr({opacity:0});
+					this.milesout = this.r.text(this.w - this.bordersize, this.journeyy, this.game.miles).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+				}
+				this.marker.remove();
+				var index = Math.floor((g.miles/400)*this.pathpoints.length);
+				this.marker = this.r.circle(this.pathpoints[index][0], this.pathpoints[index][1], 7).attr({fill:'#55f'});
+			}
+		});
+		
+		dojo.declare( "button", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);
+				this.texto = 1;
+				this.backo = .9;
+				this.toosoon = false;
+				this.validtoclick = true;
+				this.make();
+			},
+			make: function(){
+				if (this.det == 'text'){ //size of the button is to be determined by the text size
+					var self = this;
+					this.text = this.r.text(this.x, this.y, this.t).attr({font: this.s +'px Arial', opacity:this.texto});
+					
+					var w = this.text.getBBox().width*1.2;
+					var h = this.text.getBBox().height*1.1;
+					this.back = this.r.rect(this.x - w/2, this.y - h/2, w, h,4).attr({'stroke-width':5, fill:'#fff', opacity:this.backo});
+					
+					this.text.toFront();					
+					
+					this.text.click(dojo.hitch(self,self.clicked));
+					this.back.click(dojo.hitch(self,self.clicked));
+				}
+				if (this.det == 'size'){ //size of the button is to be determined by the text size
+					var self = this;
+					this.back = this.r.rect(this.x, this.y, this.w, this.h,4);
+					this.back.attr({'stroke-width':5, fill:'#fff', opacity:this.backo});
+					this.size = this.back.getBBox().height*(1/1.1);
+					this.text = this.r.text(this.x+this.w/2, this.y+this.h/2, this.t).attr({font: this.size+'px Arial', opacity: this.texto});
+					if (this.text.getBBox().width > this.w){
+						var tw = this.text.getBBox().width;
+						var wlimit = this.w*(1/1.2);
+						if (tw/wlimit < 15000){
+							this.text.attr({font: wlimit*this.size/tw+'px Arial'});
+							this.size = wlimit*this.size/tw;
+						}
+						if (this.text.getBBox().height > this.h){
+							var th = this.text.getBBox().height;
+							var hlimit = this.h*(1/1.1);
+							if (th/hlimit < 150000){
+								this.text.attr({font: hlimit*this.size/th+'px Arial'});
+								this.size = hlimit*this.size/th;
+							}
+						}
+					}
+					if (this.text.getBBox().height > this.h){
+						var th = this.text.getBBox().height;
+						var hlimit = this.h*(1/1.1);
+						if (th/hlimit < 150000){
+							this.text.attr({font: hlimit*this.size/th+'px Arial'});
+							this.size = hlimit*this.size/th;
+						}
+						if (this.text.getBBox().width > this.w){
+							var tw = this.text.getBBox().width;
+							var wlimit = this.w*(1/1.2);
+							if (tw/wlimit < 1500000){
+								this.text.attr({font: wlimit*this.size/tw+'px Arial'});
+								this.size = wlimit*this.size/tw;
+							}
+						}
+					}
+					this.text.toFront();					
+					
+					this.text.click(dojo.hitch(self, self.clicked));
+					this.back.click(dojo.hitch(self, self.clicked));
+				}
+			},
+			clicked: function(){
+				if (this.toosoon == false && this.validtoclick == true){
+					var self = this;
+					this.f();
+					this.back.animate({fill:'#0f0'}, 150, callback= function(){
+						self.back.animate({fill:'#fff'}, 150);
+					});
+					this.tooson == true;
+					setTimeout(function(){
+						this.toosoon = false;
+					}, 50);
+				}
+			},
+			hide: function(){
+				this.text.attr({opacity: 0});
+				this.back.attr({opacity: 0});
+				this.validtoclick = false;
+			},
+			show: function(){
+				this.back.attr({opacity: this.backo}).toFront();
+				this.text.attr({opacity: this.texto}).toFront();
+				this.validtoclick = true;
+			},
+			setf: function(f){
+				this.f = f;
+			},
+			remove: function(){
+				this.validtoclick = false;
+				this.back.remove();
+				this.text.remove();
+			}
+		});
+				
+		
+		dojo.declare("team", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);
+				this.members = [];
+				this.alive = 4;
+			},
+			setup: function(){
+				var doc = new person({name: 'Sir Arthur Cromwell', type: 'Doctor', text: "SIR ARTHUR CROMWELL\n\n"+
+																						 "A descendant of Oliver Cromwell who ruled England\n"+ 
+																		                 "with an Iron Fist and became fairly unpopular. To\n"+
+																						 "remedy his family image, Sir Arthur Cromwell is \n"+
+																						 "striving to explore Antarctica for medical research.\n"+
+																						 "Although a brilliant doctor of medicine, he tends\n" +
+																						 "to be naïve in his own thinking. He can be overly-ambitious\n"+ 
+																						 "and blinded by his own quest for glory, causing him to\n" +
+																						 "pay little heed to those around him at times. Regardless…\n" +
+																						 "like his family line, he is a leader and very adventurous.", sturdy: 1});
+				var dogs = new person({name: 'Lorraine Kaplan', type: 'Dog Expert', text: "LORRAINE KAPLAN\n\n"+
+																						  "Coming from her idyllic upbringing in rural South Dakota, \n"+
+																						  "her innate connection to animals and ambition to see the \n"+
+																						  "world make her a world-famous dog expert. Her specialty is \n"+
+																						  "raising and training sled dogs. She is known for her greatly \n"+
+																						  "optimistic character, but her loquacious nature can sometimes \n"+
+																						  "become abrasive.", sturdy: 2});
+				var sold = new person({name: 'Oscar Zimmermann', type: 'Soldier', text: "OSCAR ZIMMERMANN\n\n"+ 
+																						"Born of German parents. His father Hludwig was an old \n"+
+																						"military type. Oscar tries to follow in his father’s \n"+
+																						"footsteps and live up to his father’s superior military \n"+
+																						"status. He has volunteered for the Antarctic expedition \n"+
+																						"during a time of peace to make his father proud. Oscar \n"+
+																						"is a very promising and capable soldier, but inexperienced \n"+
+																						"in actual war.", sturdy: 4});
+				var expl = new person({name: 'Leon Chevalier', type: 'Explorer', text: "LEON CHEVALIER\n\n"+
+																					   "Hailing from the Rhone-Aples region of France. \n"+
+																					   "From the early age of 7, Leon became an accomplished \n"+
+																					   "hunter. He won many awards growing up and has used \n"+
+																					   "his expert hunting skills, extensive knowledge of \n"+
+																					   "nature, and love for the outdoors to become an \n"+
+																					   "experienced explorer. He boasts having explored \n"+
+																					   "over 100 countries, although his rather presumptuous \n"+
+																					   "character makes one question the validity of his claims.", sturdy: 3});
+				this.poss = [expl, dogs, doc, sold];
+			},
+			starve: function(){
+				dojo.forEach(this.members, function(m){
+					if (!m.dead){
+						m.starve();
+					}
+				});
+			},
+			getspeedfactor: function(){
+				var sum = 0;
+				for (var i = 0; i < 4; i++){
+					sum = sum+ this.members[i].health;
+				}
+				return sum/(4*75);
+			},
+			getRandom: function(){
+				var p = unc.random.choice(this.members);
+				if (p.dead == false){
+					return p;
+				}
+				else {
+					return this.getRandom();
+				}
+			},
+			add: function(pers){
+				var newperson = new person(pers.args);
+				this.members.push(newperson);
+				this.sidebar.add(newperson);
+				if (this.members.length ==4){
+					this.game.supplies();
+				}
+				this.victim = unc.random.choice(this.members);
+			},
+			getVictim: function(){
+				return this.victim;
+			},
+			killVictim: function(){
+				this.victim.health = 0;
+			},
+			makeVictim: function(){
+				this.victim = unc.random.choice(this.members);
+				while (this.victim.dead == true){
+					this.victim = unc.random.choice(this.members);
+				}
+			},
+			hastype: function(type){
+				var val = false;
+				dojo.forEach(this.members, function(m){
+					if (m.type == type && m.dead == false){
+						val = true;
+					}
+				});
+				return val;
+			},
+			updateout: function(){
+				dojo.forEach(g.team.members, function(m){
+					m.updatestat();
+				});
+			},
+			improvehealth: function(){
+				dojo.forEach(g.team.members, function(m){
+					if (!m.dead){
+						m.health = m.health + Math.random()*(30 + m.sturdy);
+						m.updatestat();
+					}
+				});
+			}
+		});
+		
+		dojo.declare("person", null, {
+			constructor: function(args){
+				this.args = args;
+				this.state = 'cold';
+				this.health = 100;
+				this.dead = false;
+				dojo.mixin(this, args);
+			},
+			starve: function(){
+				this.health = this.health - Math.random()*(18 - this.sturdy);
+			},
+			updatestat: function(){
+				if (this.dead == false){
+					if (this.health < 60){
+						this.statout.attr({text:'Tired'});
+					}
+					if (this.health < 30){
+						this.statout.attr({text:'Dying'});
+					}
+					if (this.health <= 0){
+						this.health = 0;
+						this.statout.attr({text:'Dead'});
+						g.q.push(this);
+					}
+				}
+			},
+			die: function(){
+				if (this.dead == false){
+					this.dead = true;
+					g.vis.cleartemp();
+					g.vis.central("The journey has overcome "+this.name+"\n and you watch your "+this.type+" collapse to\n the ground. You have lost this team member.");
+					this.state = "Dead";
+					this.statout.attr({text:'Dead'});
+					g.team.alive = g.team.alive - 1;
+					if (g.team.alive == 0){
+						g.lose();
+					}
+				}
+			}
+		});
+		
+		
+		dojo.declare("eventbox", null, {
+			constructor: function(args){
+				dojo.mixin(this, args); 
+				this.events = [];
+			},
+			setup: function(){
+				this.createBasicEvent(1, function(){return "You get a break from the icy wind chill\ntoday. It does not feel so cold today."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor*.8;
+					g.miles += g.speed*1.1;
+				});
+				this.createBasicEvent(1, function(){return "Your "+g.team.getVictim().type+", "+g.team.getVictim().name+",\nis suffering from photokeratitis. This\nis otherwise known as snow blindness\nand caused by overexposure to the UV rays\nfrom the sun. You remind your team to keep\ntheir snow goggles on at all times and\n"+g.team.getVictim().name+" begins to slow you down."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed*.3;
+				});
+				this.createBasicEvent(1, function(){return "The clouds covering the sun today actually\nmake visibility a bit better."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed*1.2;
+				});
+				this.createBasicEvent(1, function(){return "Your team is in high spirits and\nbonding well along the way."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed*1.2;
+				});
+				this.createBasicEvent(1, function(){return "Cheerful conversation between your team\nmembers is making the journey feel faster."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed*1.2;
+				});
+				this.createBasicEvent(1, function(){return "There is some light snowfall,\nbut it does not effect your travel."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor*1.1;
+					g.miles += g.speed;
+				});
+				this.createBasicEvent(1, function(){return "Nothing of note happened today."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed;
+				});
+				this.createBasicEvent(1, function(){return "The terrain was rough today.\nYou made little progress."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed/2;
+				});
+				this.createBasicEvent(1, function(){return "It was warmer today, so you\n made extra progress."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed*1.5;
+				});
+				this.createBasicEvent(1, function(){return "You realize that you have\nbeen going the wrong way.\nYou backtrack and lose time."}, 'impassable.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 4;
+					g.food = g.food - g.eatfactor*4;
+				});
+				this.createBasicEvent(1, function(){return "Your explorer found a shortcut!\nYou gain 20 miles!\nGood thing you brought that explorer."}, 'basic1STANDIN.jpg', function(){
+					if (g.team.hastype('Explorer')){
+						return true;
+					}
+					return false
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles = g.miles + 20;
+				});
+				this.createBasicEvent(1, function(){return "Your soldier disappears for a\n"+"while and returns with a bird.\n"+"Creepy, but you gain food!"}, 'basic1STANDIN.jpg', function(){
+					if (g.team.hastype('Soldier')){
+						return true;
+					}
+					return false
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor + 20;
+				});
+				this.createBasicEvent(1, function(){return "Your dogs got in a fight, and\none was killed.  If only you\nhad had a dog expert around."}, 'basic1STANDIN.jpg', function(){
+					//console.log('I am considering the dog fight');
+					if (g.team.hastype('Dog Expert')){
+						//console.log('i am rejecting the dog fight becuase there is a dog expert');
+						return false;
+					}
+					return g.dogs >= 2;
+				}, function(){
+					g.dogs -= 1;
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+				});
+				
+				this.someComplexEvents();
+				this.createMiniGameEvents();
+				this.prevevent = unc.random.choice(this.events);
+			},
+			createMiniGameEvents: function(){
+				this.createBasicEvent(1, function(){return g.team.victim.name+', your '+g.team.victim.type+',\nhas fallen into a crevasse.'}, 'crevasse.JPG',
+					function(){
+						return g.team.victim.dead == false;
+					},
+					function(){
+						g.vis.next.setf(function(){
+							g.vis.next.hide();
+							g.vis.cleartemp();
+							var f = function(mess, resultfunction){
+								crevassegame.remove();
+								g.vis.next.show();
+								g.vis.next.setf(dojo.hitch(g, function(){
+									dojo.hitch(g, g.step);
+									g.vis.next.setf(dojo.hitch(g,g.step));
+								}));
+								g.vis.central(mess);
+								resultfunction();
+							}
+							var crevassegame = new crevasse( g.vis.k.sidebarw, 0, g.vis.k.w - g.vis.k.sidebarw, g.vis.k.h, f);
+						});
+					});
+				this.createBasicEvent(1, function(){return 'You have come to a patch of thin ice.'}, 'crevasse.JPG',
+					function(){
+						return g.team.victim.dead == false;
+					},
+					function(){
+						g.vis.next.setf(function(){
+							g.vis.next.hide();
+							g.vis.cleartemp();
+							var f = function(mess, resultfunction){
+								ig.remove();
+								g.vis.next.show();
+								g.vis.next.setf(dojo.hitch(g, function(){
+									dojo.hitch(g, g.step);
+									g.vis.next.setf(dojo.hitch(g,g.step));
+								}));
+								g.vis.changeback('crevasse.JPG');
+								g.vis.central(mess);
+								resultfunction();
+							}
+							g.vis.back.remove();
+							ig = new icegame( g.vis.k.sidebarw, 0, g.vis.k.w - g.vis.k.sidebarw, g.vis.k.h, f);
+							ig.setup();
+						});
+					});
+				this.createBasicEvent(1, function(){return 'You think there may be fish below the ice here.'}, 'crevasse.JPG',
+					function(){
+						return g.miles <= 150;
+					},
+					function(){
+						g.vis.next.setf(function(){
+							g.vis.next.hide();
+							g.vis.cleartemp();
+							var f = function(mess, resultfunction){
+								fishinggame.remove();
+								g.vis.next.show();
+								g.vis.next.setf(dojo.hitch(g, function(){
+									dojo.hitch(g, g.step);
+									g.vis.next.setf(dojo.hitch(g,g.step));
+								}));
+								g.vis.changeback('crevasse.JPG');
+								g.vis.central(mess);
+								resultfunction();
+							}
+							g.vis.back.remove();
+							fishinggame = new fishing( g.vis.k.sidebarw, 0, g.vis.k.w - g.vis.k.sidebarw, g.vis.k.h, f);
+						});
+					});
+			},
+			createBasicEvent: function(prob, message, image, prereq, func){
+				var o = new outcome({message: message, imagename: image, prob:1, effect: func});	
+				var e = new eevent({canhappen: prereq, prob: prob, result: o, choices: []});
+				this.events.push(e);
+			},
+			someComplexEvents: function(){
+				var gb = new outcome({message: function(){return 'You choose to keep going,\n'+ "but a blizzard did come.\n" +'Your team was severely weakened!'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.team.starve();
+					g.team.starve();
+					g.team.starve();
+					g.miles += g.speed;
+					g.days += 5;
+					g.food -= g.eatfactor*5;
+				}});
+				var gn = new outcome({message: function(){return 'You choose to keep going,\n'+'and no blizzard came.\n'+' Good call!'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.miles += g.speed;
+					g.days += 1;
+					g.food -= g.eatfactor;
+				}});
+				var sb = new outcome({message: function(){return 'You choose to set up shelter,\n'+'and a blizzard did come.\n'+' Good call!'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.miles += 0;
+					g.days += 5;
+					g.food -= g.eatfactor*5;
+				}});
+				var sn = new outcome({message: function(){return 'You choose to set up shelter,\n'+'but no blizzard came.\n'+'You lost time and food for nothing!'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.miles += 0;
+					g.days += 2;
+					g.food -= g.eatfactor*2;
+				}});
+				var gchoice = new choice( {canhappen: function(){return true}, message: 'Keep going', outcomes: [gb, gn]} );
+				var schoice = new choice( {canhappen: function(){return true}, message: 'Make shelter', outcomes: [sb, sn]} );
+				var blizzardevent = new eevent( {prob: 1, imagename:'blizz.jpg', message: function(){return 'You made good progress today, but\nyou think a blizzard may be coming.'}, canhappen:function(){return true;}, choices:[gchoice, schoice] });
+				this.events.push(blizzardevent);
+				
+				var toasty = new outcome({message: function(){return 'You spend a night getting\nwarm. The health of your\nteam improved.\nGood thing you had blankets!'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.team.improvehealth();
+					g.days += 2;
+					g.food -= g.eatfactor*2;
+				}});
+				var moveoncold = new outcome({message: function(){return 'You keep going anyway.\nUnfortunately, the cold\ndoes not let up and your\nteam is weakened.'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.team.starve();
+					g.miles += g.speed*2;
+					g.days += 2;
+					g.food -= g.eatfactor*2;
+				}});
+				var moveonwarm = new outcome({message: function(){return 'You keep going anyway.\nLuckily, it warms up a\nlittle and you are okay.'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.miles += g.speed*2;
+					g.days += 2;
+					g.food -= g.eatfactor*2;
+				}});
+				var gchoice = new choice( {canhappen: function(){return g.blankets >= g.team.alive}, message: 'Use blankets to get warm', outcomes: [toasty]} );
+				var schoice = new choice( {canhappen: function(){return true}, message: 'Keep moving anyway', outcomes: [moveoncold, moveonwarm]} );
+				var coldfrontevent = new eevent( {prob: 1, imagename:'basic1STANDIN.jpg', message: function(){return 'It has been bitterly cold for a week.\nYour are worried about frostbite.'}, canhappen:function(){return g.days > 10;}, choices:[gchoice, schoice] });
+				this.events.push(coldfrontevent);
+				
+				var rewarm = new outcome({message: function(){
+						rewarm.dayswasted = Math.floor(3*Math.random())+1;
+						return g.team.getVictim().name+' gets better after resting for '+rewarm.dayswasted+' days.';}, 
+					imagename: 'basic1STANDIN.jpg', prob: .5, effect: function(){
+						g.days += Math.floor(3*Math.random())+1;
+						g.food -= g.eatfactor*(Math.floor(3*Math.random())+1);
+					}
+					});
+				var hedie = new outcome({message: function(){
+						return g.team.getVictim().name+' can only slow you down.  After '+Math.floor(3*Math.random())+' days, you no longer hear his screams in the distance.';}, 
+					imagename: 'basic1STANDIN.jpg', prob: .5, effect: function(){
+						g.team.killVictim();
+					}})
+				var o1 = new choice({canhappen: function(){return g.blankets > 0}, message: 'Rewarm using a blanket', outcomes: [rewarm]});
+				var o2 = new choice({canhappen: function(){return true}, message: 'Leave behind', outcomes: [hedie]});
+				var frostbite = new eevent( { prob: .5, imagename:'basic1STANDIN.jpg', message:function(){return "Your "+g.team.getVictim().type+", "+g.team.getVictim().name+
+																												 ",\nhas developed frostbite. If the frostbite is allowed to\n"+
+																												 "develop to deep frostbite, the area might become infected\n"+
+																												 "with gangrene. This would result in amputation. To avoid\n"+
+																												 "this, you must wrap "+g.team.getVictim().name+" in blankets\n"+
+																												 "to rewarm the affected area."}, canhappen: function(){return g.days > 10}, choices: [o1, o2]});
+				this.events.push(frostbite);																								
+			},
+			getNext: function(){
+				var self = this;
+				function tryone(){
+					unc.random.shuffle(self.events);
+					var i = Math.random();
+					if (i < self.events[0].prob && self.events[0].canhappen() && self.prevevent != self.events[0]){
+						return self.events[0];
+					}
+					else{
+						return tryone();
+					}
+				}
+				return tryone();
+			}
+		});
+		
+		dojo.declare("eevent", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);  //need a probability, need an image and message, need a precondition function, and an array of choices
+			},
+			occur: function(){
+				if (this.choices.length == 0){ //this event is really just an outcome
+					//g.vis.displaynormal(this.message, this.imagename);
+					this.result.occur();
+				}
+				if (this.choices.length > 0){
+					var mess = this.message();
+					g.vis.displaycomplex(mess, this.imagename, this.choices);
+				}
+			}
+		});
+		
+		dojo.declare("choice", null, {
+			constructor: function(args){ //needs a message function, a precondition function, and an array of outcomes
+				dojo.mixin(this, args);
+			},
+			pick: function(){
+				var result = unc.random.choice(this.outcomes);
+				//display the message for the result
+				result.occur();
+			}
+		});
+		
+		dojo.declare("outcome", null, {
+			constructor: function(args){
+				dojo.mixin(this, args);  //need a probability, need an occur(game) function, need an image and text
+			},
+			occur: function(){
+				this.effect();
+				var m = this.message();
+				g.vis.displaynormal(m, this.imagename);
+			}
+		});
+		
+		dojo.ready(go);
+	</script>
+</head>
+
+<body>
+
+</body>

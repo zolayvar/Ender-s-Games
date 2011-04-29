@@ -85,8 +85,8 @@ dojo.declare("icegame", null, {
 			  polyBd.AddShape(polySd);
 			  polyBd.position.Set(startX + xMod, startY - yMod);
 		  polyBd.rotation = startRot;
-		  polyBd.linearDamping = .03;
-		  polyBd.angularDamping = .03;
+		  polyBd.linearDamping = .02;
+		  polyBd.angularDamping = .026;
 		  var polyBody = ig.world.CreateBody(polyBd);
 		  if (i == 4){
 			polySd.density = 1.0;
