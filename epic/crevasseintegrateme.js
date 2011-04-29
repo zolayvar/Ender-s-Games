@@ -294,7 +294,7 @@ dojo.declare( "guy", null, {
 		}
 		if (this.xdir != 0 && this.owner.playing  && !this.slipping){
 			var self= this;
-			var slip = unc.random.choice([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]);
+			var slip = unc.random.choice([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]);
 			if (slip == 1){
 				g.noise.stop();
 				//this.owner.noise.play({url:'scream'});

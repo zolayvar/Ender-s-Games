@@ -1,4 +1,70 @@
-<head>
+<head>	
+	<script type="text/javascript" src="./lib/prototype.js"></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/common/b2Settings.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/common/math/b2Vec2.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/common/math/b2Mat22.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/common/math/b2Math.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2AABB.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Bound.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2BoundValues.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Pair.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2PairCallback.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2BufferedPair.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2PairManager.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2BroadPhase.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Collision.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/Features.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2ContactID.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2ContactPoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Distance.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Manifold.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2OBB.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/b2Proxy.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/ClipVertex.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2Shape.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2ShapeDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2BoxDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2CircleDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2CircleShape.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2MassData.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2PolyDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/collision/shapes/b2PolyShape.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2Body.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2BodyDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2CollisionFilter.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2Island.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2TimeStep.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2ContactNode.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2Contact.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2ContactConstraint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2ContactConstraintPoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2ContactRegister.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2ContactSolver.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2CircleContact.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2Conservative.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2NullContact.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2PolyAndCircleContact.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/contacts/b2PolyContact.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2ContactManager.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2World.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/b2WorldListener.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2JointNode.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2Joint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2JointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2DistanceJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2DistanceJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2Jacobian.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2GearJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2GearJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2MouseJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2MouseJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2PrismaticJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2PrismaticJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2PulleyJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2PulleyJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2RevoluteJoint.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/js/box2d/dynamics/joints/b2RevoluteJointDef.js'></script> 
+    <script type="text/javascript" src='./lib/box2d-js_0.1.0/demos/draw_world.js'></script> 
 	<script type="text/javascript">
 		var djConfig = {
 			isDebug: false,
@@ -11,7 +77,9 @@
 	<link href='http://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
 	<script src="raphael.js"></script>
 	<script type="text/javascript" src="/libs/uow.js"></script>
+	<script src="fishingintegrateme.js"></script>
 	<script src="crevasseintegrateme.js"></script>
+	<script src="iceintegrateme.js"></script>
 	<script src="random.js"></script>
 	<script>
 		dojo.require("dojo.window");
@@ -74,7 +142,6 @@
 				}
 			},
 			step: function(){
-				console.log('step was called', g.playing);
 				this.steppable = false;
 				setTimeout(function(){
 					this.steppable = true;
@@ -92,7 +159,6 @@
 						this.vis.cleartemp();
 						this.calcspeed();
 						var h = this.eventbox.getNext();
-						console.log(h);
 						h.occur();
 						this.managefood();
 						this.checkwin();
@@ -462,6 +528,7 @@
 				this.mapw = this.w - this.bordersize*2;
 				this.maph = this.mapw;
 				this.mapy = this.h-this.maph-this.bordersize;  //this needs to be changed
+				this.textsize = (this.h-this.maph-this.bordersize*2)/13-this.bordersize*.6;
 				this.make();
 			},
 			make: function(){
@@ -469,38 +536,52 @@
 				this.head = this.r.text(this.x+this.bordersize, this.bordersize*2, "Team members:").attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
 				this.persony = this.head.getBBox().height + this.bordersize*4;
 				this.mapbox = this.r.rect(this.mapx, this.mapy, this.mapw, this.maph);
-				this.map = this.r.text(this.mapx+this.mapw/2, this.mapy+this.maph/2, "MAP HERE").attr({font:this.textsize+'px Arial'});
-				this.mapbox.attr({opacity: 0});
-				this.map.attr({opacity: 0});
+//				this.map = this.r.text(this.mapx+this.mapw/2, this.mapy+this.maph/2, "MAP HERE").attr({font:this.textsize+'px Arial'});
+				this.map = this.r.image('map.png', this.mapx, this.mapy, this.mapw, this.maph);
+				var mappath = "m 291.80776,222.67851 13.69395,-1.77909 1.27868,5.70113 3.49982,7.64086 3.62061,3.16182 -0.14142,-4.83169 3.49981,1.52816 0.26066,0.4556 -0.41253,1.16794 0,1.52816 0.41253,0.36026 1.33747,-0.36025 1.74991,0 0.82493,0.72037 -0.82493,2.33593 0,3.05633 0.41253,0.36026 1.22819,-0.22801 1.74991,0 0.73781,0.32225 1.01209,1.20599 1.74989,1.52818 0.52172,0.22763 1.33747,-0.36027 1.74991,0 0.41254,0.36024 -0.26109,1.07254 0,1.52815 0.36902,0.64432 1.16662,1.01879 1.74991,1.52816 0.58329,0.50938 1.0121,1.20599 1.74991,1.52818 0.52171,0.22763 1.33746,-0.36027 1.7499,0 0.87498,0.76405 -0.87493,3.82043 0,4.58448 0.41253,0.36027 1.33747,-0.36026 1.74991,0 0.41253,0.36027 -0.41253,1.16799 0,1.52816 0.41253,0.36027 1.33746,-0.36024 1.74991,0 0.82493,0.7204 -0.8249,2.33598 0,3.05633 0.41252,0.36027 1.33745,-0.36026 1.7499,0 0.41253,0.36027 -0.26066,1.07257 0,1.52818 0.73785,1.28867 2.762,1.76767 3.49981,3.05631 0.52176,0.91125 -0.82488,2.33598 0,3.05634 0.82493,0.72039 2.67493,-0.72036 3.49986,0 0.58319,0.50933 -0.58325,2.54703 0,3.05637 0.41253,0.36025 1.33742,-0.36026 1.7499,0 0.41253,0.36025 -0.1845,1.04488 0,1.52816 0.41253,1.08057 1.02642,2.10859 1.74991,3.05633 0.45757,0.5994 2.33319,1.01875 1.7499,1.52816 -0.58333,0.50938 -2.57484,-1.52816 -1.7499,-1.52816 1.30431,0 2.57753,0.72275 3.49981,1.52816 0.87493,0.76405 -0.87498,3.82039 0,4.58449 0.41254,0.36026 1.33742,-0.36025 1.74991,0 0.41252,0.36026 -0.41254,1.16799 0,1.52817 0.41252,0.36025 1.33746,-0.36026 1.74991,0 0.92227,0.80541 1.33745,1.97574 1.7499,3.05633 0.36901,0.96649 -0.82493,2.33596 0,3.05632 0.41253,0.36026 1.33746,-0.36025 1.7499,0 0.41254,0.36026 -0.41253,1.16799 0,1.52817 0.41254,0.36025 1.33746,-0.36026 1.74991,0 4.42008,3.85998 0.67241,1.76165 1.7499,4.58449 0.41254,1.08058 2.91653,2.54695 1.74991,3.05633 -1.16662,0.50941 -3.05421,-3.05633 -1.74991,-3.05633 1.64983,0 2.58467,1.85756 3.49982,3.05633 0.32375,0.42387 -0.26066,1.07256 0,1.5282 0.36902,0.64432 1.38102,0.88381 1.74991,1.52816 0.26065,0.45561 -0.41254,1.16795 0,1.52817 0.41252,0.36025 1.33745,-0.36026 1.7499,0 0.41253,0.36025 -0.41253,1.16794 0,1.52816 0.41253,0.36026 1.33746,-0.36026 1.74991,0 0.82493,0.72036 -0.82489,2.33593 0,3.05633 0.41253,0.36025 1.33745,-0.36026 1.7499,0 0.82493,0.72036 -0.82489,2.33592 0,3.05633 0.41253,0.36025 1.33746,-0.36026 1.7499,0 0.41254,0.36025 -0.41252,1.16798 0,1.52816 0.41254,0.36026 1.33747,-0.36026 1.74991,0 0.27154,0.23713 -0.22716,3.98984 0,4.58449 0.41254,1.08058 1.33747,1.97576 1.74991,3.05633 0.1845,0.48327 -0.41254,1.16798 0,1.52816 0.41254,0.36026 1.48907,-0.4556 1.74995,0 0.52171,0.91125 -0.36901,2.08983 0,3.05633 0.26066,0.68342 1.38098,0.88385 1.7499,1.52816 0.52171,0.91125 -0.36901,2.08983 0,3.05633 2.39151,6.26543 2.85818,-0.15277 5.24972,6.11271 0.1845,0.48323 -0.1845,1.04488 0,1.52815 0.41254,1.08058 1.33742,1.97575 1.74991,3.05634 0.1845,0.48323 -0.26067,1.07256 0,1.52815 0.36902,0.64432 1.29233,0.92876 1.74991,1.52816 0.72348,0.94774 1.16662,2.03754 1.7499,3.05633 0.58329,1.0188 1.33746,1.97576 1.7499,3.05634 0.18451,0.48327 -0.26066,1.07256 0,1.52815 0.36902,0.64432 1.48904,0.84475 1.74991,1.52818 0.36901,0.9665 0,2.03758 0,3.05633 0,0.50941 -0.26066,1.07256 0,1.52816 0.36901,0.64436 1.29233,0.92879 1.7499,1.52815 0.7235,0.94774 1.02641,2.10862 1.74991,3.05634 0.45757,0.5994 1.38098,0.88385 1.74991,1.5282 0.26109,0.45561 -0.26066,1.07252 0,1.52817 0.36902,0.64432 1.38102,0.88379 1.74991,1.52816 0.52171,0.9112 -0.8249,2.33593 0,3.05633 0.41252,0.36025 1.33745,-0.36026 1.7499,0 0.41253,0.36025 -0.41253,1.16794 0,1.52816 2.33323,2.03754 1.7499,-2.54695 1.7499,1.52817 0,4.23175 1.74991,-1.17548 1.74991,3.05632 0,0.50938 0,2.03754 0,1.52817 0,-1.01879 -1.16658,-3.05633 0,-3.05633 1.30431,0 1.33746,1.97575 1.74991,3.05633 2.33324,6.11265 -2.91649,-2.54695 1.7499,1.52816 0.82493,0.7204 -0.52171,2.14512 0,3.05633 0.36902,0.64432 1.38102,0.88384 1.74991,1.52816 0.26066,0.45561 -0.26066,1.07256 0,1.52817 0.36902,0.64435 1.38102,0.88384 1.74994,1.52816 0.26067,0.45561 -0.41252,1.16798 0,1.52817 0.41254,0.36025 1.33742,-0.36026 1.74991,0 0.87493,0.7641 -0.87496,3.82042 0,4.58449 0.41254,0.36025 1.33742,-0.36026 1.74991,0 0.58377,0.50983 -0.58381,2.54653 0,3.05636 0.41253,0.36026 1.33742,-0.36025 1.74991,0 0.58377,0.5098 -0.58381,2.5465 0,3.05633 2.33319,2.03754 1.7499,-2.54695 1.7499,1.52816 0,0.50938 0,1.01876 0,1.52817 0,0.50937 -0.41253,1.16798 0,1.52816 0.41253,0.36026 1.33742,-0.36025 1.74991,0 0.41253,0.36026 -0.41254,1.16798 0,1.52817 0.41253,0.36025 1.33742,-0.36026 1.74991,0 0.82488,0.72036 -0.82493,2.33592 0,3.05632 0.41252,0.36026 1.33745,-0.36025 1.74991,0 0.41252,0.36026 0,1.01879 0,1.52817 0,0.50937 0,2.03754 0,1.52816 0,-1.01879 -0.82495,-3.77673 0,-3.05633 1.93436,1.68926 1.74989,4.04206 1.74989,6.11266 0,0.50941 -0.26109,1.07257 0,1.52816 0.36902,0.64436 1.38099,0.88385 1.74991,1.52817 0.4654,0.81286 -0.4654,2.24351 0,3.05634 0.36902,0.64434 1.48903,0.84477 1.74991,1.52815 0.36901,0.96651 0,2.03759 0,3.05636 0,1.01877 0,2.03754 0,3.05633 0,4.07508 0,8.15021 0,12.22531 0,0.56121 0.0705,6.05118 0,6.11267 -0.5842,0.51018 -2.91561,-0.51014 -3.49982,0 -0.82493,0.72039 0.52172,2.14512 0,3.05633 -3.64137,6.35986 0.12098,-1.63366 -3.4998,1.52816 -0.58377,0.50983 0.58376,2.54653 0,3.05633 -0.41254,0.36026 -1.33747,-0.36026 -1.74991,0 -0.58381,0.50983 0.58376,2.54653 0,3.05636 -0.41254,0.36026 -1.33746,-0.36025 -1.74991,0 -0.41253,0.36026 0.58329,1.52817 0,1.52817 -0.52293,0 1.15196,-5.06829 -1.7499,0 -0.26066,0.4556 0.58328,1.52816 0,1.52816 -0.52294,0 1.15195,-5.0683 -1.74991,0 -0.2611,0.45561 0.26067,1.07252 0,1.52817 -2.10452,3.67561 -1.39533,-0.61932 -3.49982,3.05632 -0.26109,0.45561 0.41254,1.16799 0,1.52817 -0.41252,0.36025 -1.22819,-0.22801 -1.74994,0 -0.73781,0.32225 -1.16657,1.01879 -1.74991,1.52816 -0.58328,0.50938 -1.38097,0.88385 -1.7499,1.52817 -0.26066,0.4556 0.41253,1.16798 0,1.52816 -0.41253,0.36026 -1.33742,-0.36026 -1.74991,0 -0.41253,0.36026 0.41253,1.16798 0,1.52816 -0.41253,0.36026 -1.33742,-0.36025 -1.74991,0 -0.82488,0.7204 0.82494,2.33597 0,3.05633 -0.41252,0.36026 -1.33742,-0.36025 -1.7499,0 -0.41253,0.36026 0.2611,1.07256 0,1.52817 -0.36901,0.64431 -1.38098,0.88384 -1.7499,1.52816 -0.26067,0.4556 0.41252,1.16798 0,1.52816 -0.41254,0.36026 -1.33747,-0.36025 -1.74991,0 -0.87493,0.7641 0.87498,3.82043 0,4.58449 -0.41254,0.36026 -1.33747,-0.36025 -1.74991,0 -0.41253,0.36026 0,1.01879 0,1.52817 0,3.56574 0,7.13144 0,10.69718 0,2.03754 0,4.07512 0,6.11266 0,1.01879 0,4.07513 0,3.05633 0,-1.01879 0,-4.07512 0,-3.05633 0,1.52816 -0.42427,3.10197 0,4.58449 0.20018,0.69889 1.38098,0.88386 1.74991,1.52816 0.52171,0.91125 -0.82488,2.33598 0,3.05633 0.41252,0.36026 1.33747,-0.36024 1.74991,0 0.58376,0.50983 -0.58378,2.54655 0,3.05633 0.41252,0.36027 1.33745,-0.36026 1.7499,0 0.41253,0.36027 0,1.0188 0,1.52816 0,0.50943 0,1.01879 0,1.52822 0,0.50936 0,2.03754 0,1.52816 0,-1.0188 0,-4.07513 0,-3.05638 0,2.54697 0,5.09392 0,7.64087 0,1.01874 0,4.07512 0,3.05633 0,-1.01879 0,-4.07513 0,-3.05633 0,1.52817 0,3.05633 0,4.58449 0,0.50938 0.2611,1.07256 0,1.52817 -3.64133,6.35985 0.12097,-1.63366 -3.49981,1.52816 -0.87493,0.76405 0.87498,3.82043 0,4.58449 -0.41254,0.36026 -1.33747,-0.36025 -1.74991,0 -0.82493,0.72039 0.52172,2.14512 0,3.05633 -0.36901,0.64436 -1.38097,0.88385 -1.74991,1.52816 -0.26065,0.45561 0.41254,1.16799 0,1.52817 -0.41252,0.36025 -1.33746,-0.36026 -1.7499,0 -0.82493,0.7204 1.16662,3.05633 0,3.05633 -0.71831,0 1.86709,-7.9478 -1.74991,1.52816 -0.1845,0.48327 0.41254,1.16798 0,1.52816 -0.41252,0.36026 -1.33745,-0.36025 -1.7499,0 -0.54186,0.4732 0.54186,7.16766 0,7.64086 -0.41253,0.36026 -1.33746,-0.36026 -1.7499,0 -0.87498,0.76406 0.87493,3.82039 0,4.58449 -0.41254,0.36026 -1.33747,-0.36025 -1.74991,0 -0.54186,0.4732 0.54186,7.16763 0,7.64082 -0.41254,0.36026 -1.33747,-0.36025 -1.74991,0 -0.41253,0.36026 0,1.01879 0,1.52817 0,0.50941 0,1.01878 0,1.52816 0,5.60328 0,11.20656 0,16.80984 0,4.07513 0,8.15021 0,12.22531 0,0.50941 0,1.01879 0,1.52818 0,0.50941 -0.26065,1.07256 0,1.52815 0.36902,0.64437 1.74991,2.24856 1.74991,1.52816 0,-1.13901 -1.74991,-4.19535 -1.74991,-3.05631 0.58329,2.03756 1.16658,4.0751 1.74991,6.11264 0.58329,0 1.33747,-0.36024 1.74991,0 0.0792,0.0692 0,6.92032 0,7.64087 0,0.50936 -0.41254,1.16794 0,1.52816 0.41252,0.36026 1.33745,-0.36025 1.7499,0 0.42124,0.36785 -0.42124,5.74491 0,6.11266 0.41253,0.36025 1.33746,-0.36026 1.7499,0 0.41254,0.36025 0,1.01879 0,1.52816 0,0.50938 0,1.01879 0,1.52817 0,1.01878 0,2.03754 0,3.05632 0,0.50938 0.58329,1.52817 0,1.52817 -0.58329,0 0,-2.03754 0,-1.52817 0,0.1246 0,3.75834 0,4.5845 0,0.50941 0,1.01878 0,1.52816 0,0.50941 -0.41252,1.16798 0,1.52816 0.41254,0.36026 1.33747,-0.36025 1.74991,0 0.42124,0.36785 -0.42123,5.74496 0,6.1127 0.41253,0.36025 1.33746,-0.36026 1.7499,0 0.47882,0.41813 -0.47466,5.28365 0,6.11265 0.36902,0.64432 1.38099,0.88381 1.74991,1.52817 0.26632,0.46507 0,3.89627 0,4.58449 0,0.50937 0,2.03754 0,1.52816 0,-1.01879 0,-4.07511 0,-3.05633 0,1.52817 0,3.05633 0,4.5845 0,0.50937 0,1.01878 0,1.52816 0,0.50938 -0.26065,1.07256 0,1.52816 0.36902,0.64432 2.3332,1.01879 1.74991,1.52817 -0.58329,0.50941 -1.74991,-2.24853 -1.74991,-1.52817 0,1.13903 1.33747,1.97576 1.74991,3.05633 0.36902,0.9665 -0.36902,2.08983 0,3.05633 0.41252,1.08058 1.33747,1.97579 1.74991,3.05633 0.1845,0.48326 -0.18452,1.04493 0,1.52816 0.41252,1.08058 1.33745,1.97579 1.7499,3.05638 0.55339,1.44971 -0.34334,3.086 0,4.58448 0.36162,1.57954 1.30256,3.02175 1.7499,4.58449 0.32289,1.12813 0,6.55074 0,7.64083 0,0.50936 -0.41252,1.16798 0,1.52815 0.41254,0.36027 1.33747,-0.36024 1.74991,0 0.41253,0.36027 -0.1845,1.04495 0,1.52818 0.82493,2.16115 2.86713,3.90262 3.49981,6.11264 0.54452,1.90196 -0.54447,4.21075 0,6.11271 2.11257,7.3794 0.83159,-0.0757 3.49985,4.58449 0.26067,0.45559 -0.1845,1.04489 0,1.52816 4.22509,11.06914 -0.50451,-2.40931 3.49982,4.58449 0.55195,0.96407 -0.55199,6.67675 0,7.64082 2.16235,3.77673 1.74991,-0.52747 1.74991,3.05633 0,0.37051 -0.0562,4.53536 0,4.58449 0.41253,0.36026 1.33741,-0.36025 1.7499,0 0.0705,0.0615 0,5.55149 0,6.1127 0,3.58378 -0.41253,-0.72041 1.74991,3.05632 0.26066,0.45561 0.58329,1.52817 0,1.52817 -0.58333,0 0,-2.03758 0,-1.52817 0,1.52817 0,3.05633 0,4.5845 0,1.52816 0,3.05632 0,4.58449 0,0.50937 0.58329,1.52816 0,1.52816 -0.58333,0 0,-2.03754 0,-1.52816 0,1.01879 0,2.03754 0,3.05632 0,0.50938 -0.41254,1.168 0,1.52817 0.41253,0.36025 1.33742,-0.36026 1.74991,0 0.35769,0.31238 -0.34683,3.97859 0,4.58449 0.369,0.64437 1.38097,0.88385 1.74991,1.52816 0.5217,0.91125 -0.52172,2.14513 0,3.05633 0.369,0.64437 1.38097,0.88385 1.74989,1.5282 0.26067,0.45561 0,1.01875 0,1.52818 0,0.50936 0,1.01874 0,1.52815 0,0.50939 0.58329,1.52818 0,1.52818 -0.58329,0 0,-2.03759 0,-1.52818 0,1.01875 0,2.03754 0,3.05634 0,0.50936 0,1.01874 0,1.52815 0,0.50939 -0.26109,1.07257 0,1.52818 0.36902,0.64432 1.38099,0.88383 1.74991,1.52816 0.26109,0.45561 0,1.01879 0,1.52815 0,1.01879 -0.28286,2.06799 0,3.05633 0.31636,1.10503 1.33746,1.97576 1.74991,3.05634 0.36901,0.9665 -0.36902,2.08983 0,3.05633 4.9572,8.65813 -0.65217,-2.27805 1.7499,6.11265 0.31637,1.10506 1.33747,1.97579 1.74991,3.05637 0.36902,0.96646 0,2.03754 0,3.05633 0,0.50937 0,2.03754 0,1.52816 0,-1.01879 -0.52171,-3.96757 0,-3.05633 1.07558,1.8785 1.27824,4.05315 1.74991,6.11266 0.11442,0.49949 -0.41254,1.16798 0,1.52816 0.41252,0.36026 1.74991,0.50938 1.74991,0 0,-0.7204 -1.74991,-2.24856 -1.74991,-1.52816 0,1.13902 1.33745,1.97574 1.74991,3.05633 0.1845,0.48323 -0.41254,1.16798 0,1.52816 0.41252,0.36026 1.33745,-0.36026 1.74989,0 0.41254,0.36026 0,1.01879 0,1.52816 0,0.50938 0.58334,1.52817 0,1.52817 -0.58328,0 0,-2.03754 0,-1.52817 0,1.01879 -0.5217,2.14512 0,3.05633 0.26111,0.45561 1.33747,-0.36025 1.74991,0 0.41254,0.36026 -0.26066,1.07256 0,1.52817 0.21889,0.38267 3.28071,2.67365 3.49981,3.05632 0.26066,0.45561 -0.41253,1.16799 0,1.52817 0.92233,0.80541 2.41458,0.89634 3.49982,1.52816 1.37275,0.79922 2.02418,2.41201 3.49985,3.05633 0.52171,0.22801 1.22816,-0.22763 1.74991,0 3.53915,1.54535 0.56113,3.5464 1.7499,4.58453 0.41253,0.36025 1.19651,-0.16113 1.74991,0 1.23737,0.36025 2.57753,0.72272 3.49981,1.52816 0.41253,0.36026 0,1.01875 0,1.52817 1.16662,0.50937 2.26244,1.16794 3.49981,1.52816 0.55335,0.16113 1.33747,-0.36026 1.74991,0 0.41253,0.36026 -0.26066,1.07256 0,1.52816 0.36901,0.64432 1.38097,0.88385 1.7499,1.52817 0.2611,0.4556 -0.41253,1.16798 0,1.52816 1.72623,1.50749 3.49982,-3.13134 3.49982,1.52817";
+				this.mappathdrawn = this.r.path(mappath).attr({stroke:'#00f', 'stroke-width':2, opacity:0});
+				this.mappathdrawn.scale((this.maph*.15)/this.mappathdrawn.getBBox().width, (this.maph*.15)/this.mappathdrawn.getBBox().width);
+				this.mappathdrawn.translate(this.mapx+this.mapw*.44-this.mappathdrawn.getBBox().x,
+											this.mapy+this.mapw*.13-this.mappathdrawn.getBBox().y);
+				this.pathpieces = this.mappathdrawn.attr("path").toString().split('L');
+				this.pathpoints = [];
+				for (var i = this.pathpieces.length-1; i > 1; i = i-2){
+					var blah = this.pathpieces[i].split(',');
+					var point = [parseFloat(blah[0]), parseFloat(blah[1])];
+					this.pathpoints.push(point);
+				}
+				this.marker = this.r.circle(this.pathpoints[0][0], this.pathpoints[0][1], 7).attr({fill:'#55f'});
+	//			this.mapbox.attr({opacity: 0});
+		//		this.map.attr({opacity: 0});
 			},
 			add: function(p){
 				this.r.text(this.bordersize, this.persony, p.type+':').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
 				p.statout = this.r.text(this.w - this.bordersize, this.persony, p.state).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
-				this.persony = this.persony+this.textsize*1.3+this.bordersize;
+				this.persony = this.persony+this.textsize*1+this.bordersize*.3;
 			},
 			supplies: function(){
 				this.suppliesy = this.persony + this.textsize;
 				
 				//weight, food, blankets, dogs, weapons
-				this.r.text(this.bordersize, this.suppliesy, 'Weight:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
-				this.weightout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.weight).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
-				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+//				this.r.text(this.bordersize, this.suppliesy, 'Weight:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
+//				this.weightout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.weight).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
+//				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
 				
 				this.r.text(this.bordersize, this.suppliesy, 'Food:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
 				this.foodout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.food).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
-				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+				this.suppliesy = this.suppliesy+this.textsize*1+this.bordersize*.3;
 				
 				this.r.text(this.bordersize, this.suppliesy, 'Blankets:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
 				this.blanketsout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.blankets).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
-				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+				this.suppliesy = this.suppliesy+this.textsize*1+this.bordersize*.3;
 				
 				this.r.text(this.bordersize, this.suppliesy, 'Dogs:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
 				this.dogsout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.dogs).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
-				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+				this.suppliesy = this.suppliesy+this.textsize*1+this.bordersize*.3;
 				
 				this.r.text(this.bordersize, this.suppliesy, 'Weapons:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
 				this.weaponsout = this.r.text(this.w - this.bordersize, this.suppliesy, this.game.weapons).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
-				this.suppliesy = this.suppliesy+this.textsize*1.3+this.bordersize;
+				this.suppliesy = this.suppliesy+this.textsize*1+this.bordersize*.3;
 			}, 
 			journey: function(){
 				if (!('journeyy' in this)){
@@ -508,7 +589,7 @@
 				
 					this.r.text(this.bordersize, this.journeyy, 'Days:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
 					this.daysout = this.r.text(this.w - this.bordersize, this.journeyy, this.game.days).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
-					this.journeyy = this.journeyy+this.textsize*1.3+this.bordersize;
+					this.journeyy = this.journeyy+this.textsize*1+this.bordersize*.3;
 					
 					this.r.text(this.bordersize, this.journeyy, 'Miles:').attr({font:this.textsize+'px Arial', 'text-anchor':'start'});
 					this.milesout = this.r.text(this.w - this.bordersize, this.journeyy, this.game.miles).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
@@ -516,7 +597,7 @@
 			},
 			update: function(){
 				this.foodout.attr({text: this.game.food});
-				this.weightout.attr({text: this.game.weight});
+//				this.weightout.attr({text: this.game.weight});
 				this.blanketsout.attr({text: this.game.blankets});
 				this.dogsout.attr({text: this.game.dogs});
 				this.weaponsout.attr({text: this.game.weapons});
@@ -525,6 +606,9 @@
 					this.milesout.attr({opacity:0});
 					this.milesout = this.r.text(this.w - this.bordersize, this.journeyy, this.game.miles).attr({font:this.textsize+'px Arial', 'text-anchor':'end'});
 				}
+				this.marker.remove();
+				var index = Math.floor((g.miles/400)*this.pathpoints.length);
+				this.marker = this.r.circle(this.pathpoints[index][0], this.pathpoints[index][1], 7).attr({fill:'#55f'});
 			}
 		});
 		
@@ -596,9 +680,12 @@
 				}
 			},
 			clicked: function(){
-				console.log('well clicked was called');
 				if (this.toosoon == false && this.validtoclick == true){
+					var self = this;
 					this.f();
+					this.back.animate({fill:'#0f0'}, 150, callback= function(){
+						self.back.animate({fill:'#fff'}, 150);
+					});
 					this.tooson == true;
 					setTimeout(function(){
 						this.toosoon = false;
@@ -785,42 +872,42 @@
 				this.events = [];
 			},
 			setup: function(){
-				this.createBasicEvent(1, function(){return "You get a break from the icy wind chill today. It does not feel so cold today."}, 'basic1STANDIN.jpg', function(){
+				this.createBasicEvent(1, function(){return "You get a break from the icy wind chill\ntoday. It does not feel so cold today."}, 'basic1STANDIN.jpg', function(){
 					return true;
 				}, function(){
 					g.days += 1;
 					g.food = g.food - g.eatfactor*.8;
 					g.miles += g.speed*1.1;
 				});
-				this.createBasicEvent(1, function(){return "Your "+g.team.getVictim().name+", "+g.team.getVictim().name+", is suffering from photokeratitis. This is otherwise known as snow blindness and caused by overexposure to the UV rays from the sun. You remind your team to keep their snow goggles on at all times and "+g.team.getVictim().name+" begins to slow you down.."}, 'basic1STANDIN.jpg', function(){
+				this.createBasicEvent(1, function(){return "Your "+g.team.getVictim().type+", "+g.team.getVictim().name+",\nis suffering from photokeratitis. This\nis otherwise known as snow blindness\nand caused by overexposure to the UV rays\nfrom the sun. You remind your team to keep\ntheir snow goggles on at all times and\n"+g.team.getVictim().name+" begins to slow you down."}, 'basic1STANDIN.jpg', function(){
 					return true;
 				}, function(){
 					g.days += 1;
 					g.food = g.food - g.eatfactor;
 					g.miles += g.speed*.3;
 				});
-				this.createBasicEvent(1, function(){return "The clouds covering the sun today actually make visibility a bit better."}, 'basic1STANDIN.jpg', function(){
+				this.createBasicEvent(1, function(){return "The clouds covering the sun today actually\nmake visibility a bit better."}, 'basic1STANDIN.jpg', function(){
 					return true;
 				}, function(){
 					g.days += 1;
 					g.food = g.food - g.eatfactor;
 					g.miles += g.speed*1.2;
 				});
-				this.createBasicEvent(1, function(){return "Your team is in high spirits and bonding well along the way."}, 'basic1STANDIN.jpg', function(){
+				this.createBasicEvent(1, function(){return "Your team is in high spirits and\nbonding well along the way."}, 'basic1STANDIN.jpg', function(){
 					return true;
 				}, function(){
 					g.days += 1;
 					g.food = g.food - g.eatfactor;
 					g.miles += g.speed*1.2;
 				});
-				this.createBasicEvent(1, function(){return "Cheerful conversation between your team members is making the journey feel faster.."}, 'basic1STANDIN.jpg', function(){
+				this.createBasicEvent(1, function(){return "Cheerful conversation between your team\nmembers is making the journey feel faster."}, 'basic1STANDIN.jpg', function(){
 					return true;
 				}, function(){
 					g.days += 1;
 					g.food = g.food - g.eatfactor;
 					g.miles += g.speed*1.2;
 				});
-				this.createBasicEvent(1, function(){return "There is some light snowfall, but it does not effect your travel."}, 'basic1STANDIN.jpg', function(){
+				this.createBasicEvent(1, function(){return "There is some light snowfall,\nbut it does not effect your travel."}, 'basic1STANDIN.jpg', function(){
 					return true;
 				}, function(){
 					g.days += 1;
@@ -870,9 +957,8 @@
 					}
 					return false
 				}, function(){
-					g.food += 20;
 					g.days += 1;
-					g.food = g.food - g.eatfactor;
+					g.food = g.food - g.eatfactor + 20;
 				});
 				this.createBasicEvent(1, function(){return "Your dogs got in a fight, and\none was killed.  If only you\nhad had a dog expert around."}, 'basic1STANDIN.jpg', function(){
 					//console.log('I am considering the dog fight');
@@ -892,7 +978,7 @@
 				this.prevevent = unc.random.choice(this.events);
 			},
 			createMiniGameEvents: function(){
-				this.createBasicEvent(.3, function(){return g.team.victim.name+', your '+g.team.victim.type+',\nhas fallen into a crevasse.'}, 'crevasse.jpg',
+				this.createBasicEvent(1, function(){return g.team.victim.name+', your '+g.team.victim.type+',\nhas fallen into a crevasse.'}, 'crevasse.jpg',
 					function(){
 						return g.team.victim.dead == false;
 					},
@@ -911,6 +997,53 @@
 								resultfunction();
 							}
 							var crevassegame = new crevasse( g.vis.k.sidebarw, 0, g.vis.k.w - g.vis.k.sidebarw, g.vis.k.h, f);
+						});
+					});
+				this.createBasicEvent(1, function(){return 'You have come to a patch of thin ice.'}, 'crevasse.jpg',
+					function(){
+						return g.team.victim.dead == false;
+					},
+					function(){
+						g.vis.next.setf(function(){
+							g.vis.next.hide();
+							g.vis.cleartemp();
+							var f = function(mess, resultfunction){
+								ig.remove();
+								g.vis.next.show();
+								g.vis.next.setf(dojo.hitch(g, function(){
+									dojo.hitch(g, g.step);
+									g.vis.next.setf(dojo.hitch(g,g.step));
+								}));
+								g.vis.changeback('crevasse.jpg');
+								g.vis.central(mess);
+								resultfunction();
+							}
+							g.vis.back.remove();
+							ig = new icegame( g.vis.k.sidebarw, 0, g.vis.k.w - g.vis.k.sidebarw, g.vis.k.h, f);
+							ig.setup();
+						});
+					});
+				this.createBasicEvent(1, function(){return 'You think there may be fish below the ice here.'}, 'crevasse.jpg',
+					function(){
+						return g.miles <= 150;
+					},
+					function(){
+						g.vis.next.setf(function(){
+							g.vis.next.hide();
+							g.vis.cleartemp();
+							var f = function(mess, resultfunction){
+								fishinggame.remove();
+								g.vis.next.show();
+								g.vis.next.setf(dojo.hitch(g, function(){
+									dojo.hitch(g, g.step);
+									g.vis.next.setf(dojo.hitch(g,g.step));
+								}));
+								g.vis.changeback('crevasse.jpg');
+								g.vis.central(mess);
+								resultfunction();
+							}
+							g.vis.back.remove();
+							fishinggame = new fishing( g.vis.k.sidebarw, 0, g.vis.k.w - g.vis.k.sidebarw, g.vis.k.h, f);
 						});
 					});
 			},
@@ -973,8 +1106,8 @@
 						rewarm.dayswasted = Math.floor(3*Math.random())+1;
 						return g.team.getVictim().name+' gets better after resting for '+rewarm.dayswasted+' days.';}, 
 					imagename: 'basic1STANDIN.jpg', prob: .5, effect: function(){
-						g.days += rewarm.dayswasted;
-						g.food -= rewarm.dayswasted*g.eatfactor;
+						g.days += Math.floor(3*Math.random())+1;
+						g.food -= g.eatfactor*(Math.floor(3*Math.random())+1);
 					}
 					});
 				var hedie = new outcome({message: function(){
@@ -983,12 +1116,12 @@
 						g.team.killVictim();
 					}})
 				var o1 = new choice({canhappen: function(){return g.blankets > 0}, message: 'Rewarm using a blanket', outcomes: [rewarm]});
-				var o2 = new choice({canhappen: function(){return g.blankets > 0}, message: 'Leave behind', outcomes: [hedie]});
+				var o2 = new choice({canhappen: function(){return true}, message: 'Leave behind', outcomes: [hedie]});
 				var frostbite = new eevent( { prob: .5, imagename:'basic1STANDIN.jpg', message:function(){return "Your "+g.team.getVictim().type+", "+g.team.getVictim().name+
-																												 ", has developed frostbite. If the frostbite is allowed to "+
-																												 "develop to deep frostbite, the area might become infected "+
-																												 "with gangrene. This would result in amputation. To avoid "+
-																												 "this, you must wrap "+g.team.getVictim().name+" in blankets "+
+																												 ",\nhas developed frostbite. If the frostbite is allowed to\n"+
+																												 "develop to deep frostbite, the area might become infected\n"+
+																												 "with gangrene. This would result in amputation. To avoid\n"+
+																												 "this, you must wrap "+g.team.getVictim().name+" in blankets\n"+
 																												 "to rewarm the affected area."}, canhappen: function(){return g.days > 10}, choices: [o1, o2]});
 				this.events.push(frostbite);																								
 			},
