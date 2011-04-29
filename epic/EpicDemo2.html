@@ -1,14 +1,27 @@
 <head>
+	<script type="text/javascript">
+		var djConfig = {
+			isDebug: false,
+			parseOnLoad: true,
+			baseUrl: './',
+			modulePaths: { 'unc': 'unc'  }
+		};
+	</script>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"></script>
 	<link href='http://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
 	<script src="raphael.js"></script>
+	<script type="text/javascript" src="/libs/uow.js"></script>
+	<script src="crevasseintegrateme.js"></script>
 	<script src="random.js"></script>
 	<script>
 		dojo.require("dojo.window");
 		
 		function go(){
 			g = new game();
-			g.title();
+			uow.getAudio().then(function(js){
+				g.noise = js;
+				g.title();
+			});
 		}
 		
 		dojo.declare("game", null, {
@@ -34,7 +47,6 @@
 				this.state = 'title';
 				this.vis.setup();
 				this.team.setup();
-				this.eventbox.setup();
 				this.vis.title();
 			},
 			start: function(){
@@ -51,6 +63,7 @@
 			},
 			supplies: function(){
 				if (this.state == 'chooseteam'){
+					this.eventbox.setup();
 					this.vis.supplies();
 					this.state = 'supplies';
 				}
@@ -61,7 +74,7 @@
 				}
 			},
 			step: function(){
-				console.log('step was called');
+				console.log('step was called', g.playing);
 				this.steppable = false;
 				setTimeout(function(){
 					this.steppable = true;
@@ -69,19 +82,18 @@
 				dojo.forEach(g.team.members, function(m){
 					m.updatestat();
 				});
-				if (this.playing){
+				if (g.playing){
 					if (this.q.length > 0){
 						var f = this.q.shift();
-						console.log('got out of the queue', f);
 						f.die();
 					}
 					else{
+						this.team.makeVictim();
 						this.vis.cleartemp();
 						this.calcspeed();
 						var h = this.eventbox.getNext();
+						console.log(h);
 						h.occur();
-						this.days = this.days + 1;
-						this.miles = this.miles + this.speed;
 						this.managefood();
 						this.checkwin();
 						this.sidebar.update();
@@ -92,11 +104,11 @@
 				var dogfactor = 100*this.dogs/(this.weight+500);
 				var personfactor = this.team.getspeedfactor();
 				this.speed = Math.floor(10*dogfactor*personfactor)+1;
+				this.eatfactor = Math.floor((this.team.alive*2 + this.dogs)/2);
 			},
 			managefood: function(){
-				if (this.food > 0){
-					this.food = this.food - this.team.alive - this.dogs/2;
-				}
+				this.food = Math.floor(this.food);
+				this.miles = Math.floor(this.miles);
 				if (this.food <= 0){
 					this.food = 0;
 					this.team.starve();
@@ -321,18 +333,11 @@
 				this.central(this.mess.start);
 				this.next.clickable = true;
 				this.next.setf(function(){
-					if (self.next.clickable){
-						self.next.clickable = false;
-						self.game.step();
-						setTimeout( function(){
-							self.next.clickable = true;
-						}, 300);
-					}
+					self.game.step();
 				});
 			},
 			displaynormal: function(message, im){
 				this.next.show();
-				this.next.clickable = true;
 				this.cleartemp();
 				this.central(message);
 				this.changeback(im);
@@ -340,7 +345,6 @@
 			displaycomplex: function(message, im, choices){
 				this.cleartemp();
 				this.next.hide();
-				this.next.clickable = false;
 				this.tbutton(this.k.w/2+this.k.sidebarw/2, this.k.h*.3, message, this.k.med, this.r, function(){});
 				this.changeback(im);
 				var cx = this.k.w/2 + this.k.sidebarw/2;
@@ -356,7 +360,7 @@
 			},
 			win: function(){
 				this.cleartemp();
-				var score = g.team.alive*101+g.food+g.dogs*40;
+				var score = g.team.alive*101+g.food+g.dogs*43;
 				this.central("You have conquered the unforgiving Antarctic and completed\n"+
 							 "your journey to the South Pole and back with " + g.team.alive+" people\n"+ 
 							 "left on your team, "+g.food+" food supply, and "+g.dogs+" sled dogs. \n"+
@@ -529,6 +533,8 @@
 				dojo.mixin(this, args);
 				this.texto = 1;
 				this.backo = .9;
+				this.toosoon = false;
+				this.validtoclick = true;
 				this.make();
 			},
 			make: function(){
@@ -542,8 +548,8 @@
 					
 					this.text.toFront();					
 					
-					this.text.click(this.f);
-					this.back.click(this.f);
+					this.text.click(dojo.hitch(self,self.clicked));
+					this.back.click(dojo.hitch(self,self.clicked));
 				}
 				if (this.det == 'size'){ //size of the button is to be determined by the text size
 					var self = this;
@@ -585,24 +591,35 @@
 					}
 					this.text.toFront();					
 					
-					this.text.click(this.f);
-					this.back.click(this.f);
+					this.text.click(dojo.hitch(self, self.clicked));
+					this.back.click(dojo.hitch(self, self.clicked));
+				}
+			},
+			clicked: function(){
+				console.log('well clicked was called');
+				if (this.toosoon == false && this.validtoclick == true){
+					this.f();
+					this.tooson == true;
+					setTimeout(function(){
+						this.toosoon = false;
+					}, 50);
 				}
 			},
 			hide: function(){
 				this.text.attr({opacity: 0});
 				this.back.attr({opacity: 0});
+				this.validtoclick = false;
 			},
 			show: function(){
-				this.text.attr({opacity: this.texto});
-				this.back.attr({opacity: this.backo});
+				this.back.attr({opacity: this.backo}).toFront();
+				this.text.attr({opacity: this.texto}).toFront();
+				this.validtoclick = true;
 			},
 			setf: function(f){
 				this.f = f;
-				this.text.click(f);
-				this.back.click(f);
 			},
 			remove: function(){
+				this.validtoclick = false;
 				this.back.remove();
 				this.text.remove();
 			}
@@ -666,6 +683,15 @@
 				}
 				return sum/(4*75);
 			},
+			getRandom: function(){
+				var p = unc.random.choice(this.members);
+				if (p.dead == false){
+					return p;
+				}
+				else {
+					return this.getRandom();
+				}
+			},
 			add: function(pers){
 				var newperson = new person(pers.args);
 				this.members.push(newperson);
@@ -673,14 +699,33 @@
 				if (this.members.length ==4){
 					this.game.supplies();
 				}
+				this.victim = unc.random.choice(this.members);
+			},
+			getVictim: function(){
+				return this.victim;
+			},
+			killVictim: function(){
+				this.victim.health = 0;
+			},
+			makeVictim: function(){
+				this.victim = unc.random.choice(this.members);
+				while (this.victim.dead == true){
+					this.victim = unc.random.choice(this.members);
+				}
 			},
 			hastype: function(type){
+				var val = false;
 				dojo.forEach(this.members, function(m){
 					if (m.type == type && m.dead == false){
-						return true;
+						val = true;
 					}
 				});
-				return false;
+				return val;
+			},
+			updateout: function(){
+				dojo.forEach(g.team.members, function(m){
+					m.updatestat();
+				});
 			},
 			improvehealth: function(){
 				dojo.forEach(g.team.members, function(m){
@@ -702,7 +747,6 @@
 			},
 			starve: function(){
 				this.health = this.health - Math.random()*(18 - this.sturdy);
-				this.updatestat();
 			},
 			updatestat: function(){
 				if (this.dead == false){
@@ -720,19 +764,16 @@
 				}
 			},
 			die: function(){
-				g.vis.next.clickable = false;
-				setTimeout(function(){
-					g.vis.next.clickable = true;
-				}, 300);
-				console.log('die was called', this);
-				this.dead = true;
-				g.vis.cleartemp();
-				g.vis.central("The journey has overcome "+this.name+"\n and you watch your "+this.type+" collapse to\n the ground. You have lost this team member.");
-				this.state = "Dead";
-				this.statout.attr({text:'Dead'});
-				g.team.alive = g.team.alive - 1;
-				if (g.team.alive == 0){
-					g.lose();
+				if (this.dead == false){
+					this.dead = true;
+					g.vis.cleartemp();
+					g.vis.central("The journey has overcome "+this.name+"\n and you watch your "+this.type+" collapse to\n the ground. You have lost this team member.");
+					this.state = "Dead";
+					this.statout.attr({text:'Dead'});
+					g.team.alive = g.team.alive - 1;
+					if (g.team.alive == 0){
+						g.lose();
+					}
 				}
 			}
 		});
@@ -742,108 +783,221 @@
 			constructor: function(args){
 				dojo.mixin(this, args); 
 				this.events = [];
-				this.setup();
 			},
 			setup: function(){
-				this.createBasicEvent(1,  "Nothing of note happened today.", 'basic1STANDIN.jpg', function(){
-					return true;
-				}, function(){});
-				this.createBasicEvent(1, "The terrain was rough today.\nYou made little progress.", 'basic1STANDIN.jpg', function(){
+				this.createBasicEvent(1, function(){return "You get a break from the icy wind chill today. It does not feel so cold today."}, 'basic1STANDIN.jpg', function(){
 					return true;
 				}, function(){
-					g.miles = g.miles - g.speed + 1;
+					g.days += 1;
+					g.food = g.food - g.eatfactor*.8;
+					g.miles += g.speed*1.1;
 				});
-				this.createBasicEvent(1, "It was warmer today, so you\n made extra progress.", 'basic1STANDIN.jpg', function(){
+				this.createBasicEvent(1, function(){return "Your "+g.team.getVictim().name+", "+g.team.getVictim().name+", is suffering from photokeratitis. This is otherwise known as snow blindness and caused by overexposure to the UV rays from the sun. You remind your team to keep their snow goggles on at all times and "+g.team.getVictim().name+" begins to slow you down.."}, 'basic1STANDIN.jpg', function(){
 					return true;
 				}, function(){
-					g.miles = g.miles + Math.floor(g.speed/2);
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed*.3;
 				});
-				this.createBasicEvent(1, "You realize that you have\nbeen going the wrong way.\nYou backtrack and lose time.", 'basic1STANDIN.jpg', function(){
+				this.createBasicEvent(1, function(){return "The clouds covering the sun today actually make visibility a bit better."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed*1.2;
+				});
+				this.createBasicEvent(1, function(){return "Your team is in high spirits and bonding well along the way."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed*1.2;
+				});
+				this.createBasicEvent(1, function(){return "Cheerful conversation between your team members is making the journey feel faster.."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed*1.2;
+				});
+				this.createBasicEvent(1, function(){return "There is some light snowfall, but it does not effect your travel."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor*1.1;
+					g.miles += g.speed;
+				});
+				this.createBasicEvent(1, function(){return "Nothing of note happened today."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed;
+				});
+				this.createBasicEvent(1, function(){return "The terrain was rough today.\nYou made little progress."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed/2;
+				});
+				this.createBasicEvent(1, function(){return "It was warmer today, so you\n made extra progress."}, 'basic1STANDIN.jpg', function(){
+					return true;
+				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
+					g.miles += g.speed*1.5;
+				});
+				this.createBasicEvent(1, function(){return "You realize that you have\nbeen going the wrong way.\nYou backtrack and lose time."}, 'impassable.jpg', function(){
 					return true;
 				}, function(){
 					g.days += 4;
+					g.food = g.food - g.eatfactor*4;
 				});
-				this.createBasicEvent(1, "Your explorer found a shortcut!\nYou gain 20 miles!\nGood thing you brought that explorer.", 'basic1STANDIN.jpg', function(){
-					for (var i = 0; i < 4; i++){
-						if (g.team.members[i].type == 'Explorer'){
-							return true;
-						}
-					};
+				this.createBasicEvent(1, function(){return "Your explorer found a shortcut!\nYou gain 20 miles!\nGood thing you brought that explorer."}, 'basic1STANDIN.jpg', function(){
+					if (g.team.hastype('Explorer')){
+						return true;
+					}
 					return false
 				}, function(){
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
 					g.miles = g.miles + 20;
 				});
-				this.createBasicEvent(1, "Your soldier disappears for a\n"+"while and returns with a bird.\n"+"Creepy, but you gain food!", 'basic1STANDIN.jpg', function(){
-					for (var i = 0; i < 4; i++){
-						if (g.team.members[i].type == 'Soldier'){
-							return true;
-						}
-					};
+				this.createBasicEvent(1, function(){return "Your soldier disappears for a\n"+"while and returns with a bird.\n"+"Creepy, but you gain food!"}, 'basic1STANDIN.jpg', function(){
+					if (g.team.hastype('Soldier')){
+						return true;
+					}
 					return false
 				}, function(){
 					g.food += 20;
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
 				});
-				this.createBasicEvent(1, "Your dogs got in a fight, and\none was killed.  If only you\nhad had a dog expert around.", 'basic1STANDIN.jpg', function(){
-					for (var i = 0; i < 4; i++){
-						if (g.team.members[i].type == 'Dog Expert'){
-							return false;
-						}
-					};
-					return g.dogs >= 2
+				this.createBasicEvent(1, function(){return "Your dogs got in a fight, and\none was killed.  If only you\nhad had a dog expert around."}, 'basic1STANDIN.jpg', function(){
+					//console.log('I am considering the dog fight');
+					if (g.team.hastype('Dog Expert')){
+						//console.log('i am rejecting the dog fight becuase there is a dog expert');
+						return false;
+					}
+					return g.dogs >= 2;
 				}, function(){
 					g.dogs -= 1;
+					g.days += 1;
+					g.food = g.food - g.eatfactor;
 				});
+				
 				this.someComplexEvents();
+				this.createMiniGameEvents();
+				this.prevevent = unc.random.choice(this.events);
+			},
+			createMiniGameEvents: function(){
+				this.createBasicEvent(.3, function(){return g.team.victim.name+', your '+g.team.victim.type+',\nhas fallen into a crevasse.'}, 'crevasse.jpg',
+					function(){
+						return g.team.victim.dead == false;
+					},
+					function(){
+						g.vis.next.setf(function(){
+							g.vis.next.hide();
+							g.vis.cleartemp();
+							var f = function(mess, resultfunction){
+								crevassegame.remove();
+								g.vis.next.show();
+								g.vis.next.setf(dojo.hitch(g, function(){
+									dojo.hitch(g, g.step);
+									g.vis.next.setf(dojo.hitch(g,g.step));
+								}));
+								g.vis.central(mess);
+								resultfunction();
+							}
+							var crevassegame = new crevasse( g.vis.k.sidebarw, 0, g.vis.k.w - g.vis.k.sidebarw, g.vis.k.h, f);
+						});
+					});
 			},
 			createBasicEvent: function(prob, message, image, prereq, func){
-				var o = new outcome({message: message, imagename: image, prob:1, effect: func});
-				var e = new event({canhappen: prereq, prob: prob, outcome: o, choices: []});
+				var o = new outcome({message: message, imagename: image, prob:1, effect: func});	
+				var e = new eevent({canhappen: prereq, prob: prob, result: o, choices: []});
 				this.events.push(e);
 			},
 			someComplexEvents: function(){
-				var gb = new outcome({message: 'You choose to keep going,\n'+ "but a blizzard did come.\n" +'Your team was severely weakened!', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+				var gb = new outcome({message: function(){return 'You choose to keep going,\n'+ "but a blizzard did come.\n" +'Your team was severely weakened!'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
 					g.team.starve();
+					g.team.starve();
+					g.team.starve();
+					g.miles += g.speed;
+					g.days += 5;
+					g.food -= g.eatfactor*5;
 				}});
-				var gn = new outcome({message: 'You choose to keep going,\n'+'and no blizzard came.\n'+' Good call!', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
-
+				var gn = new outcome({message: function(){return 'You choose to keep going,\n'+'and no blizzard came.\n'+' Good call!'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.miles += g.speed;
+					g.days += 1;
+					g.food -= g.eatfactor;
 				}});
-				var sb = new outcome({message: 'You choose to set up shelter,\n'+'and a blizzard did come.\n'+' Good call!', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
-					var i = Math.random();
-					var nd = Math.floor(i*10);
-					g.days = g.days + nd;
-					g.food = g.food - nd*g.team.alive;
+				var sb = new outcome({message: function(){return 'You choose to set up shelter,\n'+'and a blizzard did come.\n'+' Good call!'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.miles += 0;
+					g.days += 5;
+					g.food -= g.eatfactor*5;
 				}});
-				var sn = new outcome({message: 'You choose to set up shelter,\n'+'but no blizzard came.\n'+'You lost time and food for nothing!', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
-					var i = Math.random();
-					var nd = Math.floor(i*10);
-					g.days = g.days + nd;
-					g.food = g.food - nd*g.team.alive;
+				var sn = new outcome({message: function(){return 'You choose to set up shelter,\n'+'but no blizzard came.\n'+'You lost time and food for nothing!'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.miles += 0;
+					g.days += 2;
+					g.food -= g.eatfactor*2;
 				}});
 				var gchoice = new choice( {canhappen: function(){return true}, message: 'Keep going', outcomes: [gb, gn]} );
 				var schoice = new choice( {canhappen: function(){return true}, message: 'Make shelter', outcomes: [sb, sn]} );
-				var blizzardevent = new event( {prob: 1, imagename:'blizz.jpg', message: 'You made good progress today, but\nyou think a blizzard may be coming.', canhappen:function(){return true;}, choices:[gchoice, schoice] });
+				var blizzardevent = new eevent( {prob: 1, imagename:'blizz.jpg', message: function(){return 'You made good progress today, but\nyou think a blizzard may be coming.'}, canhappen:function(){return true;}, choices:[gchoice, schoice] });
 				this.events.push(blizzardevent);
 				
-				var toasty = new outcome({message: 'You spend a night getting\nwarm. The health of your\nteam improved.\nGood thing you had blankets!', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+				var toasty = new outcome({message: function(){return 'You spend a night getting\nwarm. The health of your\nteam improved.\nGood thing you had blankets!'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
 					g.team.improvehealth();
+					g.days += 2;
+					g.food -= g.eatfactor*2;
 				}});
-				var moveoncold = new outcome({message: 'You keep going anyway.\nUnfortunately, the cold\ndoes not let up and your\nteam is weakened.', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+				var moveoncold = new outcome({message: function(){return 'You keep going anyway.\nUnfortunately, the cold\ndoes not let up and your\nteam is weakened.'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
 					g.team.starve();
+					g.miles += g.speed*2;
+					g.days += 2;
+					g.food -= g.eatfactor*2;
 				}});
-				var moveonwarm = new outcome({message: 'You keep going anyway.\nLuckily, it warms up a\nlittle and you are okay.', imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
-					
+				var moveonwarm = new outcome({message: function(){return 'You keep going anyway.\nLuckily, it warms up a\nlittle and you are okay.'}, imagename:'basic1STANDIN.jpg', prob:.5, effect: function(){
+					g.miles += g.speed*2;
+					g.days += 2;
+					g.food -= g.eatfactor*2;
 				}});
 				var gchoice = new choice( {canhappen: function(){return g.blankets >= g.team.alive}, message: 'Use blankets to get warm', outcomes: [toasty]} );
 				var schoice = new choice( {canhappen: function(){return true}, message: 'Keep moving anyway', outcomes: [moveoncold, moveonwarm]} );
-				var coldfrontevent = new event( {prob: 1, imagename:'basic1STANDIN.jpg', message: 'It has been bitterly cold for a week.\nYour are worried about frostbite.', canhappen:function(){return g.days > 10;}, choices:[gchoice, schoice] });
+				var coldfrontevent = new eevent( {prob: 1, imagename:'basic1STANDIN.jpg', message: function(){return 'It has been bitterly cold for a week.\nYour are worried about frostbite.'}, canhappen:function(){return g.days > 10;}, choices:[gchoice, schoice] });
 				this.events.push(coldfrontevent);
+				
+				var rewarm = new outcome({message: function(){
+						rewarm.dayswasted = Math.floor(3*Math.random())+1;
+						return g.team.getVictim().name+' gets better after resting for '+rewarm.dayswasted+' days.';}, 
+					imagename: 'basic1STANDIN.jpg', prob: .5, effect: function(){
+						g.days += rewarm.dayswasted;
+						g.food -= rewarm.dayswasted*g.eatfactor;
+					}
+					});
+				var hedie = new outcome({message: function(){
+						return g.team.getVictim().name+' can only slow you down.  After '+Math.floor(3*Math.random())+' days, you no longer hear his screams in the distance.';}, 
+					imagename: 'basic1STANDIN.jpg', prob: .5, effect: function(){
+						g.team.killVictim();
+					}})
+				var o1 = new choice({canhappen: function(){return g.blankets > 0}, message: 'Rewarm using a blanket', outcomes: [rewarm]});
+				var o2 = new choice({canhappen: function(){return g.blankets > 0}, message: 'Leave behind', outcomes: [hedie]});
+				var frostbite = new eevent( { prob: .5, imagename:'basic1STANDIN.jpg', message:function(){return "Your "+g.team.getVictim().type+", "+g.team.getVictim().name+
+																												 ", has developed frostbite. If the frostbite is allowed to "+
+																												 "develop to deep frostbite, the area might become infected "+
+																												 "with gangrene. This would result in amputation. To avoid "+
+																												 "this, you must wrap "+g.team.getVictim().name+" in blankets "+
+																												 "to rewarm the affected area."}, canhappen: function(){return g.days > 10}, choices: [o1, o2]});
+				this.events.push(frostbite);																								
 			},
 			getNext: function(){
 				var self = this;
 				function tryone(){
 					unc.random.shuffle(self.events);
 					var i = Math.random();
-					if (i < self.events[0].prob && self.events[0].canhappen()){
+					if (i < self.events[0].prob && self.events[0].canhappen() && self.prevevent != self.events[0]){
 						return self.events[0];
 					}
 					else{
@@ -854,23 +1008,24 @@
 			}
 		});
 		
-		dojo.declare("event", null, {
+		dojo.declare("eevent", null, {
 			constructor: function(args){
 				dojo.mixin(this, args);  //need a probability, need an image and message, need a precondition function, and an array of choices
 			},
 			occur: function(){
 				if (this.choices.length == 0){ //this event is really just an outcome
 					//g.vis.displaynormal(this.message, this.imagename);
-					this.outcome.occur();
+					this.result.occur();
 				}
 				if (this.choices.length > 0){
-					g.vis.displaycomplex(this.message, this.imagename, this.choices);
+					var mess = this.message();
+					g.vis.displaycomplex(mess, this.imagename, this.choices);
 				}
 			}
 		});
 		
 		dojo.declare("choice", null, {
-			constructor: function(args){ //needs a message, a precondition function, and an array of outcomes
+			constructor: function(args){ //needs a message function, a precondition function, and an array of outcomes
 				dojo.mixin(this, args);
 			},
 			pick: function(){
@@ -886,7 +1041,8 @@
 			},
 			occur: function(){
 				this.effect();
-				g.vis.displaynormal(this.message, this.imagename);
+				var m = this.message();
+				g.vis.displaynormal(m, this.imagename);
 			}
 		});
 		

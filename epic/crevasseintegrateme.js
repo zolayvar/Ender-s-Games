@@ -1,0 +1,392 @@
+dojo.declare( "crevasse", null, {
+	constructor: function(x, y, w, h, f){
+		this.endfunction = f;
+		this.constants();
+		this.xo = x;
+		xo = x;
+		this.yo = y;
+		this.s.w = w;
+		this.s.h = h;
+		this.el = [];
+		//this.r = new Raphael(x, y, w, h);
+		this.r = g.vis.r;
+		this.start();
+	},
+	remove: function(){
+		dojo.forEach(this.el, function(e){
+			e.remove();
+		});
+	},
+	start: function(){
+		var s = this.s;
+		var r = this.r;
+		this.drawmap();
+		this.setupcounters();
+		var a = this.r.text( this.xo + .5*s.w, this.yo + s.h*.4, "You fell in a crevasse.  Your friends will \nwait as long as they can.");
+		a.attr({fill: '#f00', font:'50px Arial'});
+		this.el.push(a);
+		setTimeout(function(){
+			a.animate({opacity: 0}, 4000, callback=a.remove);
+		}, 2000);
+	},
+	constants: function(){
+		this.s = {};
+		var s = this.s;
+		var r = this.r;
+		s.w = dojo.window.getBox().w;
+		s.h = dojo.window.getBox().h;
+		s.guyh = 10;
+		s.maxspeed = 3;
+		this.playing = true;
+		this.guypath = "m 499.01536,52.311158 38.3858,18.18276 15.15228,47.477162 -8.08122,53.53809 -25.25381,36.36549 -28.28427,8.08122 12.12183,-12.12183 8.08122,-18.18274 0,-11.11168 -9.09137,-8.08122 -5.05077,-13.13199 8.08122,-10.10152 6.06092,-15.15229 1.01015,-8.08122 -13.13198,-13.13198 -11.11168,-15.152292 3.03046,-16.16244 3.03046,-11.11168 -2.02031,-18.182751 -11.11168,-14.142135 -16.16244,-1.010153 -8.08122,-1.010153 -7.07107,-11.111678 -15.15228,-5.050762 -13.13199,5.050762 -13.13198,11.111678 -11.11168,0 -7.07107,-10.101525 -9.09137,-6.060915 -19.1929,4.04061 -4.04061,15.152288 -13.13198,5.050763 -16.16244,0 -16.16244,7.071068 2.0203,11.111683 -2.0203,11.11168 -18.18275,6.06091 -11.11168,10.10153 14.14214,12.12183 -11.11168,10.101522 -11.11168,14.14214 3.03046,14.14214 c 0,0 17.17259,-1.01016 11.11168,3.03045 -6.06092,4.04061 -16.16244,19.1929 -16.16244,19.1929 l 2.0203,13.13198 16.16244,14.14214 -1.01015,8.08122 -11.11168,15.15229 8.08122,10.10152 13.13199,13.13199 9.09137,15.15229 17.17259,3.03045 21.21321,-8.08122 8.08122,-7.07106 -14.14214,-10.10153 1.01015,-17.17259 9.09138,-6.06092 -14.14214,-11.11168 -4.04061,-16.16244 6.06092,-11.11168 15.15228,-11.11167 -20.20305,-18.18275 1.01016,-9.09137 12.12183,-17.1726 15.15229,-4.04061 2.0203,-9.091372 c 0,0 14.14214,-8.08122 10.10153,-9.09137 -4.04061,-1.01015 16.16244,4.04061 16.16244,4.04061 l 10.10152,-5.05076 8.08122,-13.13199 18.18275,6.06092 11.11168,9.09137 -7.07107,15.15229 11.11168,19.192902 15.15228,6.06091 c 0,0 1.01016,19.1929 -3.03045,19.1929 -4.04061,0 -11.11168,10.10153 -11.11168,10.10153 l 6.06091,15.15228 16.16244,4.04061 -9.09137,22.22336 -4.04061,13.13198 16.16244,18.18275 22.22336,-7.07107 31.31473,-5.05076 17.17259,9.09137 18.18275,5.05076 11.11167,16.16245 2.02031,11.11167 -11.11168,8.08122 -3.03046,12.12183 c 0,0 5.05077,12.12184 1.01016,13.13199 -4.04061,1.01015 -16.16244,6.06091 -16.16244,6.06091 l -14.14214,-5.05076 -9.09137,7.07107 -7.07107,16.16244 -13.13198,7.07107 -13.13199,-4.04061 -14.14213,-7.07107 -12.12183,8.08122 -2.02031,13.13198 -10.10152,9.09137 -13.13199,2.02031 -15.15228,-1.01015 -6.06092,6.06091 -1.01015,8.08122 -16.16244,13.13199 -11.11168,0 -13.13198,-3.03046 c 0,0 -7.07107,1.01015 -13.13199,4.04061 -6.06091,3.03046 -13.13198,14.14213 -13.13198,14.14213 l -15.15229,5.05077 -16.16244,-9.09138 -1.01015,-10.10152 9.09137,-7.07107 13.13198,-21.2132 9.09138,-15.15229 18.18274,-7.07107 4.04061,-12.12183 0,-13.13198 19.1929,-8.08122 15.15229,-4.04061 4.04061,-18.18275 15.15229,-9.09137 30.30457,-12.12183 24.24367,-5.05076 8.08122,-11.11168 -15.15229,9.09137 -24.24366,4.04061 -25.25382,11.11168 -16.16244,12.12183 -14.14213,5.05076 -12.12183,-13.13198 -13.13199,-15.15229 -18.18274,5.05076 -18.18275,8.08122 -13.13198,0 -16.16244,7.07107 -10.10153,14.14214 10.10153,9.09137 9.09137,8.08122 -8.08122,14.14214 -19.1929,9.09137 -1.01015,10.10152 12.12183,5.05077 19.1929,14.14213 3.03046,14.14214 0,8.08122 -7.07107,-20.20305 -13.13199,-10.10153 -18.18274,9.09138 -12.12183,21.2132 -20.20305,26.26396 -15.15229,38.3858 -10.10153,34.34519 -11.11167,46.46702 -4.04061,57.57869 -2.02031,46.46702 -17.17259,-6.06092 -25.25382,-7.07107 -13.13198,8.08122 -8.08122,10.10153 20.20305,5.05076 22.22336,10.10153 -11.11168,4.04061 c 0,0 -14.14214,-3.03046 -19.1929,-3.03046 -5.05076,0 -26.26397,9.09137 -26.26397,9.09137 l -5.05076,18.18275 16.16244,-4.04061 12.12183,12.12183 -3.03045,10.10153 11.11167,3.03045 8.08122,13.13199 -7.07106,8.08122 15.15228,6.06091 13.13199,-9.09137 17.17259,1.01015 7.07107,13.13198 13.13198,-9.09137 -2.0203,-16.16244 12.12183,-9.09137 15.15228,-4.04061 -8.08122,-17.1726 -12.12183,-19.19289 17.1726,-6.06092 -5.05077,-21.2132 -32.32488,-2.02031 32.32488,-3.03046 -3.03045,-32.32488 1.01015,-34.34518 7.07107,-48.48733 21.2132,-52.52793 34.34519,-54.54824 13.13198,-14.14213 -19.1929,25.25381 -24.24366,40.4061 -21.2132,53.53809 -10.10153,49.49747 0,56.56855 11.11168,42.4264 20.20305,28.28427 38.3858,1.01016 42.4264,-1.01016 41.41626,-8.08122 16.16244,1.01016 26.26397,-1.01016 -24.24367,-10.10152 0,-15.15229 16.16245,-9.09137 22.22335,-8.08122 13.13198,-14.14214 c 0,0 -6.06091,-7.07107 -12.12183,-6.06091 -6.06091,1.01015 -24.24366,-4.04061 -24.24366,-4.04061 l 3.03046,-9.09138 c 0,0 24.24366,-13.13198 21.2132,-13.13198 -3.03045,0 27.27412,0 27.27412,0 l 20.20305,-3.03046 -1.01015,-26.26396 2.02031,-44.44672 -3.03046,-34.34518 -15.15229,-45.45687 18.18275,42.42641 1.01015,46.46702 3.03046,57.57869 17.17259,-9.09137 24.24366,-3.03046 0,19.1929 24.24366,-13.13198 17.1726,-13.13199 11.11167,0 6.06092,-35.35533 1.01015,-39.39595 -2.0203,-48.48733 -5.05077,-40.4061 -7.07106,-47.47717 -5.05077,-30.30457 -10.10152,-11.11168 -14.14214,-3.03046 13.13198,6.06092 11.11168,6.06091 15.15229,73.74114 5.05076,90.91373 -6.06091,80.8122 8.08122,7.07107 -3.03046,15.15229 c 0,0 -11.11168,9.09137 -9.09137,13.13198 2.0203,4.04061 22.22335,10.10152 22.22335,10.10152 l 20.20305,0 c 0,0 17.1726,13.13199 11.11168,15.15229 -6.06091,2.02031 -6.06091,12.12183 -12.12183,12.12183 -6.06091,0 -21.2132,12.12183 -21.2132,12.12183 l 1.01015,14.14214 1.01015,13.13198 -17.17259,-4.04061 -12.12183,-12.12183 -12.12183,11.11168 10.10153,-3.03046 8.08122,12.12183 -1.01016,14.14214 -10.10152,27.27412 -29.29443,20.20305 -37.37564,9.09137 -31.31473,-12.12183 -36.36549,-23.23351 -5.05076,-30.30458 20.20305,-8.08122 17.17259,-3.03045 16.16244,18.18274 14.14214,-6.06091 c 0,0 12.12183,-18.18275 9.09137,-16.16244 -3.03046,2.0203 14.14214,-1.01016 14.14214,-1.01016 l 16.16244,7.07107 16.16244,11.11168 10.10152,-7.07107 0,-11.11168 -9.09137,14.14214 -24.24366,-15.15229 -21.21321,5.05076 -8.08122,14.14214 -18.18274,-2.02031 -17.17259,-16.16244 -36.3655,12.12183 -34.34518,7.07107 -33.33504,-2.0203 -36.36549,5.05076 -53.53808,-1.01015 -22.22336,-4.04061 -19.1929,-27.27412 -6.06091,3.03046 17.17259,32.32488 -18.18275,42.4264 -9.09137,37.37565 -42.42641,1.01015 -32.32488,-6.06091 -26.26396,-20.20305 -1.01016,-25.25382 17.1726,-25.25381 -17.1726,26.26396 1.01016,26.26397 28.28427,21.2132 36.36549,3.03046 35.35534,1.01015 -15.15229,50.50763 -19.1929,1.01015 2.02031,7.07107 17.17259,11.11168 -27.27412,3.03046 -15.15229,-2.02031 -4.04061,16.16244 18.18275,1.01016 23.23351,4.04061 -10.10153,15.15228 -14.14213,-5.05076 -20.20305,11.11168 10.10152,11.11168 18.18275,1.01015 8.08122,19.1929 18.18274,-13.13199 16.16244,-4.04061 10.10153,12.12183 10.10153,12.12184 19.19289,-12.12184 15.15229,-7.07106 -4.04061,-8.08122 14.14214,-4.04061 11.11168,15.15228 1.01015,-24.24366 14.14213,-6.06091 c 0,0 17.1726,-13.13198 13.13199,-13.13198 -4.04061,0 -19.1929,-8.08123 -19.1929,-8.08123 l 16.16244,-8.08122 -25.25381,0 11.11167,-14.14213 0,-10.10153 c 0,0 -10.10152,1.01016 -18.18274,2.02031 -8.08122,1.01015 -19.1929,7.07107 -19.1929,7.07107 l -10.10153,-14.14214 -16.16244,10.10153 -1.01015,14.14213 -16.16244,-21.2132 -14.14214,3.03046 -11.11167,-3.03046 12.12183,3.03046 15.15228,-2.02031 12.12184,18.18275 2.0203,-13.13199 18.18275,-11.11167 10.10152,15.15228 12.12183,-7.07106 19.1929,0 3.03046,8.08122 c 0,0 -4.02839,19.17444 -7.07107,17.17259 -2.29557,-1.51031 19.12492,-0.19799 31.84935,0.56081 3.89871,0.23249 6.53645,0.44934 6.53645,0.44934 l -9.09138,-23.23351 -3.03045,-34.34518 10.10152,-48.48732 -10.10152,43.43655 1.01015,32.32489 12.12183,26.26396 14.14214,-9.09137 19.19289,2.0203 10.10153,21.21321 16.16244,-6.06092 13.13198,-1.01015 -2.0203,20.20305 21.2132,-11.11168 -3.03046,-14.14213 17.1726,-5.05077 5.05076,30.30458 18.18275,-13.13198 -2.02031,-19.1929 c 0,0 16.16244,4.04061 13.13198,5.05076 -3.03045,1.01015 7.07107,31.31473 7.07107,31.31473 l 30.30458,-20.20305 12.12183,3.03046 11.11168,-28.28427 7.07106,-39.39595 -4.04061,-48.48732 -3.03045,-8.08123 5.05076,44.44672 -6.06092,46.46701 -12.12183,34.34519 c 0,0 20.20305,8.08122 14.14214,9.09137 -6.06092,1.01016 -16.16244,11.11168 -16.16244,11.11168 l 1.01015,18.18275 17.17259,5.05076 5.05077,23.23351 -12.12183,0 -23.23351,9.09137 -1.01016,18.18275 -20.20305,-14.14214 -18.18274,-4.04061 5.05076,16.16244 26.26397,15.15232 10.10152,27.2741 c 0,0 0,20.20302 -7.07107,22.22332 -7.07106,2.0203 -36.36549,29.2944 -36.36549,29.2944 0,0 -41.41625,8.0813 -45.45686,8.0813 -4.04061,0 -93.94419,-1.0102 -93.94419,-1.0102 l -62.62946,-7.0711 -49.49747,-19.1929 -5.05076,-29.29442 -29.29443,9.0914 -40.4061,0 c 0,0 -37.37564,-3.0305 -40.4061,-4.0406 -3.03046,-1.0102 -18.18275,-18.1828 -18.18275,-18.1828 l -10.10152,-27.27406 20.20305,-28.28427 31.31473,-16.16244 25.25381,-9.09137 25.25381,-2.02031 -27.27411,6.06092 -23.23351,4.04061 -31.31473,16.16244 -17.1726,29.29442 5.05077,26.26396 21.2132,17.1726 36.36549,2.0203 44.44672,2.0203 29.29442,-10.1015 19.1929,-20.2031 27.27412,-19.19286 40.4061,-14.14214 22.22335,-8.08122 -25.25381,-10.10152 c 0,0 21.2132,-12.12183 17.17259,-12.12183 -4.04061,0 -4.04061,-16.16244 -4.04061,-16.16244 l -12.12183,-5.05077 1.01016,-11.11167 -1.01016,10.10152 10.10153,3.03046 5.05076,18.18274 -15.15229,11.11168 24.24366,12.12183 3.03046,22.22336 24.24366,4.04061 11.11168,-26.26397 13.13198,4.04061 9.09138,25.25381 14.14213,-3.03045 12.12183,-24.24366 13.13199,1.01015 12.12183,30.30456 16.16244,-9.09136 21.2132,-20.20305 c 0,0 4.04061,-5.05076 0,-4.04061";
+	},
+	drawmap: function(){
+		var s = this.s;
+		var r = this.r;
+		var back = this.r.rect(this.xo,this.yo,s.w,s.h).attr({fill:'#9bf'});
+		this.el.push(back);
+		var top = s.h*.1;
+		left = s.w*.3;
+		var dy = [ 2,2,2,2,2,2,2,2,2,1,-1,-1,-1,-1,-1,3,4,4,1];
+		var dx = [ 1,1,1,1,1,1,1,1,1,1, 1, 1, 1, 1, 1,1,1,1,1];
+		var currx = left+this.xo;
+		var curry = top+this.yo;
+		var sum = 0;
+		var ymax = 0;
+		for ( var i = 0; i < dx.length; i++ ){
+			sum += dy[i]
+			if (dy[i] > ymax){
+				ymax = dy[i];
+			}
+		}
+		var ymult = (s.h - top -41)/sum;
+		var sum = 0;
+		var xmin = 2000;
+		for ( var i = 0; i < dx.length; i++ ){
+			sum += dx[i]
+			if (xmin > dx[i]){
+				xmin = dx[i];
+			}
+		}
+		var xmult = (s.w*.2)/sum;
+		maxslope = ymax*ymult/(xmin*xmult);
+		points = [[this.xo,top],[currx, curry]];
+		unc.random.shuffle(dy);
+		unc.random.shuffle(dx);
+		for ( var i = 0; i < dx.length; i++ ){
+			currx += dx[i]*xmult;
+			curry += dy[i]*ymult;
+			points.push([currx, curry]);
+		}
+		unc.random.shuffle(dy);
+		unc.random.shuffle(dx);
+		for ( var i = 0; i < dx.length; i++ ){
+			currx += dx[i]*xmult;
+			curry -= dy[i]*ymult;
+			points.push([currx, curry]);
+		}
+		points.push([ s.w+this.xo, top+this.yo ]);
+		points.push([ s.w+this.xo, s.h+this.yo ]);
+		points.push([ this.xo, s.h ]);
+		var pathstring = 'M'+points[0][0] + ' '+ points[0][1] + '';
+		for ( var i = 0; i < dx.length*2+5; i++ ){
+			pathstring += 'L'+points[i][0] + ' '+ points[i][1] + '';
+		}
+		var a = r.path( pathstring ).attr({fill:'#fff'});
+		this.el.push(a);
+		player = new guy(this.s, this.r, this.guypath, this);
+		var hmin = 10000000;
+		var hmax = 0;
+		for (var k = 0; k < points.length; k++){
+			if (points[k][1] > hmax){
+				hmax = points[k][1];
+			}
+			if (points[k][1] < hmin){
+				hmin = points[k][1];
+			}
+			
+		}
+		if (hmax > s.h+2 || hmin < 0){
+			this.drawmap();
+		}
+	},
+	setupcounters: function(){
+		var s = this.s;
+		var r = this.r;
+		var self = this;
+		var a = r.text( this.xo+.2*s.w, this.yo+s.h*.6, "They will leave you for dead in:").attr({fill: '#222', font:'24px Arial'});
+		this.el.push(a)
+		var t = 30;
+		var time = r.text( this.xo+.2*s.w, this.yo+s.h*.6 + 24, t ).attr({fill: '#f00', font:'24px Arial'});
+		this.el.push(time);
+		setInterval( function(){
+			if (t > 0 && self.playing == true){
+				t -= 1;
+				time.attr({text: t});
+				if (t == 0){
+					self.lose("You team had to leave you behind...");
+				}
+			}
+		}, 1000);
+		var a = r.text( .2*s.w, s.h*.6+72, "You will die if you run out of energy:").attr({fill: '#222', font:'24px Arial', opacity: 0});
+		this.el.push(a);
+		var e = 600;
+		var ecounter = r.text( .2*s.w, s.h*.6 + 96, t ).attr({fill: '#f00', font:'24px Arial', opacity: 0});
+		this.el.push(ecounter);
+		player.energy = e;
+		player.energyout = ecounter;
+	},
+	lose: function(message){
+		var s = this.s;
+		var r = this.r;
+		var self = this;
+		this.playing = false;
+		var a = r.text( this.xo+.5*s.w, this.yo+s.h*.5, message).attr({fill: '#f00', font:'50px Arial'});
+		this.el.push(a);
+		g.noise.stop();
+		g.noise.play({url:'scream'});
+		self.endfunction(g.team.getVictim().name + ' died in the crevasse.', function(){
+			g.team.killVictim();
+		});
+	},
+	win: function(){
+		var s = this.s;
+		var r = this.r;
+		this.playing = false;
+		var self = this;
+		var a = r.text( this.xo+.5*s.w, this.yo+s.h*.5, "You escaped the crevasse!").attr({fill: '#040', font:'50px Arial'});
+		this.el.push(a);
+		g.noise.stop();
+		g.noise.play({url:'cheer'});
+		self.endfunction(g.team.getVictim().name + ' escaped the crevasse!', function(){
+		});	}
+});
+
+dojo.declare( "guy", null, {
+	constructor: function(s, r, path, owner){
+		this.path = path;
+		this.s = s;
+		this.r = r;
+		var self = this;
+		this.owner = owner;
+		this.x = s.w/2;
+		this.y = s.h - 50;
+		this.xdir = 0;
+		this.speed = 0;
+		this.slipping = false;
+		this.place();
+		this.rot = 0;
+		this.anchored = false;
+		this.stopped = false;
+		dojo.connect(null, 'onkeydown', function(e){
+			if (e.keyCode == dojo.keys.LEFT_ARROW){
+				self.setx(-1);
+				return
+			}
+			if (e.keyCode == dojo.keys.RIGHT_ARROW){
+				self.setx(1);
+				return
+			}
+			if (e.keyCode == dojo.keys.DOWN_ARROW){
+				self.affix();
+				return
+			}
+		});	
+		dojo.connect(null, 'onkeyup', function(e){
+			if (e.keyCode == dojo.keys.LEFT_ARROW){
+				self.setx(0);
+				self.speed = 0;
+			}
+			if (e.keyCode == dojo.keys.RIGHT_ARROW){
+				self.setx(0);
+				self.speed = 0;
+			}
+		});	
+		setInterval( function(){
+			self.translate();
+		}, 30);
+	},
+	affix: function(){
+		var s = this.s;
+		var r = this.r;
+		if (this.anchored == false){
+			this.anchor = [this.x, this.y];
+			var a = r.rect( this.x - 5, this.y - 2, 10, 4).attr({fill:'#000'});
+			this.el.push(a);
+			this.anchored = true;
+			var p = 'M '+this.x+','+this.y+' L '+this.anchor[0]+','+this.anchor[1];
+			this.rope = r.path( p ).attr({fill:'#000', 'stroke-width':3});
+			this.rope.attr({'stroke-fill':'#00f'});
+		}
+	},
+	place: function(){
+		var s = this.s;
+		var r = this.r;
+		//this.pic = r.circle( this.x, this.y, s.guyh ).attr({fill: '#0f0'});
+		this.pic = r.path(this.path);
+		this.pic.scale( 24/this.pic.getBBox().width, 50/this.pic.getBBox().height);
+		this.pic.translate( this.x + this.owner.xo - this.pic.getBBox().x - 12, this.y + this.owner.yo - this.pic.getBBox().y - 50);
+		this.owner.el.push(this.pic);
+	},
+	setx: function(dir){
+		this.xdir = dir;
+	}, 
+	translate: function(){
+		var s = this.s;
+		var r = this.r;
+		if (this.owner.playing && !this.stopped){
+			g.noise.play({url:'pant'});
+			if (this.energy <= 0){
+				this.owner.lose("You died from your injuries...");
+			}
+			var seg = getseg(this.x);
+			if (!this.slipping){
+				this.decreaseenergy(Math.abs(this.xdir));
+				if (Math.abs(this.speed) < s.maxspeed){
+					this.speed += this.xdir;
+				}
+				var workingdx = this.speed*Math.abs(Math.cos(seg[4]));
+			}
+			if (this.slipping){
+				var workingdx = .7*this.slipdir;
+				this.pic.rotate(15);
+				this.rot += 15;
+			}
+			this.controlslipping();
+			var dx = workingdx;
+			this.x += dx;
+			var dy = getseg(this.x)[2] - this.y;
+			this.y += dy;
+			this.pic.translate(dx, dy);
+			if (this.x < left || this.x > s.w - left){
+				this.owner.win();
+			}				
+		}
+	},
+	controlslipping: function(){
+		
+		var s = this.s;
+		var r = this.r;
+		if (this.slipping){
+			var seg = getseg(this.x);
+			var uphillleft = seg[3] < 0 && this.slipdir > 0;
+			var uphillright = (seg[3] > 0 && this.slipdir < 0);
+			if (uphillleft || uphillright){
+				this.slipping = false;
+				g.noise.stop();
+				g.noise.play({url: 'ouch'});
+				this.decreaseenergy(30);
+				var a = r.text(this.x+this.owner.xo, this.y+this.owner.yo, "OUCH!");
+				this.owner.el.push(a);
+				a.attr({font:"24px Arial", fill:"#f00"});
+				setTimeout( function(){
+					a.animate({opacity: 0}, 1000, callback= a.remove);
+				}, 1000);
+				this.pic.attr({fill: null});
+				this.pic.rotate( 0 - this.rot );
+				this.rot = 0;
+				this.stopped = true;
+				var self = this;
+				setTimeout(function(){
+					self.stopped = false;
+				}, 500);
+			}
+		}
+		if (this.xdir != 0 && this.owner.playing  && !this.slipping){
+			var self= this;
+			var slip = unc.random.choice([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]);
+			if (slip == 1){
+				g.noise.stop();
+				//this.owner.noise.play({url:'scream'});
+				var slipinstr = r.text( this.owner.xo+s.w*.8, this.owner.yo+s.h*.6, "You slipped!  Type 'SAVE'!");
+				this.owner.el.push(slipinstr);
+				var shandle = dojo.connect( null, "onkeydown", function(e){
+					if (e.keyCode == 83){
+						var ahandle = dojo.connect( null, "onkeydown", function(e){
+							if (e.keyCode == 65){
+								var vhandle = dojo.connect( null, "onkeydown", function(e){
+									if (e.keyCode == 86){
+										var ehandle = dojo.connect( null, "onkeydown", function(e){
+											if (e.keyCode == 69){
+												self.catchself();
+												dojo.disconnect(ehandle);
+											}
+										});
+										dojo.disconnect(vhandle);
+									}
+								});	
+								dojo.disconnect(ahandle);
+							}
+						});
+						dojo.disconnect(shandle);
+					}
+				});
+				slipinstr.attr({fill: '#f00', font:'24px Arial'});
+				setTimeout( function(){
+					slipinstr.animate( {opacity: 0}, 1000, callback = function(){
+						slipinstr.remove();
+					});
+				}, 2000);
+				this.pic.attr({fill: '#f00'});
+				this.slipping = true;
+				if ( getseg(this.x)[3] > 1){
+					this.slipdir = 1;
+				}
+				else {
+					this.slipdir = -1;
+				}
+			}
+		}
+	}, 
+	catchself: function(){
+		var s = this.s;
+		var r = this.r;
+		if (this.slipping){
+			g.noise.stop();
+			this.slipping = false;
+			var a = r.text(this.x+this.xo, this.y+this.yo, "CATCH!");
+			this.owner.el.push(a);
+			a.attr({font:"24px Arial", fill:"#080"});
+			setTimeout( function(){
+				a.animate({opacity: 0}, 1000, callback= a.remove);
+			}, 1000);
+			this.pic.attr({fill: null});
+			this.pic.rotate( 0 - this.rot );
+			this.rot = 0;
+			this.stopped = true;
+			var self = this;
+			setTimeout(function(){
+				self.stopped = false;
+			}, 100);
+		}
+	},
+	decreaseenergy: function(de){
+		this.energy -= de;
+		//this.energyout.attr({text: this.energy});
+	}
+});
+
+function getseg(x){  //given an x coordinate, locate the two points which are on either side and the y coordinate
+	var x = x + xo;
+	var prev = null;
+	var post = null;
+	for (var i = 0; i < points.length; i++){
+		var p = points[i];
+		if ( p[0] == x ){
+			prev = p;
+			post = p;
+			return [prev, post, prev[1], .01];
+		}
+		if ( p[0] < x){
+			prev = p;
+		}
+		if ( p[0] > x){
+			post = p;
+			break;
+		}
+	}
+	var slope = (prev[1] - post[1]) /  (prev[0] - post[0]);
+	var angle = Math.atan(slope);
+	var y = (x-prev[0])*slope+prev[1];
+	return [prev, post, y, slope, angle]
+}
