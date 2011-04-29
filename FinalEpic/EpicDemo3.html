@@ -983,7 +983,7 @@
 				this.prevevent = unc.random.choice(this.events);
 			},
 			createMiniGameEvents: function(){
-				this.createBasicEvent(1, function(){return g.team.victim.name+', your '+g.team.victim.type+',\nhas fallen into a crevasse.'}, 'crevasse.JPG',
+				this.createBasicEvent(.3, function(){return g.team.victim.name+', your '+g.team.victim.type+',\nhas fallen into a crevasse.'}, 'crevasse.JPG',
 					function(){
 						return g.team.victim.dead == false;
 					},
@@ -1004,7 +1004,7 @@
 							var crevassegame = new crevasse( g.vis.k.sidebarw, 0, g.vis.k.w - g.vis.k.sidebarw, g.vis.k.h, f);
 						});
 					});
-				this.createBasicEvent(1, function(){return 'You have come to a patch of thin ice.'}, 'crevasse.JPG',
+				this.createBasicEvent(1, function(){return 'You have come to a patch of thin ice.\nYou must navigate your dogsleds across safely.'}, 'crevasse.JPG',
 					function(){
 						return g.team.victim.dead == false;
 					},
