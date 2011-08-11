@@ -22,7 +22,7 @@
 				}
 				dojo.subscribe('/org/hark/pause', pauseCallback);
 				self.replay = false;
-				uow.ui.connectKeys();
+console.log('start');				uow.ui.connectKeys();
 				dojo.subscribe('/uow/key/up', self, 'processKeyUp');
 				dojo.subscribe('/uow/key/down', self, 'processKeyDown');
 				self.setup();
