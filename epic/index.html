@@ -20,9 +20,9 @@
 			g = new game();
 			uow.getAudio().then(function(js){
 				g.noise = js;
-				speak('Welcome to Epic Journey.  Press down to hear controls.');
 				dojo.subscribe('/org/hark/prefs/response', prefsCallback);
 				dojo.publish('/org/hark/prefs/request');
+				speak('Welcome to Epic Journey.  Press down to hear controls.');
 				g.title();
 			});
 		}
