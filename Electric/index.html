@@ -37,7 +37,7 @@
 			
 			prefsCallback: function(prefs, which){
 				var self=this;
-
+				console.log(self);
 				this.masterVolume=prefs.volume;
 				this.speechVolume=prefs.speechVolume;
 				this.soundVolume=prefs.soundVolume;
@@ -136,7 +136,7 @@
 					self.noise = js;
 					js.setProperty({channel:'left', name:'loop', value:'true'});
 					js.setProperty({channel:'right', name:'loop', value:'true'});
-					dojo.subscribe('/org/hark/prefs/response', function(){console.log(self.noise);});
+					dojo.subscribe('/org/hark/prefs/response', dojo.hitch(this, 'prefsCallback'));
 					dojo.publish('/org/hark/prefs/request');
 					self.setupGraphics();
 					self.setupTunnel();
