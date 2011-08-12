@@ -27,30 +27,29 @@
 					self.playing = !paused;
 				}
 				
-				function prefsCallback(prefs, which){
-					this.masterVolume=prefs.volume;
-					this.speechVolume=prefs.speechVolume;
-					this.soundVolume=prefs.soundVolume;
-					
-					for(channel in this.speechChannels)
-					{
-						self.noise.setProperty({name : 'rate', channel : channel, value : prefs.speechRate, immediate : true});
-						self.noise.setProperty({name : 'volume', channel : channel, value : this.masterVolume*this.speechVolume, immediate : true});
-					}
-					
-					self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
-					self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});
-				}
-				
 				dojo.subscribe('/org/hark/pause', pauseCallback);
 				self.replay = false;
 				uow.ui.connectKeys();
 				dojo.subscribe('/uow/key/up', self, 'processKeyUp');
 				dojo.subscribe('/uow/key/down', self, 'processKeyDown');
 				self.setup();
-				dojo.subscribe('/org/hark/prefs/response', prefsCallback);
-				dojo.publish('/org/hark/prefs/request');
 			},
+			
+			prefsCallback: function(prefs, which){
+				this.masterVolume=prefs.volume;
+				this.speechVolume=prefs.speechVolume;
+				this.soundVolume=prefs.soundVolume;
+				
+				for(channel in this.speechChannels)
+				{
+					self.noise.setProperty({name : 'rate', channel : channel, value : prefs.speechRate, immediate : true});
+					self.noise.setProperty({name : 'volume', channel : channel, value : this.masterVolume*this.speechVolume, immediate : true});
+				}
+				
+				self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
+				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});
+			},
+			
 			setup: function(){
 				var self = this;
 				self.stage = 'intro';
@@ -135,6 +134,8 @@
 					self.noise = js;
 					js.setProperty({channel:'left', name:'loop', value:'true'});
 					js.setProperty({channel:'right', name:'loop', value:'true'});
+					dojo.subscribe('/org/hark/prefs/response', this.prefsCallback);
+					dojo.publish('/org/hark/prefs/request');
 					self.setupGraphics();
 					self.setupTunnel();
 					self.setupPlayer();	
