@@ -35,8 +35,10 @@
 				self.setup();
 			},
 			
-			prefsCallback: function(prefs, which){
-				/**this.masterVolume=prefs.volume;
+			prefsCallback: function(prefs, which)
+				var self=this;
+
+				this.masterVolume=prefs.volume;
 				this.speechVolume=prefs.speechVolume;
 				this.soundVolume=prefs.soundVolume;
 				
@@ -47,7 +49,7 @@
 				}
 				
 				self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
-				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});*/
+				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});
 			},
 			
 			setup: function(){
