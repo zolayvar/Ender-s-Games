@@ -13,7 +13,8 @@
 	<script type="text/javascript" src="random.js"></script>
 	<script type='text/javascript'>
 		dojo.require('dojo.window');
-	
+		const COIN_CHANNEL='treasure';
+
 		dojo.declare('game', null, {
 			masterVolume: 1.0,
 			speechVolume: 1.0,
@@ -50,6 +51,7 @@
 				
 				self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
 				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});
+				self.noise.setProperty({name : 'volume', channel : COIN_CHANNEL, value : this.masterVolume*this.soundVolume, immediate : true});
 			},
 
 			setup: function(){
@@ -307,7 +309,7 @@
 					dh: self.dh,
 					r: self.r, 
 					noise: self.noise,
-					channel: 'treasure',
+					channel: COIN_CHANNEL,
 					x: coinx,
 					y: coiny,
 					size: coinsize,
