@@ -36,7 +36,7 @@
 			},
 			
 			prefsCallback: function(prefs, which){
-				this.masterVolume=prefs.volume;
+				/**this.masterVolume=prefs.volume;
 				this.speechVolume=prefs.speechVolume;
 				this.soundVolume=prefs.soundVolume;
 				
@@ -47,7 +47,7 @@
 				}
 				
 				self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
-				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});
+				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});*/
 			},
 			
 			setup: function(){
@@ -135,7 +135,7 @@
 					js.setProperty({channel:'left', name:'loop', value:'true'});
 					js.setProperty({channel:'right', name:'loop', value:'true'});
 					dojo.subscribe('/org/hark/prefs/response', this.prefsCallback);
-					//dojo.publish('/org/hark/prefs/request');
+					dojo.publish('/org/hark/prefs/request');
 					self.setupGraphics();
 					self.setupTunnel();
 					self.setupPlayer();	
