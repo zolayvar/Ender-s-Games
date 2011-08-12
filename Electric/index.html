@@ -44,8 +44,8 @@
 				
 				for(channel in this.speechChannels)
 				{
-					self.noise.setProperty({name : 'rate', channel : speechChannels[channel], value : prefs.speechRate, immediate : true});
-					self.noise.setProperty({name : 'volume', channel : speechChannels[channel], value : this.masterVolume*this.speechVolume, immediate : true});
+					self.noise.setProperty({name : 'rate', channel : this.speechChannels[channel], value : prefs.speechRate, immediate : true});
+					self.noise.setProperty({name : 'volume', channel : this.speechChannels[channel], value : this.masterVolume*this.speechVolume, immediate : true});
 				}
 				
 				self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
