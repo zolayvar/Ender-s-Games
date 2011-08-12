@@ -18,7 +18,7 @@
 			masterVolume: 1.0,
 			speechVolume: 1.0,
 			soundVolume: 1.0,
-			//speechChannels: ['main', 'meow'], //List of channels that say things at some point in the game
+			speechChannels: ['main', 'meow'], //List of channels that say things at some point in the game
 			
 			constructor: function(args){
 				var self = this;
@@ -36,7 +36,7 @@
 			},
 			
 			prefsCallback: function(prefs, which){
-				/**var self=this;
+				var self=this;
 
 				this.masterVolume=prefs.volume;
 				this.speechVolume=prefs.speechVolume;
@@ -49,7 +49,7 @@
 				}
 				
 				self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
-				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});*/
+				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});
 			},
 			
 			setup: function(){
@@ -136,7 +136,7 @@
 					self.noise = js;
 					js.setProperty({channel:'left', name:'loop', value:'true'});
 					js.setProperty({channel:'right', name:'loop', value:'true'});
-					dojo.subscribe('/org/hark/prefs/response', this.prefsCallback);
+					dojo.subscribe('/org/hark/prefs/response', dojo.hitch(this, this.prefsCallback));
 					dojo.publish('/org/hark/prefs/request');
 					self.setupGraphics();
 					self.setupTunnel();
