@@ -156,7 +156,7 @@
 				self.changeVol = function(channel, d){
 					var frac = 2*d/self.tunnwidth - 1;
 					var newvol = Math.pow((Math.sin(Math.PI*frac/2) + 1)/2,2);
-					self.noise.setProperty({channel:channel, name:'volume', value: newvol, immediate:true});
+					self.noise.setProperty({channel:channel, name:'volume', value: newvol*this.masterVolume*this.soundVolume, immediate:true});
 				}
 			},
 			setupGraphics: function(){
