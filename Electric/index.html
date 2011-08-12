@@ -52,6 +52,7 @@
 				self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
 				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});
 				self.noise.setProperty({name : 'volume', channel : COIN_CHANNEL, value : this.masterVolume*this.soundVolume, immediate : true});
+				self.noise.setProperty({name : 'volume', channel : 'collected', value : this.masterVolume*this.soundVolume, immediate : true});
 			},
 
 			setup: function(){
@@ -423,7 +424,7 @@
 					this.owner.life+=1;
 					this.over = true;
 					this.noise.stop({channel:this.channel});
-					this.noise.play({url:'coinget', channel:'meow'});
+					this.noise.play({url:'coinget', channel:'collected'});
 				}
 			},
 			d: function(){
