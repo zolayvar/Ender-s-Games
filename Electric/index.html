@@ -35,7 +35,7 @@
 				self.setup();
 			},
 			
-			prefsCallback: function(prefs, which){
+			/**prefsCallback: function(prefs, which){
 				var self=this;
 
 				this.masterVolume=prefs.volume;
@@ -50,7 +50,7 @@
 				
 				self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
 				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});
-			},
+			},*/
 			
 			setup: function(){
 				var self = this;
@@ -136,7 +136,22 @@
 					self.noise = js;
 					js.setProperty({channel:'left', name:'loop', value:'true'});
 					js.setProperty({channel:'right', name:'loop', value:'true'});
-					dojo.subscribe('/org/hark/prefs/response', dojo.hitch(this, 'prefsCallback'));
+					dojo.subscribe('/org/hark/prefs/response', function(prefs, which){
+						var self=this;
+
+						this.masterVolume=prefs.volume;
+						this.speechVolume=prefs.speechVolume;
+						this.soundVolume=prefs.soundVolume;
+				
+						for(channel in this.speechChannels)
+						{
+							self.noise.setProperty({name : 'rate', channel : channel, value : prefs.speechRate, immediate : true});
+							self.noise.setProperty({name : 'volume', channel : channel, value : this.masterVolume*this.speechVolume, immediate : true});
+						}
+				
+						self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
+						self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});
+					});
 					dojo.publish('/org/hark/prefs/request');
 					self.setupGraphics();
 					self.setupTunnel();
