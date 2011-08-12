@@ -136,7 +136,7 @@
 					self.noise = js;
 					js.setProperty({channel:'left', name:'loop', value:'true'});
 					js.setProperty({channel:'right', name:'loop', value:'true'});
-					dojo.subscribe('/org/hark/prefs/response', this.prefsCallBack);
+					dojo.subscribe('/org/hark/prefs/response', self, 'prefsCallback');
 					dojo.publish('/org/hark/prefs/request');
 					self.setupGraphics();
 					self.setupTunnel();
