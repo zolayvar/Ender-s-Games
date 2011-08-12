@@ -20,7 +20,8 @@
 			speechVolume: 1.0,
 			soundVolume: 1.0,
 			speechChannels: ['main', 'meow'], //List of channels that say things at some point in the game
-			
+			onMenu: false,
+
 			constructor: function(args){
 				var self = this;
 				
@@ -213,6 +214,7 @@
 			},
 			intro: function(){
 				var self = this;
+				self.onMenu=true;
 				console.log('inside of intro, where the text stuff is supposed to be set up', self.dim.cx, self.dim.cy);
 				self.say('You are in some kind of electric tunnel.  If you touch the sides, you\'ll die!  Press up to begin!  Press right to hear instructions.  Press left to change the play mode!', 'main');
 				self.introtext = self.r.text(self.dim.cx, self.dim.cy, 'UP: start game\nLEFT: change mode\nRIGHT: instructions').attr({font:'100px Arial', fill:'#fff'});
@@ -238,6 +240,7 @@
 				self.play('wallSoundLeftFixed','left');
 				self.play('wallSoundRightFixed','right');
 				self.playing = true;
+				self.onMenu=false;
 				self.introtext.remove();
 				self.introback.remove();
 				self.say('Let\s go!', 'main');
@@ -280,7 +283,7 @@
 			update: function(){
 				var self = this;
 				
-				if (self.playing){
+				if (self.playing && !self.onMenu){
 					if (self.tunnelpath.length < self.numboxes*4 && self.mode == 'endless'){
 						self.extendpath();
 					}
