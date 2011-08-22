@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Thing for Duncan</title>
+    <style type="text/css">
+      @import "http://ajax.googleapis.com/ajax/libs/dojo/1.5.0/dojo/resources/dojo.css";
+      @import "http://ajax.googleapis.com/ajax/libs/dojo/1.5.0/dijit/themes/claro/claro.css";
+	  @import "application.css";
+    </style>
+    <script type="text/javascript">
+        var djConfig = {
+            isDebug: false,
+            parseOnLoad: true,
+            baseUrl: './',
+            modulePaths: {'duncan' : 'widgets'}
+        };
+    </script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5.0/dojo/dojo.xd.js"></script>
+	<script type="text/javascript" src="jquery.watermark.js"></script>
+    <script type="text/javascript" src="/libs/uow/trace.js"></script>
+    <script type="text/javascript" src="/libs/uow.js"></script>
+    <script type="text/javascript" src="application.js"></script>
+  </head>
+  <body class="claro">
+    <div dojoType="dijit.layout.BorderContainer" liveSplitters="true">
+      <div dojoType="dijit.layout.ContentPane" region="top" splitter="false" id="headerbar">
+        <div id='headerContent'>Duncan's thingie</div>
+      </div>
+	  <div dojoType="dijit.layout.ContentPane" region="center" title="Welcome" id="content">
+	    <div id="hi">Checking database for sessions...</div>
+		
+	  </div>
+    </div>
+  </body>
+</html>
