@@ -13,13 +13,22 @@
 	<script type="text/javascript" src="random.js"></script>
 	<script type='text/javascript'>
 		dojo.require('dojo.window');
-	
+		const COIN_CHANNEL='treasure';
+
 		dojo.declare('game', null, {
+			masterVolume: 1.0,
+			speechVolume: 1.0,
+			soundVolume: 1.0,
+			speechChannels: ['main', 'meow'], //List of channels that say things at some point in the game
+			onMenu: false,
+
 			constructor: function(args){
 				var self = this;
+				
 				function pauseCallback(paused){
 					self.playing = !paused;
 				}
+				
 				dojo.subscribe('/org/hark/pause', pauseCallback);
 				self.replay = false;
 				uow.ui.connectKeys();
@@ -27,6 +36,26 @@
 				dojo.subscribe('/uow/key/down', self, 'processKeyDown');
 				self.setup();
 			},
+			
+			prefsCallback: function(prefs, which){
+				var self=this;
+				
+				this.masterVolume=prefs.volume;
+				this.speechVolume=prefs.speechVolume;
+				this.soundVolume=prefs.soundVolume;
+				
+				for(channel in this.speechChannels)
+				{
+					self.noise.setProperty({name : 'rate', channel : this.speechChannels[channel], value : prefs.speechRate, immediate : true});
+					self.noise.setProperty({name : 'volume', channel : this.speechChannels[channel], value : this.masterVolume*this.speechVolume, immediate : true});
+				}
+				
+				self.noise.setProperty({name : 'volume', channel : 'left', value : this.masterVolume*this.soundVolume, immediate : true});
+				self.noise.setProperty({name : 'volume', channel : 'right', value : this.masterVolume*this.soundVolume, immediate : true});
+				self.noise.setProperty({name : 'volume', channel : COIN_CHANNEL, value : this.masterVolume*this.soundVolume, immediate : true});
+				self.noise.setProperty({name : 'volume', channel : 'collected', value : this.masterVolume*this.soundVolume, immediate : true});
+			},
+
 			setup: function(){
 				var self = this;
 				self.stage = 'intro';
@@ -111,6 +140,8 @@
 					self.noise = js;
 					js.setProperty({channel:'left', name:'loop', value:'true'});
 					js.setProperty({channel:'right', name:'loop', value:'true'});
+					dojo.subscribe('/org/hark/prefs/response', self, 'prefsCallback');
+					dojo.publish('/org/hark/prefs/request');
 					self.setupGraphics();
 					self.setupTunnel();
 					self.setupPlayer();	
@@ -118,16 +149,18 @@
 				});
 				self.say = function(words, channel){
 					self.noise.stop({channel:channel});
+					self.noise.setProperty({name:'volume',channel:channel,value:this.masterVolume*this.speechVolume});
 					self.noise.say({channel:channel,text:words});
 				}
 				self.play = function(url, channel){
 					self.noise.stop({channel:channel});
+					self.noise.setProperty({name:'volume',channel:channel,value:this.masterVolume*this.soundVolume});
 					self.noise.play({channel:channel,url:url});
 				}
 				self.changeVol = function(channel, d){
 					var frac = 2*d/self.tunnwidth - 1;
 					var newvol = Math.pow((Math.sin(Math.PI*frac/2) + 1)/2,2);
-					self.noise.setProperty({channel:channel, name:'volume', value: newvol, immediate:true});
+					self.noise.setProperty({channel:channel, name:'volume', value: newvol*this.masterVolume*this.soundVolume, immediate:true});
 				}
 			},
 			setupGraphics: function(){
@@ -181,6 +214,7 @@
 			},
 			intro: function(){
 				var self = this;
+				self.onMenu=true;
 				console.log('inside of intro, where the text stuff is supposed to be set up', self.dim.cx, self.dim.cy);
 				self.say('You are in some kind of electric tunnel.  If you touch the sides, you\'ll die!  Press up to begin!  Press right to hear instructions.  Press left to change the play mode!', 'main');
 				self.introtext = self.r.text(self.dim.cx, self.dim.cy, 'UP: start game\nLEFT: change mode\nRIGHT: instructions').attr({font:'100px Arial', fill:'#fff'});
@@ -206,6 +240,7 @@
 				self.play('wallSoundLeftFixed','left');
 				self.play('wallSoundRightFixed','right');
 				self.playing = true;
+				self.onMenu=false;
 				self.introtext.remove();
 				self.introback.remove();
 				self.say('Let\s go!', 'main');
@@ -247,7 +282,8 @@
 			},
 			update: function(){
 				var self = this;
-				if (self.playing){
+				
+				if (self.playing && !self.onMenu){
 					if (self.tunnelpath.length < self.numboxes*4 && self.mode == 'endless'){
 						self.extendpath();
 					}
@@ -278,7 +314,7 @@
 					dh: self.dh,
 					r: self.r, 
 					noise: self.noise,
-					channel: 'treasure',
+					channel: COIN_CHANNEL,
 					x: coinx,
 					y: coiny,
 					size: coinsize,
@@ -391,7 +427,7 @@
 					this.owner.life+=1;
 					this.over = true;
 					this.noise.stop({channel:this.channel});
-					this.noise.play({url:'coinget', channel:'meow'});
+					this.noise.play({url:'coinget', channel:'collected'});
 				}
 			},
 			d: function(){
@@ -514,6 +550,5 @@
 		dojo.ready(function(){
 			var g = new game();
 		});
-	
 	</script>
 </head>
