@@ -20,9 +20,25 @@
 			g = new game();
 			uow.getAudio().then(function(js){
 				g.noise = js;
-				js.say({text:'Welcome to Epic Journey.  Press down to hear controls.'});
+				dojo.subscribe('/org/hark/prefs/response', prefsCallback);
+				dojo.publish('/org/hark/prefs/request');
+				speak('Welcome to Epic Journey.  Press down to hear controls.');
 				g.title();
 			});
+		}
+
+		//Changes the settings of the audio channel when prefs (such as volume) are changed
+		function prefsCallback(prefs, which)
+		{
+			g.noise.setProperty({name : 'volume', value : prefs.volume*prefs.speechVolume, immediate : true});
+			g.noise.setProperty({name : 'rate', value : prefs.speechRate, immediate : true});
+		}
+		
+		//Speaks an utterance
+		function speak(string)
+		{
+			g.noise.stop();
+			g.noise.say({text : string});
 		}
 		
 		dojo.declare("game", null, {
@@ -54,8 +70,7 @@
 				console.log(e.keyCode);
 				if (self.state == 'title'){
 					if (e.keyCode == dojo.keys.DOWN_ARROW){
-						self.noise.stop();
-						self.noise.say({text: 'Press right to advance the game.  Press left to hear about the status of your team.  When making a choice, press up to hear the different choices and right to choose.  At any time, press down to hear instructions.'});
+						speak('Press right to advance the game.  Press left to hear about the status of your team.  When making a choice, press up to hear the different choices and right to choose.  At any time, press down to hear instructions.');
 					}
 					if (e.keyCode == dojo.keys.RIGHT_ARROW){
 						self.start();
@@ -67,8 +82,7 @@
 							self.vis.next.clicked();
 						}
 						if (e.keyCode == dojo.keys.DOWN_ARROW){
-							self.noise.stop();
-							self.noise.say({text: 'Press right to advance the game.  Press left to hear about the status of your team.  When making a choice, press up to hear the different choices and right to choose.  At any time, press down to hear instructions.'});
+							speak('Press right to advance the game.  Press left to hear about the status of your team.  When making a choice, press up to hear the different choices and right to choose.  At any time, press down to hear instructions.');
 						}
 					}
 					else{
@@ -80,8 +94,7 @@
 								self.vis.next.clicked();
 							}							
 							if (e.keyCode == dojo.keys.DOWN_ARROW){
-								self.noise.stop()
-								self.noise.say({text: 'Press right to advance the game.  Press left to hear about the status of your team.  When making a choice, press up to hear the different choices and right to choose.  At any time, press down to hear instructions.'});
+								speak('Press right to advance the game.  Press left to hear about the status of your team.  When making a choice, press up to hear the different choices and right to choose.  At any time, press down to hear instructions.');
 							}
 						}
 						else{
@@ -93,8 +106,7 @@
 									self.vis.cycleChoices();
 								}
 								if (e.keyCode == dojo.keys.DOWN_ARROW){
-									self.noise.stop()
-									self.noise.say({text: 'Press up to cycle between choices.  Press right to choose.'});
+									speak('Press up to cycle between choices.  Press right to choose.');
 								}
 							}	
 						}
@@ -422,8 +434,7 @@
 				g.state = 'eventchoice';
 				this.cleartemp();
 				this.next.hide();
-				g.noise.stop();
-				g.noise.say({text:message.replace(new RegExp('\n', 'g'), ' ')});
+				speak(message.replace(new RegExp('\n', 'g'), ' '));
 				this.tbutton(this.k.w/2+this.k.sidebarw/2, this.k.h*.3, message, this.k.med, this.r, function(){});
 				//this.changeback(im);
 				var cx = this.k.w/2 + this.k.sidebarw/2;
@@ -443,8 +454,7 @@
 				var self = this;
 				self.choiceindex += 1;
 				self.choiceindex = self.choiceindex % self.choices.length;
-				g.noise.stop();
-				g.noise.say({text: self.choices[self.choiceindex].message});
+				speak(self.choices[self.choiceindex].message);
 			},
 			chooseChoice: function(){
 				if (this.choiceindex > -1){
@@ -453,8 +463,7 @@
 					self.choices[self.choiceindex].pick();
 				}
 				else{
-					g.noise.stop();
-					g.noise.say({text: 'you have to choose what to do. press the up arrow to cycle through choices'});
+					speak('you have to choose what to do. press the up arrow to cycle through choices');
 				}
 			},
 			win: function(){
@@ -493,8 +502,7 @@
 				this.temp.push(head);
 			},
 			central: function(text){
-				g.noise.stop();
-				g.noise.say({text:text.replace(new RegExp('\n', 'g'), ' ')});
+				speak(text.replace(new RegExp('\n', 'g'), ' '));
 				if ("sidebar" in this){
 					var a = this.sbutton(this.k.big*2+this.k.sidebarw, this.k.big*4, text, this.k.w - this.k.big*6 - this.k.sidebarw, this.k.h - this.k.big*8, this.r, function(){});
 				}
@@ -566,13 +574,13 @@
 				this.make();
 			},
 			read: function(){
-				g.noise.stop();
+				//g.noise.stop();
 				var message = "";
 				dojo.forEach(g.team.members, function(m){
 					message += "Your "+m.type+" is "+m.state+". ";
 				});
 				message += "You have "+g.food+" pounds of food, "+g.blankets+" blankets, and "+g.dogs+" dogs."
-				g.noise.say({text:message});
+				speak(message);
 			},
 			make: function(){
 				//console.log('the sidebar width is', this.w);
