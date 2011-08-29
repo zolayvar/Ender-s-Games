@@ -1,11 +1,3 @@
-/**
- * Sample startup script for a UOW application.
- *
- * Import dojo modules or your own before you use them; remove these if you
- * replace the default layout.
- *
- * Copyright UNC Open Web Team 2010. All Rights Reserved.
- */
 dojo.provide('duncan.Main');
 dojo.require('dojo.parser');
 dojo.require('dijit.layout.BorderContainer');
@@ -16,12 +8,106 @@ dojo.require('dijit.form.TextBox');
 // as our main controller to do stuff across the whole app and kick off the
 // app when the page loads
 dojo.declare('duncan.Main', null, {
-    constructor: function() {
+	constructor: function(){
 		var self = this;
-		self.getDB();
-    },
-	getDB: function(){
-        var self = this;
+		//hook into database
+		self.data = new duncan.Data(dojo.hitch(self, self.error));
+		self.data.getData(dojo.hitch(self, self.drawInitialPortal));
+		//check up on saved states
+		self.checkCookies();
+	},
+	drawInitialPortal: function(){		
+		var self = this;
+		var sessions = self.data.getSessionsForDisplay();
+		dojo.empty('hi');
+		var form = new duncan.Create('hi', function(name, code){
+			self.createNewSession(name, code);
+		});
+		dojo.forEach(sessions, function(sesh){
+			var form = new duncan.SeshForm(sesh[0], sesh[1], 'hi', function(){
+				self.startActiveSession(sesh[0], sesh[1]);
+			});
+		});
+	},
+	createNewSession: function(name, code){
+		var self = this;
+		self.data.createNewSession(name, code, function(session){
+			self.session = session;
+			console.log('created new session', self.session);
+		});
+		self.go();
+	},
+	startActiveSession: function(name, code){
+		var self = this;
+		self.data.selectActiveSession(name, code, function(session){
+			self.session = session;
+			console.log('joined active session', self.session);
+		});
+		self.go();
+	}, 
+	go: function(){
+		var self = this;
+		self.drawSession();
+		self.cookieMonster.setSession(self.session.name);
+		self.data.pollActiveSession();
+		self.pollAndUpdate();
+	},
+	drawSession: function(){
+		var self = this;
+		
+		var h = Math.floor(($('#content').height()-2)/7);
+		
+		self.slots = [];
+		var sloti = 0;
+		dojo.empty('hi');
+		for (var row = 0; row < 7; row++){
+			var holder = dojo.create('div', {
+				'class': 'row',
+				'id': 'row'+row
+			}, 'hi');
+			holder.style.height = h + 'px';
+			console.log(holder);
+			for (var col = 0; col < 3; col++){
+				var slot = new duncan.Slot(sloti, 'row'+row);
+				self.slots.push(slot);
+				sloti += 1;
+			}
+		}
+		self.updateSlots();
+	},
+	pollAndUpdate: function(){
+		var self = this;
+		if (self.data.active != self.session){
+			self.session = self.data.active;
+			self.updateSlots();
+		}
+		setTimeout( dojo.hitch( self, self.pollAndUpdate ) , 1000 );
+	},
+	updateSlots: function(){
+		var self = this;
+		
+	},
+	checkCookies: function(){
+		var self = this;
+		self.cookieMonster = new duncan.cookie();
+		var savedsesh = self.cookieMonster.getSession();
+		if (savedsesh){
+			self.savedsesh = savedsesh;
+			self.data.selectActiveSession(savedsesh, 'cookied');
+		}
+	},
+	error: function(message){
+		console.log('error start');
+		var self = this;
+	}
+});
+
+dojo.declare("duncan.Data", null, {
+	constructor: function(errorHandle){
+		this.error = errorHandle;
+	},
+	getData: function(oncomp){
+		var self = this;
 		uow.data.getDatabase({
 			database: 'zolayvar',
 			collection: 'shoutout',
@@ -36,91 +122,36 @@ dojo.declare('duncan.Main', null, {
 				  items.push(item);
 				},
 				onComplete: function() {
-				  self.hi(items);
+					self.sessions = items;
+					oncomp();
 				},
-				onError: function(e) {
-				  self.error("Data problem. Punch Stephanie.");
+				onError: function(){
+					self.error('Data error.');
 				}
 			});
-		});
+		});	
 	},
-	hi: function(items){
+	getSessionsForDisplay: function(){
 		var self = this;
-		var out = dojo.byId("hi");
-		$('#prompt').watermark('Enter a question');
-		if (items.length == 0){
-			out.innerHTML = "There are no existing sessions.  Make a new one, eh?";
-			self.addCreateForm();
-		}
-		if (items.length > 0){
-			out.innerHTML = "There are existing sessions.  You can join or create.";
-			self.addCreateForm();
-			var active = [];
-			for (i = 0; i < items.length; i++){
-				if (items[i].active){
-					active.push(items[i]);
-				}
-			}
-			self.displaySessions(active);
-		}
-	},
-	addCreateForm: function(){
-		var self = this;
-	
-		dojo.byId('createForm').style.display = 'block';
-		
-		var namefield = dojo.byId('name');
-		var codefield = dojo.byId('code');
-		
-		$('#name').watermark('New room name');
-		$('#code').watermark('Specify a code');
-		
-		dojo.connect(namefield, 'keyup', function(e){
-			if (e.keyCode == dojo.keys.ENTER){
-				self.createSession(namefield.value, codefield.value, true);
-			}
+		var out = [];
+		dojo.forEach(self.sessions, function(sesh){
+			out.push([sesh.name, sesh.code]);
 		});
-		dojo.connect(codefield, 'keyup', function(e){
-			if (e.keyCode == dojo.keys.ENTER){
-				self.createSession(namefield.value, codefield.value, true);
+		return out;
+	},
+	selectActiveSession: function(name, code, f){
+		var self = this;
+		dojo.forEach(self.sessions, function(sesh){
+			if (sesh.name == name){
+				self.active = sesh;
+				f(sesh);
 			}
 		});
 	},
-	displaySessions: function(items){
-		var self = this;
-		for (i = 0; i < items.length; i++){
-			var sesh = items[i];
-			self.displaySession(sesh);
-		}
-	},
-	displaySession: function(sesh){
-		var self = this;
-		var hi = dojo.byId('sessions');
-		var sesh = sesh;
-		var holder = dojo.create('div', {
-			'class': "sesh"
-		}, hi);
-		var words = dojo.create('div', {
-			'class': "seshname",
-			'innerHTML': sesh.name
-		}, holder);
-		var input = dojo.create('input', {
-			'class': "seshcode",
-			'id': sesh.name
-		}, holder);
-		dojo.connect(input, 'keyup', function(e){
-			if (e.keyCode == dojo.keys.ENTER){
-				if (input.value == sesh.code){
-					self.startSession(sesh);
-				}
-			}
-		});
-		$('.seshcode').watermark('Code');
-	},
-	createSession: function(name, code, start){
+	createNewSession: function(name, code, f){
 		var self = this;
 		var newsession = {
-			active: start || false,
+			active: true,
 			name: name,
 			code: code,
 			question: '',
@@ -237,113 +268,132 @@ dojo.declare('duncan.Main', null, {
 		};
 		self.database.newItem(newsession);
 		self.database.save();
-		if (start){
-			self.database.fetchOne({query:{'name':name, 'code':code}}).then(function(sess){
-				self.startSession(sess);
-			});
-			
-		}
-	},
-	startSession: function(session){
+		f(newsession);
+	}, 
+	pollActiveSession: function(){
 		var self = this;
-		self.session = session;
-		session.active = true;
-		dojo.byId('headerContent').style.display = 'none';
-		dojo.byId('createForm').style.display = 'none';
-		dojo.byId('hi').style.display = 'none';
-		dojo.byId('sessions').style.display = 'none';
-		var prompt = dojo.byId('prompt')
-		prompt.value = session.question;
-		dojo.byId('liveheader').style.display = 'block';
-		dojo.connect(prompt, 'onkeyup', function(e){
-			dojo.removeClass('prompt', 'good');
-			dojo.addClass('prompt', 'bad');
-			if (e.keyCode == dojo.keys.ENTER){
-				//update the session question
-				session.question = prompt.value;
-				dojo.removeClass('prompt', 'bad');
-				dojo.addClass('prompt', 'good');
-				self.database.updateOne({
-					'query': {'_id': session._id},
-					'data': {'question': prompt.value},
-					'save': true
-				});
-			}
-		});
-		self.database.save();
-		self.drawBoxes();
-		self.pollAndUpdate();
-	},
-	drawBoxes: function(){
-		var self = this;
-		self.slots = [];
-		var hi = dojo.byId('hi');
-		dojo.empty('hi');
-		hi.style.display = 'block';
-		dojo.byId('content').style.padding = '0px';
-		var height = ($('#content').height())/7-4;
-		for (var i = 0; i < 7; i++){
-			var holder = dojo.create( 'div', {
-				'id': 'row',
-				'class': 'row'
-			}, hi);
-			for (var j = 0; j < 3; j++){
-				var plop = dojo.create( 'textArea', {
-					id: i+""+j+'',
-					value: "",
-					'class': 'response'
-				}, holder);
-				plop.style.height = height+'px';
-				self.slots.push(plop);
-				self.firstEmpty = 0;
-			}
-		}
-	},
-	pollAndUpdate: function(){
-		var self = this;
-		function resize(slot){
-			var text = slot.value;
-			console.log(slot, text);
-			var poop = dojo.create( 'div', {
-				class: 'test',
-				id: 'poop',
-				innerHTML: text || 'l'
-			}, 'hi');
-			var desiredH = dojo.coords(slot).h;
-			poop.style.fontSize = desiredH + 4 + 'px';	
-			var curr = desiredH + 4;
-			while (dojo.coords(poop).h > desiredH){
-				curr -= .5;
-				poop.style.fontSize = curr + 'px';	
-			}
-			slot.style.fontSize = curr + 'px';	
-			dojo.destroy(poop);
-		}
-		for (var i = 0; i < self.session.responses.length; i++){
-			var r = self.session.responses[i];
-			if (self.slots[i].value != '' && self.slots[i].value != r){
-				console.log('what do I do if I need to push that shit back?');
-				resize(self.slots[i]);
-			}
-			else{
-				if (r != ''){
-					self.slots[i].value = r;
-					resize(self.slots[i]);
-				}
-			}
-		}
 		self.database.fetchOne({
 			query: {
-				'name': self.session.name
+				'name': self.active.name
 			}
 		}).then(function(session){
-			self.session = session;
-			setTimeout(dojo.hitch(self, self.pollAndUpdate), 1000);
+			if (self.active != session){
+				self.active = session;
+			}
+			setTimeout( dojo.hitch( self, self.pollActiveSession ) , 1000 );
 		});
 	},
-	error: function(message){
-		dojo.byId('hi').innerHTML = message
+	changeActiveQuestion: function(){
+	
+	},
+	freezeActiveSession: function(){
+	
 	}
+});
+
+dojo.declare("duncan.cookie", null, {
+	constructor: function(){
+	},
+	setSession: function(seshname){
+		var self = this;
+		dojo.cookie('session', seshname, {
+			expires: self.get50min()
+		});
+	},
+	getSession: function(){
+		return dojo.cookie('session');
+	},
+	get50min: function(){
+		var date = new Date();
+		date.setTime(date.getTime() + (50 * 60 * 1000));
+		return date;
+	}
+});
+
+dojo.declare("duncan.Create", null, {
+	constructor: function(parent, submit){
+		this.parent = parent;
+		this.submit = submit;
+		this.draw();
+	}, 
+	draw: function(){
+		var self = this;
+		var holder = dojo.create('div', {
+			'class': "seshForm"
+		}, self.parent);
+		var words = dojo.create('input', {
+			'id': "newSeshName",
+		}, holder);
+		dojo.connect(dojo.byId('newSeshName'), 'keyup', function(e){
+			if (e.keyCode == dojo.keys.ENTER){
+				self.submit($("#newSeshName").val(), input.value);
+			}
+		});
+		holder.innerHTML += '<br>';
+		var input = dojo.create('input', {
+			'id': "newSeshCode",
+		}, holder);
+		dojo.connect(input, 'keyup', function(e){
+			if (e.keyCode == dojo.keys.ENTER){
+				self.submit($("#newSeshName").val(), input.value);
+			}
+		});
+		$('#newSeshName').watermark('Enter the name');
+		$('#newSeshCode').watermark('Enter the code');
+	}
+});
+
+dojo.declare("duncan.SeshForm", null, {
+	constructor: function(name, code, parent, submit){
+		this.name = name;
+		this.code = code;
+		this.parent = parent;
+		this.submit = submit;
+		this.draw();
+	},
+	draw: function(){
+		var self = this;
+		var holder = dojo.create('div', {
+			'class': "seshForm"
+		}, self.parent);
+		var words = dojo.create('div', {
+			'class': "seshName",
+			'innerHTML': self.name
+		}, holder);
+		var input = dojo.create('input', {
+			'class': "seshCode",
+			'id': self.name
+		}, holder);
+		dojo.connect(input, 'keyup', function(e){
+			if (e.keyCode == dojo.keys.ENTER){
+				if (input.value == self.code){
+					self.submit();
+				}
+			}
+		});
+		$('.seshCode').watermark('Enter the code');
+	}
+});
+
+dojo.declare("duncan.Slot", null, {
+	constructor: function(number, parent){
+		this.number = number;
+		this.parent = parent;
+		this.draw();
+	},
+	draw: function(){
+		var self = this;
+		self.plop = dojo.create('textArea', {
+			id: 'r'+self.number,
+			value: "",
+			'class': 'response'
+		}, self.parent);
+		self.plop.style.height = $('#'+self.parent).height()-4+'px';
+		self.plop.style.width = Math.floor( ($('#'+self.parent).width()-2) / 3 )-3+'px';
+	},
+	update: function(response){
+	
+	},
 });
 
 dojo.ready(function() {
