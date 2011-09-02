@@ -13,37 +13,42 @@ dojo.declare('duncan.Main', null, {
 		//hook into database
 		self.data = new duncan.Data(dojo.hitch(self, self.error));
 		self.data.getData(dojo.hitch(self, self.drawInitialPortal));
-		//check up on saved states
-		self.checkCookies();
 	},
 	drawInitialPortal: function(){		
 		var self = this;
 		var sessions = self.data.getSessionsForDisplay();
-		dojo.empty('hi');
-		var form = new duncan.Create('hi', function(name, code){
-			self.createNewSession(name, code);
-		});
-		dojo.forEach(sessions, function(sesh){
-			var form = new duncan.SeshForm(sesh[0], sesh[1], 'hi', function(){
-				self.startActiveSession(sesh[0], sesh[1]);
+		self.checkCookies(dojo.hitch(self, function(){
+			console.log('okay, we made it back into draw');
+			dojo.empty('hi');
+			var form = new duncan.Create('hi', function(name, code){
+				self.createNewSession(name, code);
 			});
-		});
+			dojo.forEach(sessions, function(sesh){
+				var form = new duncan.SeshForm(sesh[0], sesh[1], 'hi', function(){
+					self.startActiveSession(sesh[0], sesh[1]);
+				});
+			});
+		}));
 	},
 	createNewSession: function(name, code){
 		var self = this;
 		self.data.createNewSession(name, code, function(session){
 			self.session = session;
-			console.log('created new session', self.session);
 		});
 		self.go();
 	},
-	startActiveSession: function(name, code){
+	startActiveSession: function(name, code, f){
 		var self = this;
-		self.data.selectActiveSession(name, code, function(session){
-			self.session = session;
-			console.log('joined active session', self.session);
-		});
-		self.go();
+		self.data.selectActiveSession(name, code, dojo.hitch(self, function(session){
+			if (session){
+				self.session = session;
+				self.go();
+			}
+			else {
+				console.log('the session wasnt good');
+				f();
+			}
+		}));
 	}, 
 	go: function(){
 		var self = this;
@@ -55,8 +60,54 @@ dojo.declare('duncan.Main', null, {
 	drawSession: function(){
 		var self = this;
 		
-		var h = Math.floor(($('#content').height()-2)/7);
+		console.log(self.session.question);
+		//draw header
+		dojo.empty('headerContent');
+		var question = dojo.create('input', {
+			'id': 'question',
+			'value': self.session.question,
+		}, 'headerContent');
+		dojo.connect(question, 'keyup', function(e){
+			if (e.keyCode == dojo.keys.ENTER){
+				self.data.changeActiveQuestion(question.value);
+			}
+		});
+		$("#question").watermark('Enter the question');
+		var open = dojo.create('button', {
+			'id': 'openbutton',
+			'class': 'menu',
+			'innerHTML': 'Open Session'
+		}, 'headerContent');
+		dojo.connect(open, 'onclick', function(e){
+			self.open();
+		});
+		var freeze = dojo.create('button', {
+			'id': 'freezebutton',
+			'class': 'menu',
+			'innerHTML': 'Freeze Question'
+		}, 'headerContent');
+		dojo.connect(freeze, 'onclick', function(e){
+			self.freeze();
+		});
+		var wipe = dojo.create('button', {
+			'id': 'wipebutton',
+			'class': 'menu',
+			'innerHTML': 'Wipe Responses'
+		}, 'headerContent');
+		dojo.connect(wipe, 'onclick', function(e){
+			self.wipe();
+		});
+		var close = dojo.create('button', {
+			'id': 'wipebutton',
+			'class': 'menu',
+			'innerHTML': 'Close Session'
+		}, 'headerContent');
+		dojo.connect(close, 'onclick', function(e){
+			self.close();
+		});
 		
+		//draw slots
+		var h = Math.floor(($('#content').height()-2)/7);
 		self.slots = [];
 		var sloti = 0;
 		dojo.empty('hi');
@@ -66,7 +117,6 @@ dojo.declare('duncan.Main', null, {
 				'id': 'row'+row
 			}, 'hi');
 			holder.style.height = h + 'px';
-			console.log(holder);
 			for (var col = 0; col < 3; col++){
 				var slot = new duncan.Slot(sloti, 'row'+row);
 				self.slots.push(slot);
@@ -75,29 +125,53 @@ dojo.declare('duncan.Main', null, {
 		}
 		self.updateSlots();
 	},
+	open: function(){ //extra needed - low priority
+		//maybe some styling or something to show that it has been opened?  otherwise, the user may hit the button repeatedly, which would ruin everything
+		var self = this;
+		self.data.openActiveSession()
+	},
+	close: function(){
+		var self = this;
+		self.cookieMonster.deleteSession();
+		self.data.closeActiveSession(function(){
+			self.drawInitialPortal();
+		});
+	},
+	freeze: function(){ //extra needed - low priority
+		var self = this;
+		self.data.freezeActiveSession();
+	},
+	wipe: function(){ 
+		var self = this;
+		self.data.wipeActiveResponses();
+		self.updateSlots();
+	},
 	pollAndUpdate: function(){
 		var self = this;
-		if (self.data.active != self.session){
-			self.session = self.data.active;
-			self.updateSlots();
-		}
+		self.session = self.data.active;
+		self.updateSlots();
 		setTimeout( dojo.hitch( self, self.pollAndUpdate ) , 1000 );
 	},
-	updateSlots: function(){
+	updateSlots: function(){ 
 		var self = this;
-		
+		for (var i = 0; i < 21; i++){
+			var name = 'r'+i;
+			self.slots[i].update(self.session[name]['text']);
+		}
 	},
-	checkCookies: function(){
+	checkCookies: function(f){
 		var self = this;
 		self.cookieMonster = new duncan.cookie();
 		var savedsesh = self.cookieMonster.getSession();
 		if (savedsesh){
 			self.savedsesh = savedsesh;
-			self.data.selectActiveSession(savedsesh, 'cookied');
+			console.log('i have a saved cookie', savedsesh);
+			self.startActiveSession(savedsesh, 'cookied', f);
 		}
+		else { f(); }
 	},
 	error: function(message){
-		console.log('error start');
+		console.log('error start', message);
 		var self = this;
 	}
 });
@@ -141,20 +215,32 @@ dojo.declare("duncan.Data", null, {
 	},
 	selectActiveSession: function(name, code, f){
 		var self = this;
+		var good = false;
 		dojo.forEach(self.sessions, function(sesh){
 			if (sesh.name == name){
 				self.active = sesh;
 				f(sesh);
+				good = true;
 			}
 		});
+		if (!good){
+			f(false);
+		}
 	},
 	createNewSession: function(name, code, f){
 		var self = this;
-		var newsession = {
+		var newsession = self.getBlankSession(name, code, "");
+		self.active = newsession;
+		self.database.newItem(newsession);
+		self.database.save();
+		f(newsession);
+	}, 
+	getBlankSession: function(name, code, question){
+		return {
 			active: true,
 			name: name,
 			code: code,
-			question: '',
+			question: question,
 			r0: {
 				live: false,
 				text: '',
@@ -266,10 +352,7 @@ dojo.declare("duncan.Data", null, {
 				owner: ''
 			},
 		};
-		self.database.newItem(newsession);
-		self.database.save();
-		f(newsession);
-	}, 
+	},
 	pollActiveSession: function(){
 		var self = this;
 		self.database.fetchOne({
@@ -277,17 +360,66 @@ dojo.declare("duncan.Data", null, {
 				'name': self.active.name
 			}
 		}).then(function(session){
-			if (self.active != session){
-				self.active = session;
-			}
+			self.active = session;
 			setTimeout( dojo.hitch( self, self.pollActiveSession ) , 1000 );
 		});
 	},
-	changeActiveQuestion: function(){
-	
+	openActiveSession: function(){ 
+		var self = this;
+		var dataval = self.getBlankSession(self.active.name, self.active.code, self.active.question);
+		self.active = dataval;
+		self.updateActiveInDatabase();
 	},
-	freezeActiveSession: function(){
-	
+	changeActiveQuestion: function(value){ 
+		console.log('i know I want to change the active question to ', value);
+		var self = this;
+		self.active.question = value;
+		self.updateActiveInDatabase();
+	},
+	wipeActiveResponses: function(){ 
+		console.log('i know I want to wipe the responses');
+		var self = this;
+		for (var i = 0; i < 21; i++){
+			var slot = 'r'+i;
+			self.active[slot]['text'] = '';
+		}
+		self.updateActiveInDatabase();
+	},
+	freezeActiveSession: function(){ 
+		console.log('i know I want to freeze this session');
+		var self = this;
+		self.active['active'] = false;
+		self.updateActiveInDatabase();
+	},
+	closeActiveSession: function(f){ 
+		var self = this;
+		self.database.deleteOne({
+			'query': {name: self.active.name},
+			'save': true
+		}).then(f);
+	},
+	updateActiveInDatabase: function(){
+		var self = this;
+		console.log('i want to push this home', self.active);
+		var data = {
+			name: self.active.name,
+			active: self.active.active,
+			question: self.active.question,
+			code: self.active.code,
+		}
+		for (var i = 0; i < 21; i++){
+			var slot = 'r' + i;
+			data[slot] = {
+				owner: self.active[slot].owner,
+				text: self.active[slot].text,
+				live: self.active[slot].live,
+			}
+		}
+		self.database.putOne( {
+			query: {'name':self.active.name},
+			data: data,
+			save: true
+		});
 	}
 });
 
@@ -302,6 +434,9 @@ dojo.declare("duncan.cookie", null, {
 	},
 	getSession: function(){
 		return dojo.cookie('session');
+	},
+	deleteSession: function(){
+		dojo.cookie("session", "", {expire: -1});
 	},
 	get50min: function(){
 		var date = new Date();
@@ -389,10 +524,10 @@ dojo.declare("duncan.Slot", null, {
 			'class': 'response'
 		}, self.parent);
 		self.plop.style.height = $('#'+self.parent).height()-4+'px';
-		self.plop.style.width = Math.floor( ($('#'+self.parent).width()-2) / 3 )-3+'px';
+		self.plop.style.width = Math.floor( ($('#'+self.parent).width()-8) / 3 )-2+'px';
 	},
 	update: function(response){
-	
+		this.plop.value = response;
 	},
 });
 

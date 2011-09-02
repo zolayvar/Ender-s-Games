@@ -17,6 +17,26 @@ html, body, .dijitBorderContainer {
 }
 
 #headerContent {
+	height: 100%;
+}
+
+#headerbar {
+	padding: 0px;
+	height: 30px;
+}
+
+#question {
+	height: 26px;
+	margin: 0 0 0 0 px;
+	width: 70%;
+	float: left;
+	background-color: #d6e5f4;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0px;
+}
+
+button.menu {
 }
 
 h2 {

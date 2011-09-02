@@ -16,6 +16,7 @@ dojo.require('dijit.layout.TabContainer');
 dojo.declare('duncan.Main', null, {
     constructor: function() {
 		var self = this;
+		self.genKey();
 		self.getDB();
     },
 	getDB: function(){
@@ -93,8 +94,10 @@ dojo.declare('duncan.Main', null, {
 	joinSession: function(sesh){
 		var self = this;
 		self.sesh = sesh;
+		console.log('woo here is my session', sesh);
 		dojo.empty('hi');
 		dojo.byId('headerContent').innerHTML = self.sesh.question;
+		self.text = "";
 		self.submitted = false;
 		self.claimFirstSlot();
 		self.setupBox();
@@ -105,15 +108,26 @@ dojo.declare('duncan.Main', null, {
 	},
 	claimFirstSlot: function(){
 		var self = this;
+		self.slotData = {
+			live: true,
+			owner: self.key,
+			text: self.text,
+		};
 		for (var i = 0; i < 21; i++){
 			var attempt = 'r'+i;
+			if (self.sesh[attempt]['owner'] == self.key){
+				self.slot = attempt;
+				self.text = self.sesh[attempt]['text'];
+				self.slotData['text'] = self.sesh[attempt]['text'];
+				return;
+			}
 			if (self.sesh[attempt]['live'] == false){
 				 self.slot = attempt;
-				 self.slotData = self.sesh[attempt];
+				 self.pushMyData();
 				 return;
 			}
 		}
-		self.error('Something is wrong.  Two possible reasons:<br>-More than 21 participants attempting to connect.<br>-The host has not yet started the session.');
+		self.error('Something is wrong.  Two possible reasons:<br>-More than 21 participants attempting to connect.<br>-The host has not yet opened the session.');
 	},
 	checkSlotOwnership: function(){
 		
@@ -136,16 +150,54 @@ dojo.declare('duncan.Main', null, {
 	},
 	submit: function(){
 		var self = this;
-		var newresp = self.sesh.responses.slice(0);
+		console.log('my slot is', self.slot, self.slotData, self.sesh);
 		var r = $.trim(dojo.byId('response').value);
-		dojo.byId('response').value = r;
-		newresp.push( r );
-		var args = {
-			'query': {'name': self.sesh.name},
-			'data': {'responses': newresp},
-			'save': true
+		self.pushResponse(r);
+	},
+	pushMyData: function(){
+		var self = this;
+		args = {
+			query: {
+				name: self.sesh.name
+			},
+			data: {	},
+			save: true
 		};
-		self.database.updateOne(args)
+		args['data'][self.slot] = {
+			text:self.slotData.text,
+			owner: self.key,
+			live: true
+		}
+		self.setCookies();
+		self.database.putOne(args);
+	},
+	setcookies: function(){
+		var self = this;
+		dojo.cookie('key', self.key, {
+			expire: self.get50min()
+		});
+		dojo.cookie('slot', self.slot, {
+			expire: self.get50min()
+		});
+	},
+	get50min: function(){
+		var date = new Date();
+		date.setTime(date.getTime() + (50 * 60 * 1000));
+		return date;
+	},
+	getcookies: function(){
+	
+	},
+	deletecookies: function(){
+	
+	},
+	pushResponse: function(response){
+		var self = this;
+		if (self.submitted == false){
+			self.slotData.text = response;
+			self.pushMyData();
+			self.submitted = true;
+		}
 	},
 	pollAndUpdate: function(){
 		var self = this;
@@ -155,7 +207,6 @@ dojo.declare('duncan.Main', null, {
 				'name': self.sesh.name
 			}
 		}).then(function(session){
-			console.log(session.question, oldquestion, oldquestion == session.question);
 			if (oldquestion != session.question){
 				self.sesh = session;
 				dojo.byId('headerContent').innerHTML = self.sesh.question;
