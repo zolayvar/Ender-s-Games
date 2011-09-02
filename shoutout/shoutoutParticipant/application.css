@@ -16,6 +16,10 @@ body {
 	margin-top: 1em;
 }
 
+#content {
+	height: 90%;
+}
+
 .dijitBorderContainer {
 	margin-left: 25%;
 	width: 50%;
@@ -25,7 +29,7 @@ body {
 
 #headerbar {
 	padding: 0px;
-	height: 6em;
+	height: 10%;
 }
 
 h1 {

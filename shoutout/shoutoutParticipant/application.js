@@ -108,26 +108,28 @@ dojo.declare('duncan.Main', null, {
 	},
 	claimFirstSlot: function(){
 		var self = this;
-		self.slotData = {
-			live: true,
-			owner: self.key,
-			text: self.text,
-		};
-		for (var i = 0; i < 21; i++){
-			var attempt = 'r'+i;
-			if (self.sesh[attempt]['owner'] == self.key){
-				self.slot = attempt;
-				self.text = self.sesh[attempt]['text'];
-				self.slotData['text'] = self.sesh[attempt]['text'];
-				return;
+		if (!self.checkSlotOwnership()){
+			self.slotData = {
+				live: true,
+				owner: self.key,
+				text: self.text,
+			};
+			for (var i = 0; i < 21; i++){
+				var attempt = 'r'+i;
+				if (self.sesh[attempt]['owner'] == self.key){
+					self.slot = attempt;
+					self.text = self.sesh[attempt]['text'];
+					self.slotData['text'] = self.sesh[attempt]['text'];
+					return;
+				}
+				if (self.sesh[attempt]['live'] == false){
+					 self.slot = attempt;
+					 self.pushMyData();
+					 return;
+				}
 			}
-			if (self.sesh[attempt]['live'] == false){
-				 self.slot = attempt;
-				 self.pushMyData();
-				 return;
-			}
+			self.error('Something is wrong.  Two possible reasons:<br>-More than 21 participants attempting to connect.<br>-The host has not yet opened the session.');
 		}
-		self.error('Something is wrong.  Two possible reasons:<br>-More than 21 participants attempting to connect.<br>-The host has not yet opened the session.');
 	},
 	checkSlotOwnership: function(){
 		
@@ -168,10 +170,10 @@ dojo.declare('duncan.Main', null, {
 			owner: self.key,
 			live: true
 		}
-		self.setCookies();
+		//self.setCookies();
 		self.database.putOne(args);
 	},
-	setcookies: function(){
+	setCookies: function(){
 		var self = this;
 		dojo.cookie('key', self.key, {
 			expire: self.get50min()
@@ -185,11 +187,17 @@ dojo.declare('duncan.Main', null, {
 		date.setTime(date.getTime() + (50 * 60 * 1000));
 		return date;
 	},
-	getcookies: function(){
-	
+	getCookies: function(){
+		dojo.cookie('key');
+		dojo.cookie('slot');
 	},
 	deletecookies: function(){
-	
+		dojo.cookie('key', self.key, {
+			expire: -1
+		});
+		dojo.cookie('slot', self.slot, {
+			expire: -1
+		});
 	},
 	pushResponse: function(response){
 		var self = this;
