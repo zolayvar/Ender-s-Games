@@ -10,6 +10,7 @@ dojo.require('dijit.form.TextBox');
 dojo.declare('duncan.Main', null, {
 	constructor: function(){
 		var self = this;
+		self.frozen = false;
 		//hook into database
 		self.data = new duncan.Data(dojo.hitch(self, self.error));
 		self.data.getData(dojo.hitch(self, self.drawInitialPortal));
@@ -134,12 +135,21 @@ dojo.declare('duncan.Main', null, {
 		var self = this;
 		self.cookieMonster.deleteSession();
 		self.data.closeActiveSession(function(){
-			self.drawInitialPortal();
+			dojo.empty("content");
+			dojo.byId("headerContent").innerHTML = "  Shoutout";
+			var app = new duncan.Main();
 		});
 	},
 	freeze: function(){ //extra needed - low priority
 		var self = this;
-		self.data.freezeActiveSession();
+		if (self.frozen == false){
+			self.frozen = true;
+			dojo.byId('freezebutton').innerHTML = "Unfreeze Question";
+		}
+		else {
+			dojo.byId('freezebutton').innerHTML = "Freeze Question";
+			self.frozen = false;
+		}
 	},
 	wipe: function(){ 
 		var self = this;
@@ -154,9 +164,11 @@ dojo.declare('duncan.Main', null, {
 	},
 	updateSlots: function(){ 
 		var self = this;
-		for (var i = 0; i < 21; i++){
-			var name = 'r'+i;
-			self.slots[i].update(self.session[name]['text']);
+		if (self.frozen == false){
+			for (var i = 0; i < 21; i++){
+				var name = 'r'+i;
+				self.slots[i].update(self.session[name]['text']);
+			}
 		}
 	},
 	checkCookies: function(f){
@@ -383,12 +395,6 @@ dojo.declare("duncan.Data", null, {
 			var slot = 'r'+i;
 			self.active[slot]['text'] = '';
 		}
-		self.updateActiveInDatabase();
-	},
-	freezeActiveSession: function(){ 
-		console.log('i know I want to freeze this session');
-		var self = this;
-		self.active['active'] = false;
 		self.updateActiveInDatabase();
 	},
 	closeActiveSession: function(f){ 

@@ -98,7 +98,6 @@ dojo.declare('duncan.Main', null, {
 		dojo.empty('hi');
 		dojo.byId('headerContent').innerHTML = self.sesh.question;
 		self.text = "";
-		self.submitted = false;
 		self.claimFirstSlot();
 		self.setupBox();
 		self.pollAndUpdate();
@@ -144,9 +143,7 @@ dojo.declare('duncan.Main', null, {
 		}, 'hi');
 		dojo.connect(box, 'keyup', function(e){
 			if (e.keyCode == dojo.keys.ENTER){
-				if (self.submitted == false){
-					self.submit();
-				}
+				self.submit();
 			}
 		});
 	},
@@ -201,14 +198,13 @@ dojo.declare('duncan.Main', null, {
 	},
 	pushResponse: function(response){
 		var self = this;
-		if (self.submitted == false){
-			self.slotData.text = response;
-			self.pushMyData();
-			self.submitted = true;
-		}
+		self.slotData.text = response;
+		dojo.byId('response').value = response;
+		self.pushMyData();
 	},
 	pollAndUpdate: function(){
 		var self = this;
+		self.claimFirstSlot();
 		var oldquestion = self.sesh.question;
 		self.database.fetchOne({
 			query: {
@@ -220,7 +216,6 @@ dojo.declare('duncan.Main', null, {
 				dojo.byId('headerContent').innerHTML = self.sesh.question;
 				dojo.removeClass('headerContent', 'good');
 				dojo.addClass('headerContent', 'bad');
-				self.submitted = false;
 			}
 			setTimeout( dojo.hitch(self, self.pollAndUpdate), 1500);
 		});
