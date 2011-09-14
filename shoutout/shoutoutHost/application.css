@@ -12,8 +12,15 @@ html, body, .dijitBorderContainer {
     overflow: hidden;
 }
 
+body, #container, #headerbar, #content, div.row, #hi {
+	background-color: #000000;
+	border: 0px;
+	color: #ffffff;
+}
+
 #content {
 	padding: 0px;
+	border: 0px;
 }
 
 #headerContent {
@@ -24,28 +31,28 @@ html, body, .dijitBorderContainer {
 #headerbar {
 	padding: 0px;
 	height: 30px;
+	border: 0px;
 }
 
 #question {
 	height: 26px;
 	margin: 0 0 0 0 px;
-	width: 70%;
+	width: 50%;
 	float: left;
-	background-color: #d6e5f4;
+	background-color: #000000;
+	padding-left: 4px;
+	color: #ffffff;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 0px;
 }
 
 button.menu {
+	float: right;
 }
 
 h2 {
 	margin: 0 0 0 0 px;
-}
-
-div.row {
-	background-color: #d6e5f4;
 }
 
 textArea.response {
@@ -54,7 +61,9 @@ textArea.response {
 	margin-bottom: -2px;
 	width: 32.5%;
 	height: 99%;
-	background-color: #bbffbb;
+	border: 1px solid #dddddd;
+	background-color: #000000;
+	color: #ffffff;
 	text-align: center;
 	font-size: 18px;
 	font-family: 'Times New Roman';
@@ -69,8 +78,10 @@ textArea.response {
 }
 
 div.seshForm {
-	border: 1px solid black;
-	background-color: #d6e5f4;
+	border: 2px solid #dddddd;
+	background-color: #000000;
+	font-weight: bold;
+	margin: 15px;
 	width: 40%;
 	padding: 4px;
 }

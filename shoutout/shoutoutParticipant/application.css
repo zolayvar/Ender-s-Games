@@ -14,10 +14,26 @@ html, body, .dijitBorderContainer {
 
 body {
 	margin-top: 1em;
+	background-image: url("Crowd.jpg");
 }
 
-#content {
-	height: 90%;
+#background {
+    width: 100%; 
+    height: 100%; 
+    position: absolute; 
+    left: 0px; 
+    top: 0px; 
+    z-index: 0;
+}
+
+.stretch {
+    width:100%;
+    height:100%;
+}
+
+
+#container {
+	height: 40%;
 }
 
 .dijitBorderContainer {
@@ -56,17 +72,17 @@ div.sesh {
 	width: 50%;
 }
 
-#headerContent.bad {
-	background-color: #ffffcc;
+#headerbar.bad {
+	background-color: #ff9999;
 }
 
-#headerContent.good {
-	background-color: #ccffcc;
+#headerbar.good {
+	background-color: #ffffff;
 }
 
 #response {
-	width: 75%;
-	height: 150px;
+	width: 95%;
+	height: auto;
 }
 
 #headerContent {

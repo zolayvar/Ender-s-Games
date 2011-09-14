@@ -101,7 +101,7 @@ dojo.declare('duncan.Main', null, {
 	joinSession: function(sesh){
 		var self = this;
 		self.sesh = sesh;
-		self.setCookies();
+		self.setSessionCookie();
 		dojo.empty('hi');
 		dojo.byId('headerContent').innerHTML = self.sesh.question;
 		self.text = "";
@@ -110,13 +110,15 @@ dojo.declare('duncan.Main', null, {
 		self.pollAndUpdate();
 	},
 	genKey: function(){
-		var cookied = this.getCookiedKey();
+		var self  = this;
+		var cookied = self.getCookiedKey();
 		if (cookied){
-			this.key = cookied;
-			console.log('using cookied key', this.key);
+			self.key = cookied;
+			console.log('using cookied key', self.key);
 		}
 		else {
-			this.key = Date.now()+""+Math.random()+""+Math.random()+""+Math.random()+""+Math.random()+""+Math.random()+"";
+			self.key = Date.now()+""+Math.random()+""+Math.random()+""+Math.random()+""+Math.random()+""+Math.random()+"";
+			self.setKeyCookie();
 		}
 	},
 	claimFirstSlot: function(){
@@ -155,6 +157,8 @@ dojo.declare('duncan.Main', null, {
 			'class': 'response',
 			'id': 'response'
 		}, 'hi');
+		console.log($('#content').height()-10+'px');
+		box.style.height = ($('#content').height() - 10)+'px';
 		dojo.connect(box, 'keyup', function(e){
 			if (e.keyCode == dojo.keys.ENTER){
 				self.submit();
@@ -165,6 +169,8 @@ dojo.declare('duncan.Main', null, {
 		var self = this;
 		console.log('my slot is', self.slot, self.slotData, self.sesh);
 		var r = $.trim(dojo.byId('response').value);
+		dojo.removeClass('headerbar', 'bad');
+		dojo.addClass('headerbar', 'good');
 		self.pushResponse(r);
 	},
 	pushMyData: function(){
@@ -184,15 +190,17 @@ dojo.declare('duncan.Main', null, {
 		//self.setCookies();
 		self.database.putOne(args);
 	},
-	setCookies: function(){
+	setKeyCookie: function(){
 		var self = this;
 		dojo.cookie('key', self.key, {
 			expire: self.get50min()
-		});
+		});	
+	},
+	setSessionCookie: function(){
+		var self = this;
 		dojo.cookie('session', self.sesh.name, {
 			expire: self.get50min()
 		});
-		console.log('i done set some cookies', self.key, self.sesh.name, self.getCookiedKey(), self.getCookiedSession());
 	},
 	get50min: function(){
 		var date = new Date();
@@ -231,8 +239,8 @@ dojo.declare('duncan.Main', null, {
 			if (oldquestion != session.question){
 				self.sesh = session;
 				dojo.byId('headerContent').innerHTML = self.sesh.question;
-				dojo.removeClass('headerContent', 'good');
-				dojo.addClass('headerContent', 'bad');
+				dojo.removeClass('headerbar', 'good');
+				dojo.addClass('headerbar', 'bad');
 			}
 			setTimeout( dojo.hitch(self, self.pollAndUpdate), 1500);
 		});
