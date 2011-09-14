@@ -491,6 +491,7 @@ dojo.declare("duncan.SeshForm", null, {
 			'class': "seshCode",
 			'id': self.name
 		}, holder);
+		console.log('code for', self.name, 'is', self.code);
 		dojo.connect(input, 'keyup', function(e){
 			if (e.keyCode == dojo.keys.ENTER){
 				if (input.value == self.code){
