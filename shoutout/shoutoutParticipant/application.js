@@ -62,9 +62,16 @@ dojo.declare('duncan.Main', null, {
 	},
 	displaySessions: function(items){
 		var self = this;
+		var cookied = self.getCookiedSession();
 		for (i = 0; i < items.length; i++){
 			var sesh = items[i];
-			self.displaySession(sesh);
+			if (cookied == sesh.name){
+				self.joinSession(sesh);
+				break;
+			}
+			else{
+				self.displaySession(sesh);
+			}
 		}
 	},
 	displaySession: function(sesh){
@@ -94,7 +101,7 @@ dojo.declare('duncan.Main', null, {
 	joinSession: function(sesh){
 		var self = this;
 		self.sesh = sesh;
-		console.log('woo here is my session', sesh);
+		self.setCookies();
 		dojo.empty('hi');
 		dojo.byId('headerContent').innerHTML = self.sesh.question;
 		self.text = "";
@@ -103,7 +110,14 @@ dojo.declare('duncan.Main', null, {
 		self.pollAndUpdate();
 	},
 	genKey: function(){
-		this.key = Date.now()+""+Math.random()+""+Math.random()+""+Math.random()+""+Math.random()+""+Math.random()+"";
+		var cookied = this.getCookiedKey();
+		if (cookied){
+			this.key = cookied;
+			console.log('using cookied key', this.key);
+		}
+		else {
+			this.key = Date.now()+""+Math.random()+""+Math.random()+""+Math.random()+""+Math.random()+""+Math.random()+"";
+		}
 	},
 	claimFirstSlot: function(){
 		var self = this;
@@ -175,18 +189,21 @@ dojo.declare('duncan.Main', null, {
 		dojo.cookie('key', self.key, {
 			expire: self.get50min()
 		});
-		dojo.cookie('slot', self.slot, {
+		dojo.cookie('session', self.sesh.name, {
 			expire: self.get50min()
 		});
+		console.log('i done set some cookies', self.key, self.sesh.name, self.getCookiedKey(), self.getCookiedSession());
 	},
 	get50min: function(){
 		var date = new Date();
 		date.setTime(date.getTime() + (50 * 60 * 1000));
 		return date;
 	},
-	getCookies: function(){
-		dojo.cookie('key');
-		dojo.cookie('slot');
+	getCookiedKey: function(){
+		return dojo.cookie('key');
+	},
+	getCookiedSession: function(){
+		return dojo.cookie("session");
 	},
 	deletecookies: function(){
 		dojo.cookie('key', self.key, {

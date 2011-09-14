@@ -74,18 +74,10 @@ dojo.declare('duncan.Main', null, {
 			}
 		});
 		$("#question").watermark('Enter the question');
-		var open = dojo.create('button', {
-			'id': 'openbutton',
-			'class': 'menu',
-			'innerHTML': 'Open Session'
-		}, 'headerContent');
-		dojo.connect(open, 'onclick', function(e){
-			self.open();
-		});
 		var freeze = dojo.create('button', {
 			'id': 'freezebutton',
 			'class': 'menu',
-			'innerHTML': 'Freeze Question'
+			'innerHTML': 'Freeze!'
 		}, 'headerContent');
 		dojo.connect(freeze, 'onclick', function(e){
 			self.freeze();
@@ -93,7 +85,7 @@ dojo.declare('duncan.Main', null, {
 		var wipe = dojo.create('button', {
 			'id': 'wipebutton',
 			'class': 'menu',
-			'innerHTML': 'Wipe Responses'
+			'innerHTML': 'Clear'
 		}, 'headerContent');
 		dojo.connect(wipe, 'onclick', function(e){
 			self.wipe();
@@ -126,11 +118,6 @@ dojo.declare('duncan.Main', null, {
 		}
 		self.updateSlots();
 	},
-	open: function(){ //extra needed - low priority
-		//maybe some styling or something to show that it has been opened?  otherwise, the user may hit the button repeatedly, which would ruin everything
-		var self = this;
-		self.data.openActiveSession()
-	},
 	close: function(){
 		var self = this;
 		self.cookieMonster.deleteSession();
@@ -144,15 +131,19 @@ dojo.declare('duncan.Main', null, {
 		var self = this;
 		if (self.frozen == false){
 			self.frozen = true;
-			dojo.byId('freezebutton').innerHTML = "Unfreeze Question";
+			dojo.byId('freezebutton').innerHTML = "Unfreeze!";
 		}
 		else {
-			dojo.byId('freezebutton').innerHTML = "Freeze Question";
+			dojo.byId('freezebutton').innerHTML = "Freeze!";
 			self.frozen = false;
 		}
 	},
 	wipe: function(){ 
 		var self = this;
+		if (self.frozen = true){
+			dojo.byId('freezebutton').innerHTML = "Freeze!";
+			self.frozen = false;
+		}
 		self.data.wipeActiveResponses();
 		self.updateSlots();
 	},
@@ -375,12 +366,6 @@ dojo.declare("duncan.Data", null, {
 			self.active = session;
 			setTimeout( dojo.hitch( self, self.pollActiveSession ) , 1000 );
 		});
-	},
-	openActiveSession: function(){ 
-		var self = this;
-		var dataval = self.getBlankSession(self.active.name, self.active.code, self.active.question);
-		self.active = dataval;
-		self.updateActiveInDatabase();
 	},
 	changeActiveQuestion: function(value){ 
 		console.log('i know I want to change the active question to ', value);
