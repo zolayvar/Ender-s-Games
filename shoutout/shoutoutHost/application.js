@@ -19,7 +19,6 @@ dojo.declare('duncan.Main', null, {
 		var self = this;
 		var sessions = self.data.getSessionsForDisplay();
 		self.checkCookies(dojo.hitch(self, function(){
-			console.log('okay, we made it back into draw');
 			dojo.empty('hi');
 			var form = new duncan.Create('hi', function(name, code){
 				self.createNewSession(name, code);
@@ -69,8 +68,10 @@ dojo.declare('duncan.Main', null, {
 			'value': self.session.question,
 		}, 'headerContent');
 		dojo.connect(question, 'keyup', function(e){
+			dojo.addClass("question", 'bad');
 			if (e.keyCode == dojo.keys.ENTER){
 				self.data.changeActiveQuestion(question.value);
+				dojo.removeClass("question", 'bad');
 			}
 		});
 		$("#question").watermark('Enter the question');
@@ -122,9 +123,9 @@ dojo.declare('duncan.Main', null, {
 		var self = this;
 		self.cookieMonster.deleteSession();
 		self.data.closeActiveSession(function(){
-			dojo.empty("content");
+			dojo.empty("hi");
 			dojo.byId("headerContent").innerHTML = "  Shoutout";
-			var app = new duncan.Main();
+			self.drawInitialPortal();
 		});
 	},
 	freeze: function(){ //extra needed - low priority
@@ -151,7 +152,7 @@ dojo.declare('duncan.Main', null, {
 		var self = this;
 		self.session = self.data.active;
 		self.updateSlots();
-		setTimeout( dojo.hitch( self, self.pollAndUpdate ) , 1000 );
+		setTimeout( dojo.hitch( self, self.pollAndUpdate ) , 1500 );
 	},
 	updateSlots: function(){ 
 		var self = this;
@@ -516,9 +517,35 @@ dojo.declare("duncan.Slot", null, {
 		}, self.parent);
 		self.plop.style.height = $('#'+self.parent).height()-4+'px';
 		self.plop.style.width = Math.floor( ($('#'+self.parent).width()-8) / 3 )-2+'px';
+		self.plopid = 'r' + self.number;
 	},
 	update: function(response){
-		this.plop.value = response;
+		var self = this;
+		var h = $('#'+self.plopid).height()-4;
+		var w = $('#'+self.plopid).width()-4;
+		self.plop.value = response;
+		var hidden = dojo.create('div', {
+			id: 'poop',
+			innerHTML: response,
+		}, 'hider');
+		hidden.style.width = w+'px';
+		var jhandle = $('#poop');
+		var size = 18;
+		var step = 1;
+		if (response != ""){
+			while (true){
+				var newsize = size + step;
+				jhandle.css('font-size', newsize+'px');
+				if (jhandle.height() > h){
+					break;
+				}
+				else {
+					size = newsize;
+				}
+			}
+		}
+		$('#'+self.plopid).css('font-size', size+'px');
+		dojo.destroy('poop');
 	},
 });
 

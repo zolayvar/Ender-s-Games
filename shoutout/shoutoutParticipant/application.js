@@ -242,7 +242,7 @@ dojo.declare('duncan.Main', null, {
 				dojo.removeClass('headerbar', 'good');
 				dojo.addClass('headerbar', 'bad');
 			}
-			setTimeout( dojo.hitch(self, self.pollAndUpdate), 1500);
+			setTimeout( dojo.hitch(self, self.pollAndUpdate), 2000);
 		});
 		
 	},

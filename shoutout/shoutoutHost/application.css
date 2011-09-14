@@ -13,9 +13,13 @@ html, body, .dijitBorderContainer {
 }
 
 body, #container, #headerbar, #content, div.row, #hi {
-	background-color: #000000;
+	background-color: #777777;
 	border: 0px;
 	color: #ffffff;
+}
+
+#hider {
+	color: #333333;
 }
 
 #content {
@@ -39,12 +43,17 @@ body, #container, #headerbar, #content, div.row, #hi {
 	margin: 0 0 0 0 px;
 	width: 50%;
 	float: left;
-	background-color: #000000;
+	background-color: #333333;
 	padding-left: 4px;
 	color: #ffffff;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 0px;
+}
+
+#question.bad {
+	color: #333333;
+	background-color: #ffffff;
 }
 
 button.menu {
@@ -62,7 +71,7 @@ textArea.response {
 	width: 32.5%;
 	height: 99%;
 	border: 1px solid #dddddd;
-	background-color: #000000;
+	background-color: #333333;
 	color: #ffffff;
 	text-align: center;
 	font-size: 18px;
@@ -79,7 +88,6 @@ textArea.response {
 
 div.seshForm {
 	border: 2px solid #dddddd;
-	background-color: #000000;
 	font-weight: bold;
 	margin: 15px;
 	width: 40%;
